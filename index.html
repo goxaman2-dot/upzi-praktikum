@@ -628,20 +628,20 @@ const RES_CATS = ['Основные средства', 'Аренда офиса'
 
 function defaultFirmResources() {
 return [
-{ id: 1, category: 'Основные средства', name: 'Ноутбук инженера', unit: 'шт', qty: 2, price: 65000, period: 'разово' },
-{ id: 2, category: 'Основные средства', name: 'МФУ (печать чертежей и смет)', unit: 'шт', qty: 1, price: 25000, period: 'разово' },
-{ id: 3, category: 'Основные средства', name: 'Подписка AutoCAD LT', unit: 'лиц', qty: 1, price: 3500, period: 'мес' },
-{ id: 4, category: 'Основные средства', name: 'Лицензия сметного ПО', unit: 'лиц', qty: 1, price: 2200, period: 'мес' },
-{ id: 5, category: 'Аренда офиса', name: 'Офис 40 м² (700 ₽/м² в мес)', unit: 'м²', qty: 40, price: 700, period: 'мес' },
-{ id: 6, category: 'Содержание офиса', name: 'Уборка помещения', unit: 'усл', qty: 1, price: 4000, period: 'мес' },
-{ id: 7, category: 'Содержание офиса', name: 'Оплата ЖКХ (свет, вода, тепло)', unit: 'усл', qty: 1, price: 6000, period: 'мес' },
-{ id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', unit: 'усл', qty: 1, price: 1500, period: 'мес' },
-{ id: 9, category: 'Хостинг и связь', name: 'IP-телефония', unit: 'усл', qty: 1, price: 900, period: 'мес' },
-{ id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', unit: 'усл', qty: 1, price: 1200, period: 'мес' },
-{ id: 11, category: 'Трудовые ресурсы (ГПХ)', name: 'Постоянный штат — 10 чел (ФОТ: см. вкладку 2)', unit: 'чел', qty: 10, price: 0, period: 'мес' },
-{ id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', unit: 'дог', qty: 1, price: 15000, period: 'разово' },
-{ id: 13, category: 'Грузоперевозки', name: 'Доставка комплектующих и аппаратов (Газель)', unit: 'рейс', qty: 2, price: 3500, period: 'разово' },
-{ id: 14, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', unit: 'рейс', qty: 1, price: 3500, period: 'разово' }
+{ id: 1, category: 'Основные средства', name: 'Ноутбук инженера', unit: 'шт', qty: 2, price: 65000, period: 'разово', costType: 'CAPEX' },
+{ id: 2, category: 'Основные средства', name: 'МФУ (печать чертежей и смет)', unit: 'шт', qty: 1, price: 25000, period: 'разово', costType: 'CAPEX' },
+{ id: 3, category: 'Основные средства', name: 'Подписка AutoCAD LT', unit: 'лиц', qty: 1, price: 3500, period: 'мес', costType: 'OPEX' },
+{ id: 4, category: 'Основные средства', name: 'Лицензия сметного ПО', unit: 'лиц', qty: 1, price: 2200, period: 'мес', costType: 'OPEX' },
+{ id: 5, category: 'Аренда офиса', name: 'Офис 40 м² (700 ₽/м² в мес)', unit: 'м²', qty: 40, price: 700, period: 'мес', costType: 'OPEX' },
+{ id: 6, category: 'Содержание офиса', name: 'Уборка помещения', unit: 'усл', qty: 1, price: 4000, period: 'мес', costType: 'OPEX' },
+{ id: 7, category: 'Содержание офиса', name: 'Оплата ЖКХ (свет, вода, тепло)', unit: 'усл', qty: 1, price: 6000, period: 'мес', costType: 'OPEX' },
+{ id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', unit: 'усл', qty: 1, price: 1500, period: 'мес', costType: 'OPEX' },
+{ id: 9, category: 'Хостинг и связь', name: 'IP-телефония', unit: 'усл', qty: 1, price: 900, period: 'мес', costType: 'OPEX' },
+{ id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', unit: 'усл', qty: 1, price: 1200, period: 'мес', costType: 'OPEX' },
+{ id: 11, category: 'Трудовые ресурсы (ГПХ)', name: 'Постоянный штат — 10 чел (ФОТ: см. вкладку 2)', unit: 'чел', qty: 10, price: 0, period: 'мес', costType: 'OPEX' },
+{ id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', unit: 'дог', qty: 1, price: 15000, period: 'разово', costType: 'OPEX' },
+{ id: 13, category: 'Грузоперевозки', name: 'Доставка комплектующих и аппаратов (Газель)', unit: 'рейс', qty: 2, price: 3500, period: 'разово', costType: 'OPEX' },
+{ id: 14, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', unit: 'рейс', qty: 1, price: 3500, period: 'разово', costType: 'OPEX' }
 ];
 }
 
@@ -721,6 +721,7 @@ return { laborCost, materialCost, total: laborCost + materialCost };
 
 function recalcAll() {
 if (!state.firmResources) state.firmResources = defaultFirmResources();
+state.firmResources.forEach(r => { if (!r.costType) r.costType = (r.category === 'Основные средства' && r.period === 'разово') ? 'CAPEX' : 'OPEX'; });
 let totalLabor = 0, totalMaterial = 0, totalDuration = 0;
 const usage = {};
 state.employees.forEach(e => usage[e.id] = 0);
@@ -792,13 +793,13 @@ html += `
 <p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> обеспечить информацией подготовительный этап (веху 1) бизнес-процесса — сбор, анализ и разработка коммерческой информации для будущей системы ИБ клиента.</p>
 
 <div style="font-size:16px; font-weight:600; color:#0f172a; margin:6px 0 6px;">Веха 0. Создание ресурсов фирмы</div>
-<p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Разовые позиции — вложения на старте или на проект, ежемесячные — регулярные расходы фирмы (попадут в бюджет подрядчика, занятие 6).</p>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Каждая потребность отнесена к одному из двух типов затрат: <strong>CAPEX</strong> — капитальные вложения в активы длительного пользования (компьютеры, оборудование), <strong>OPEX</strong> — операционные расходы на текущую деятельность (аренда, подписки, ГПХ, доставка). Это деление понадобится в конце практикума для аналитики: CAPEX окупается серией проектов, OPEX должен покрываться каждым проектом.</p>
 <div class="toolbar">
 <button class="btn btn-primary btn-sm" onclick="addRes()">➕ Добавить потребность</button>
 </div>
 <div style="max-height:300px; overflow-y:auto;">
 <table>
-<thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th>Сумма, ₽</th><th></th></tr></thead>
+<thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th>Тип затрат</th><th>Сумма, ₽</th><th></th></tr></thead>
 <tbody>
 ${state.firmResources.map(r => `
 <tr>
@@ -808,6 +809,7 @@ ${state.firmResources.map(r => `
 <td><input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" /></td>
 <td><input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" /></td>
 <td><select onchange="updateRes(${r.id}, 'period', this.value)"><option ${r.period === 'разово' ? 'selected' : ''}>разово</option><option ${r.period === 'мес' ? 'selected' : ''}>мес</option></select></td>
+<td><select onchange="updateRes(${r.id}, 'costType', this.value)" style="font-weight:600; color:${r.costType === 'CAPEX' ? '#7c3aed' : '#0891b2'};"><option ${r.costType === 'CAPEX' ? 'selected' : ''}>CAPEX</option><option ${r.costType === 'OPEX' ? 'selected' : ''}>OPEX</option></select></td>
 <td style="white-space:nowrap; font-weight:600;">${(r.qty * r.price).toFixed(0)}${r.period === 'мес' ? '/мес' : ''}</td>
 <td><button class="btn btn-danger btn-sm" onclick="removeRes(${r.id})">✕</button></td>
 </tr>`).join('')}
@@ -815,8 +817,9 @@ ${state.firmResources.map(r => `
 </table>
 </div>
 <div style="margin:10px 0 4px; background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; gap:28px; flex-wrap:wrap;">
-<span><strong>Разовые вложения:</strong> ${state.firmResources.filter(r => r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
-<span><strong>Ежемесячные расходы фирмы:</strong> ${state.firmResources.filter(r => r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
+<span style="color:#7c3aed;"><strong>CAPEX (капитальные вложения):</strong> ${state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
+<span style="color:#0891b2;"><strong>OPEX ежемесячный:</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
+<span style="color:#0891b2;"><strong>OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
 </div>
 
 <div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Веха 1. Подготовительный этап</div>
@@ -1053,12 +1056,18 @@ recalcAll();
 }
 // --- реестр ресурсов фирмы (веха 0) ---
 function addRes() {
-state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово' });
+state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово', costType: 'CAPEX' });
 recalcAll();
 }
 function updateRes(id, field, value) {
 const r = state.firmResources.find(r => r.id === id);
-if (r) { r[field] = value; recalcAll(); }
+if (!r) return;
+r[field] = value;
+// автоклассификация типа затрат при смене категории или периода
+if (field === 'category' || field === 'period') {
+r.costType = (r.category === 'Основные средства' && r.period === 'разово') ? 'CAPEX' : 'OPEX';
+}
+recalcAll();
 }
 function removeRes(id) {
 state.firmResources = state.firmResources.filter(r => r.id !== id);
