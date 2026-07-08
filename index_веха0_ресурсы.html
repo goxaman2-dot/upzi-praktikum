@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Учебник: Управление проектами ИБ (8 занятий)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=cyrillic" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@1.5.0/dist/frappe-gantt.umd.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@1.5.0/dist/frappe-gantt.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f4f7fc; padding: 20px; }
+.app { max-width: 1400px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); overflow: hidden; }
+
+/* ============================================================
+   ЗАСТАВКА — корпоративный стиль
+   Палитра: графит #0A1120 / панель #0F1A2E / линии #22304A
+            текст #E9EEF6 / приглушённый #8CA0BC / акцент #E8B24A
+   Шрифты: IBM Plex Sans (заголовки, текст), IBM Plex Mono (коды, метки)
+   ============================================================ */
+#splashScreen {
+    position: fixed; inset: 0; z-index: 10000;
+    background: #0A1120;
+    color: #E9EEF6;
+    font-family: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+
+/* фоновая инженерная сетка — как миллиметровка проектной документации */
+#splashScreen::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(140,160,188,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(140,160,188,0.055) 1px, transparent 1px),
+        linear-gradient(rgba(140,160,188,0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(140,160,188,0.028) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+}
+/* мягкое пятно света за заголовком */
+#splashScreen::after {
+    content: ''; position: absolute; pointer-events: none;
+    top: 18%; left: 50%; width: 900px; height: 520px;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba(232,178,74,0.07) 0%, transparent 65%);
+}
+
+.sp-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 26px 44px; position: relative; z-index: 2;
+    border-bottom: 1px solid #1A2740;
+}
+.sp-brand { display: flex; align-items: center; gap: 16px; }
+.sp-emblem { width: 46px; height: 54px; flex: none; }
+.sp-brand-text { font-size: 12px; line-height: 1.5; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #C6D2E4; font-weight: 600; }
+.sp-brand-text small { display: block; font-weight: 400; color: #8CA0BC;
+    letter-spacing: 0.04em; text-transform: none; font-size: 12px; }
+.sp-codes { font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: #8CA0BC; letter-spacing: 0.08em; text-align: right; }
+.sp-codes b { color: #E8B24A; font-weight: 500; }
+
+.sp-hero {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 24px 32px; position: relative; z-index: 2;
+}
+.sp-eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #E8B24A;
+    display: flex; align-items: center; gap: 14px; margin-bottom: 26px;
+}
+.sp-eyebrow::before, .sp-eyebrow::after {
+    content: ''; width: 46px; height: 1px; background: #3A4B6B;
+}
+.sp-hero h1 {
+    font-size: clamp(30px, 4.6vw, 54px); font-weight: 700;
+    line-height: 1.12; letter-spacing: -0.015em; max-width: 900px;
+}
+.sp-sub {
+    margin-top: 20px; max-width: 640px; font-size: 16px; line-height: 1.65;
+    color: #8CA0BC; font-weight: 400;
+}
+
+/* ---- сигнатура: конвейер из восьми оболочек с воротами ---- */
+.pipeline {
+    margin-top: 54px; width: min(980px, 92vw);
+    position: relative; display: flex; justify-content: space-between;
+}
+.pipe-track {
+    position: absolute; left: 26px; right: 26px; top: 25px;
+    height: 2px; background: #22304A;
+}
+.pipe-fill {
+    position: absolute; left: 26px; top: 25px; height: 2px; width: 0%;
+    max-width: calc(100% - 52px);
+    background: #E8B24A; transition: width 0.25s linear;
+    box-shadow: 0 0 12px rgba(232,178,74,0.55);
+}
+.pnode {
+    position: relative; z-index: 1; width: 96px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.pnode-dot {
+    width: 52px; height: 52px; border-radius: 10px;
+    border: 1px solid #2C3D5D; background: #0F1A2E;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #5E7397;
+    transition: all 0.4s ease;
+}
+.pnode-label {
+    font-size: 12px; color: #6E82A2; letter-spacing: 0.03em;
+    transition: color 0.4s ease;
+}
+.pnode.lit .pnode-dot {
+    border-color: #E8B24A; color: #E8B24A; background: #17233B;
+    box-shadow: 0 0 18px rgba(232,178,74,0.28);
+}
+.pnode.lit .pnode-label { color: #D8E1EF; }
+
+.progress-text {
+    margin-top: 30px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px; letter-spacing: 0.1em; color: #8CA0BC;
+    text-transform: uppercase;
+}
+
+.start-button {
+    margin-top: 34px; padding: 15px 52px;
+    background: #E8B24A; color: #0A1120;
+    border: none; border-radius: 4px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.4s ease;
+    opacity: 0.35; pointer-events: none;
+}
+.start-button.ready { opacity: 1; pointer-events: auto; }
+.start-button.ready:hover { background: #F2C468; transform: translateY(-2px); }
+
+.sp-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 44px; position: relative; z-index: 2;
+    border-top: 1px solid #1A2740;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    color: #5E7397; letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+#splashScreen.fade-out { animation: spFadeOut 0.8s ease forwards; }
+@keyframes spFadeOut { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .pipe-fill, .pnode-dot, .start-button { transition: none; }
+}
+
+@media (max-width: 860px) {
+    .sp-top, .sp-bottom { padding: 18px 20px; }
+    .sp-codes { display: none; }
+    .sp-bottom span:first-child { display: none; }
+    .sp-bottom { justify-content: center; }
+    .pipeline { flex-wrap: wrap; gap: 18px 0; justify-content: center; }
+    .pipe-track, .pipe-fill { display: none; }
+    .pnode { width: 25%; min-width: 84px; }
+}
+
+/* --- СТАРТОВЫЙ ЭКРАН (ВОРОНКА) --- */
+#startScreen { padding: 40px 30px; background: white; display: none; }
+#startScreen.hidden { display: none; }
+#startScreen.visible { display: block; }
+.step-panel { background: #f8fafc; border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+.step-panel h2 { font-size: 18px; margin-bottom: 12px; color: #0f172a; }
+.step-panel p { color: #475569; margin-bottom: 12px; }
+.step-panel label { font-weight: 500; display: block; margin-top: 10px; }
+.step-panel input, .step-panel textarea, .step-panel select {
+width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+font-size: 14px; margin-top: 4px;
+}
+.step-panel textarea { min-height: 60px; }
+.btn { padding: 8px 20px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-size: 14px; transition: 0.2s; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-success { background: #22c55e; color: white; }
+.btn-success:hover { background: #16a34a; }
+.btn-outline { background: transparent; border: 1px solid #cbd5e1; }
+.btn-outline:hover { background: #f1f5f9; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover { background: #dc2626; }
+.btn-sm { padding: 4px 12px; font-size: 12px; }
+.firm-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px; margin-bottom: 20px; }
+.firm-header span { font-weight: 600; }
+
+/* --- ОСНОВНОЙ ИНТЕРФЕЙС ЗАНЯТИЙ --- */
+#mainApp { display: none; }
+#mainApp.visible { display: block; }
+.header { background: #1e293b; color: white; padding: 20px 30px; }
+.header h1 { font-size: 22px; font-weight: 600; }
+.header p { opacity: 0.7; font-size: 14px; margin-top: 4px; }
+.lesson-tabs { display: flex; gap: 6px; padding: 16px 30px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+.lesson-tab { padding: 8px 18px; border-radius: 30px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; color: #475569; }
+.lesson-tab:hover:not(.locked) { background: #e2e8f0; }
+.lesson-tab.active { background: #2563eb; color: white; border-color: #2563eb; }
+.lesson-tab.locked { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+.lesson-tab.done { border-color: #22c55e; background: #dcfce7; color: #166534; }
+.content { display: flex; padding: 24px 30px; gap: 30px; min-height: 600px; }
+.main-panel { flex: 2; }
+.side-panel { flex: 1; background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; max-height: 700px; overflow-y: auto; }
+.panel-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #0f172a; display: flex; gap: 10px; align-items: center; }
+.panel-title .badge { background: #2563eb; color: white; font-size: 12px; padding: 2px 10px; border-radius: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f1f5f9; text-align: left; padding: 10px 8px; font-weight: 600; color: #334155; position: sticky; top: 0; }
+td { padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+input, select { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+input[type="number"] { width: 70px; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.gantt-container { background: white; border-radius: 8px; padding: 10px; margin-top: 15px; border: 1px solid #e2e8f0; min-height: 200px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin: 15px 0; }
+.summary-card { background: white; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
+.summary-card label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.summary-card span { font-size: 20px; font-weight: 700; color: #0f172a; display: block; }
+.lock-msg { background: #fef2f2; border: 1px solid #fca5a5; padding: 12px 16px; border-radius: 8px; color: #991b1b; margin-bottom: 16px; display: none; }
+.mat-row { display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
+.mat-row input { width: 60px; }
+.mat-row input:first-child { width: 100px; }
+.employee-load { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0; }
+
+@media (max-width: 768px) {
+    .content { flex-direction: column; }
+    .side-panel { max-height: none; }
+}
+
+.notif-flash { animation: flash 1s ease 3; }
+@keyframes flash { 0% { background-color: #fef2f2; } 50% { background-color: #fecaca; } 100% { background-color: #fef2f2; } }
+</style>
+</head>
+<body>
+
+<!-- ========== ЗАСТАВКА (корпоративный стиль) ========== -->
+<div id="splashScreen">
+    <header class="sp-top">
+        <div class="sp-brand">
+            <svg class="sp-emblem" viewBox="0 0 46 54" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M23 2 L43 9 V27 C43 40 34.5 48.5 23 52 C11.5 48.5 3 40 3 27 V9 Z"
+                      stroke="#E8B24A" stroke-width="1.6" fill="rgba(232,178,74,0.05)"/>
+                <circle cx="23" cy="22" r="6" stroke="#C6D2E4" stroke-width="1.4"/>
+                <path d="M23 28 V38" stroke="#C6D2E4" stroke-width="1.4"/>
+                <path d="M23 16 V10 M17.5 24.5 L12 27 M28.5 24.5 L34 27" stroke="#5E7397" stroke-width="1.2"/>
+                <circle cx="23" cy="10" r="1.6" fill="#E8B24A"/>
+                <circle cx="12" cy="27" r="1.6" fill="#E8B24A"/>
+                <circle cx="34" cy="27" r="1.6" fill="#E8B24A"/>
+            </svg>
+            <div class="sp-brand-text">
+                Северо-Кавказский федеральный университет
+                <small>Кафедра организации и технологии защиты информации</small>
+            </div>
+        </div>
+        <div class="sp-codes">
+            Направления подготовки<br>
+            <b>10.03.01</b> &middot; <b>10.04.01</b> &middot; <b>10.05.01</b>
+        </div>
+    </header>
+
+    <main class="sp-hero" id="splash">
+        <div class="sp-eyebrow">Электронный практикум &middot; дисциплина УПЗИ</div>
+        <h1>Управление проектами<br>по защите информации</h1>
+        <p class="sp-sub">Сквозной ресурсный практикум: один проект системы безопасности,
+        восемь занятий, восемь взаимосвязанных канбан-оболочек &mdash;
+        от паспорта проекта до защиты у заказчика.</p>
+
+        <div class="pipeline" id="pipeline">
+            <div class="pipe-track"></div>
+            <div class="pipe-fill" id="progressFill"></div>
+            <div class="pnode"><div class="pnode-dot">01</div><div class="pnode-label">Персонал</div></div>
+            <div class="pnode"><div class="pnode-dot">02</div><div class="pnode-label">Ставки</div></div>
+            <div class="pnode"><div class="pnode-dot">03</div><div class="pnode-label">Комплектующие</div></div>
+            <div class="pnode"><div class="pnode-dot">04</div><div class="pnode-label">Календарь</div></div>
+            <div class="pnode"><div class="pnode-dot">05</div><div class="pnode-label">Смета</div></div>
+            <div class="pnode"><div class="pnode-dot">06</div><div class="pnode-label">Бюджет</div></div>
+            <div class="pnode"><div class="pnode-dot">07</div><div class="pnode-label">Дефицит</div></div>
+            <div class="pnode"><div class="pnode-dot">08</div><div class="pnode-label">Оптимизация</div></div>
+        </div>
+
+        <div class="progress-text" id="progressText">Инициализация модулей&hellip;</div>
+        <button class="start-button" id="startBtn" onclick="startApplication()">Войти в практикум</button>
+    </main>
+
+    <footer class="sp-bottom">
+        <span>СКУД &middot; Видеонаблюдение &middot; ОПС &middot; Охранная сигнализация &middot; Гибридные системы</span>
+        <span>2026/2027 учебный год</span>
+    </footer>
+</div>
+
+<div class="app" id="app">
+<!-- ========== СТАРТОВЫЙ ЭКРАН (ВОРОНКА) ========== -->
+<div id="startScreen">
+<div class="firm-header">
+<span id="firmDisplay">🏢 Название фирмы не задано</span>
+<button class="btn btn-outline" style="background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.3);" onclick="document.getElementById('firmInput').focus()">✏️ Изменить</button>
+</div>
+<div class="step-panel">
+<h2>Шаг 1. Название вашей компании</h2>
+<p>Введите официальное наименование вашей фирмы (оно будет отображаться во всех документах).</p>
+<input type="text" id="firmInput" placeholder="Например: ООО «ТехноСистемы»" value="ООО «Безопасный Дом»">
+<button class="btn btn-primary" style="margin-top:10px;" onclick="setFirmName()">✅ Сохранить</button>
+</div>
+<div class="step-panel" id="stepCall">
+<h2>Шаг 2. 📞 Входящий звонок от заказчика</h2>
+<p><strong>Олеся Половинкина</strong> (офис-менеджер) принимает звонок.</p>
+<p><em>— Здравствуйте! Это компания <span id="firmNamePlaceholder">...</span>. Чем можем помочь?</em></p>
+<p><strong>Клиент:</strong> Мне нужна система видеонаблюдения для частного дома по адресу: <strong>ул. Пирогова, 116</strong>.</p>
+<button class="btn btn-success" onclick="openClientForm()">📝 Заполнить анкету клиента</button>
+</div>
+<div class="step-panel" id="clientForm" style="display:none;">
+<h2>Шаг 3. 📋 Анкета клиента</h2>
+<p>Внесите данные заказчика в CRM (все поля обязательны).</p>
+<label>ФИО клиента *</label>
+<input type="text" id="clientName" placeholder="Иванов Иван Иванович" value="Петров Сергей Александрович">
+<label>Контактный телефон *</label>
+<input type="text" id="clientPhone" placeholder="+7 900 123-45-67" value="+7 916 555-12-34">
+<label>Адрес объекта *</label>
+<input type="text" id="clientAddress" placeholder="г. Москва, ул. Пирогова, 116" value="ул. Пирогова, 116">
+<label>Дополнительные пожелания (размеры дома, количество камер, особые требования)</label>
+<textarea id="clientDetails" placeholder="Например: 2 этажа, 6 камер, нужен удалённый доступ через телефон">Дом 2 этажа, 6 камер, удалённый доступ, запись по движению.</textarea>
+<button class="btn btn-primary" style="margin-top:10px;" onclick="saveClient()">💾 Сохранить клиента</button>
+</div>
+<div class="step-panel" id="stepVisit" style="display:none;">
+<h2>Шаг 4. 📅 Назначение визита инженера-проектировщика</h2>
+<p>Олеся Половинкина связывается с клиентом и договаривается о времени выезда.</p>
+<label>Дата и время визита</label>
+<input type="datetime-local" id="visitDateTime" value="2026-07-10T10:00">
+<button class="btn btn-success" style="margin-top:10px;" onclick="assignEngineer()">🚗 Назначить инженера</button>
+</div>
+<div class="step-panel" id="stepNotify" style="display:none;">
+<h2>Шаг 5. 📨 Уведомление главного инженера</h2>
+<div style="background:#fef2f2; border-left:4px solid #ef4444; padding:16px; border-radius:8px; margin:12px 0;" id="notifBox">
+<p><strong>🔔 ВНИМАНИЕ!</strong> Поступила новая заявка на видеонаблюдение.</p>
+<p><strong>Клиент:</strong> <span id="notifClient">...</span></p>
+<p><strong>Адрес:</strong> <span id="notifAddress">...</span></p>
+<p><strong>Дата визита:</strong> <span id="notifVisit">...</span></p>
+<p style="margin-top:8px;"><em>Сообщение доставлено на рабочий стол главного инженера <strong>Эскизова В.И.</strong></em></p>
+</div>
+<button class="btn btn-primary" onclick="openSketch()">📐 Инженер выехал на объект — составить эскиз</button>
+<button class="btn btn-outline" onclick="hideStep('stepNotify')">← Назад</button>
+</div>
+
+<div class="step-panel" id="stepSketch" style="display:none;">
+<h2>Шаг 6. 📐 Эскиз проекта системы</h2>
+<p>На объект выезжает главный инженер <strong>Эскизов В.И.</strong>: исследует объект и готовит эскиз проекта — тип системы, расстановка оборудования, кабельные трассы.</p>
+<label>Тип проектируемой системы *</label>
+<select id="sketchType">
+<option value="video" selected>Видеонаблюдение</option>
+<option value="skud">СКУД (контроль доступа)</option>
+<option value="fire">Пожарная сигнализация</option>
+<option value="security">Охранная сигнализация</option>
+<option value="hybrid">Гибридная система</option>
+</select>
+<label>Краткое описание эскиза *</label>
+<textarea id="sketchDesc">6 купольных камер внутри, 2 уличные камеры, NVR в котельной, кабельные трассы по потолку 1-го этажа, ИБП на 2 часа.</textarea>
+<div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+<button class="btn btn-success" onclick="sendToDraftsman()">📤 Эскиз готов — передать чертёжнику AutoCAD</button>
+<button class="btn btn-outline" onclick="hideStep('stepSketch')">← Назад</button>
+</div>
+</div>
+
+<div class="step-panel" id="stepDraftsman" style="display:none;">
+<h2>Шаг 7. 📨 Уведомление для чертёжника (AutoCAD)</h2>
+<div style="background:#fffbeb; border-left:4px solid #f59e0b; padding:16px; border-radius:8px; margin:12px 0;" id="notifDraftsman">
+<p><strong>🔔 Чертёжникову А.С.:</strong> Вам поступил эскиз для проекта системы <strong><span id="notifSketchType">...</span></strong>.</p>
+<p><strong>Объект:</strong> <span id="notifSketchAddress">...</span> (заказчик: <span id="notifSketchClient">...</span>)</p>
+<p><strong>Содержание эскиза:</strong> <span id="notifSketchDesc">...</span></p>
+<p style="margin-top:8px;"><em>Задача «Чертёж проекта в AutoCAD» поставлена в работу. Срок: 1 рабочий день.</em></p>
+</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+<button class="btn btn-success" onclick="sendToEstimator()">✅ Чертёж готов — передать бухгалтеру-сметчику</button>
+<button class="btn btn-outline" onclick="hideStep('stepDraftsman')">← Назад</button>
+</div>
+</div>
+
+<div class="step-panel" id="stepEstimator" style="display:none;">
+<h2>Шаг 8. 📨 Уведомление бухгалтеру-сметчику</h2>
+<div style="background:#eff6ff; border-left:4px solid #2563eb; padding:16px; border-radius:8px; margin:12px 0;" id="notifEstimator">
+<p><strong>🔔 Сметовой О.П.:</strong> Вам поступил чертёж на проект системы <strong><span id="notifDraftType">...</span></strong>.</p>
+<p><strong>Объект:</strong> <span id="notifDraftAddress">...</span></p>
+<p style="margin-top:8px;"><em>Чертёж принят от Чертёжникова А.С. Задача «Локальная смета по чертежу» поставлена в работу.</em></p>
+</div>
+<p style="font-size:13px; color:#475569;">Бизнес-процесс запущен: обследование, эскиз и чертёж уже выполнены, смета — в работе. Эти этапы появятся первыми задачами в диаграмме Ганта.</p>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+<button class="btn btn-primary" onclick="goToProject()">📊 Перейти к планированию проекта</button>
+<button class="btn btn-outline" onclick="hideStep('stepEstimator')">← Назад</button>
+</div>
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+<button class="btn btn-outline btn-sm" onclick="skipWizard()">⏩ Пропустить воронку (для теста)</button>
+</div>
+</div>
+
+<!-- ========== ОСНОВНОЙ ИНТЕРФЕЙС ЗАНЯТИЙ ========== -->
+<div id="mainApp">
+<div class="header" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+<div>
+<h1>📘 Управление проектом: <span id="projectClientName">—</span></h1>
+<p>Практические занятия 1–8 • СКУД, Видео, Пожар, Охрана, Гибрид • <span id="projectFirmDisplay">...</span></p>
+</div>
+<button class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:white; border-color:rgba(255,255,255,0.3); white-space:nowrap;" onclick="backToWizard()">← Вернуться к данным заказчика</button>
+</div>
+<div class="lesson-tabs" id="lessonTabs">
+<div class="lesson-tab active" data-lesson="1">1. Персонал</div>
+<div class="lesson-tab locked" data-lesson="2">2. Штатный персонал фирмы</div>
+<div class="lesson-tab locked" data-lesson="3">3. Комплектующие</div>
+<div class="lesson-tab locked" data-lesson="4">4. Календарь</div>
+<div class="lesson-tab locked" data-lesson="5">5. Смета</div>
+<div class="lesson-tab locked" data-lesson="6">6. Бюджет</div>
+<div class="lesson-tab locked" data-lesson="7">7. Дефицит</div>
+<div class="lesson-tab locked" data-lesson="8">8. Оптимизация</div>
+</div>
+<div class="content" id="mainContent">
+<div class="main-panel">
+<div id="lockMessage" class="lock-msg">🔒 Загрузите результат предыдущего занятия, чтобы разблокировать.</div>
+<div id="panelContent"><!-- Динамически рендерится JS --></div>
+</div>
+<div class="side-panel" id="sidePanel">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+<h3 style="font-size:16px;">📊 Текущий проект</h3>
+<button class="btn btn-sm btn-primary" onclick="exportJSON()">💾 Экспорт</button>
+<button class="btn btn-sm btn-outline" onclick="document.getElementById('importInput').click()">📂 Импорт</button>
+<input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
+</div>
+<div id="projectStats">
+<div class="summary-card"><label>Тип</label><span id="dispType">СКУД</span></div>
+<div class="summary-card"><label>Задач</label><span id="dispTasks">0</span></div>
+<div class="summary-card"><label>Сотрудников</label><span id="dispEmps">0</span></div>
+<div class="summary-card"><label>Длительность</label><span id="dispDur">0 дн</span></div>
+</div>
+<hr style="margin:16px 0;">
+<div id="sideDynamic"><p style="color:#64748b; font-size:13px;">Загрузите шаблон или импортируйте JSON</p></div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// ============================================================
+// 0. УПРАВЛЕНИЕ ЗАСТАВКОЙ
+// ============================================================
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const pipeNodes = document.querySelectorAll('#pipeline .pnode');
+
+let progress = 0;
+let currentStep = 0;
+const loadingSteps = [
+    { text: 'Загрузка справочника аудитора…', target: 25 },
+    { text: 'Подготовка реестров проекта…', target: 55 },
+    { text: 'Инициализация канбан-оболочек…', target: 85 },
+    { text: 'Практикум готов к работе', target: 100 }
+];
+
+function animateProgress() {
+    if (currentStep >= loadingSteps.length) return;
+    const step = loadingSteps[currentStep];
+    progressText.textContent = step.text;
+    const interval = setInterval(() => {
+        progress += 1;
+        progressFill.style.width = progress + '%';
+        // подсветка узлов конвейера по мере загрузки
+        pipeNodes.forEach((node, i) => {
+            if (progress >= (i + 1) * 12.5 - 2) node.classList.add('lit');
+        });
+        if (progress >= step.target) {
+            clearInterval(interval);
+            currentStep++;
+            if (currentStep < loadingSteps.length) {
+                setTimeout(animateProgress, 250);
+            } else {
+                document.getElementById('startBtn').classList.add('ready');
+            }
+        }
+    }, 28);
+}
+
+function startApplication() {
+    const splash = document.getElementById('splashScreen');
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+        splash.style.display = 'none';
+        document.getElementById('startScreen').classList.add('visible');
+    }, 800);
+}
+
+setTimeout(animateProgress, 400);
+
+// ============================================================
+// 1. УПРАВЛЕНИЕ ВОРОНКОЙ
+// ============================================================
+let clientData = { firmName: '', name: '', phone: '', address: '', details: '', visitDate: '' };
+function setFirmName() {
+const val = document.getElementById('firmInput').value.trim();
+if (!val) { alert('Введите название фирмы'); return; }
+clientData.firmName = val;
+document.getElementById('firmDisplay').innerText = '🏢 ' + val;
+document.getElementById('firmNamePlaceholder').innerText = val;
+document.getElementById('projectFirmDisplay').innerText = val;
+document.getElementById('stepCall').style.display = 'block';
+alert('Название фирмы сохранено! Теперь поступит звонок.');
+}
+function openClientForm() {
+document.getElementById('clientForm').style.display = 'block';
+document.getElementById('clientAddress').value = 'ул. Пирогова, 116';
+document.getElementById('clientForm').scrollIntoView({ behavior: 'smooth' });
+}
+function saveClient() {
+const name = document.getElementById('clientName').value.trim();
+const phone = document.getElementById('clientPhone').value.trim();
+const address = document.getElementById('clientAddress').value.trim();
+const details = document.getElementById('clientDetails').value.trim();
+if (!name || !phone || !address) { alert('Заполните все обязательные поля (ФИО, телефон, адрес)'); return; }
+clientData.name = name; clientData.phone = phone; clientData.address = address; clientData.details = details || '—';
+document.getElementById('stepVisit').style.display = 'block';
+document.querySelector('#stepCall .btn-success').disabled = true;
+document.querySelector('#stepCall .btn-success').innerText = '✅ Анкета заполнена';
+alert('Клиент сохранён в CRM! Теперь назначьте визит инженера.');
+}
+function assignEngineer() {
+const visit = document.getElementById('visitDateTime').value;
+if (!visit) { alert('Выберите дату и время визита'); return; }
+clientData.visitDate = visit.replace('T', ' ');
+document.getElementById('notifClient').innerText = clientData.name;
+document.getElementById('notifAddress').innerText = clientData.address;
+document.getElementById('notifVisit').innerText = clientData.visitDate;
+document.getElementById('stepNotify').style.display = 'block';
+const box = document.getElementById('notifBox');
+box.classList.add('notif-flash');
+setTimeout(() => box.classList.remove('notif-flash'), 3000);
+alert('✅ Инженер Эскизов В.И. получил уведомление на рабочий стол.');
+}
+// --- навигация «назад» ---
+function hideStep(id) {
+document.getElementById(id).style.display = 'none';
+}
+function backToWizard() {
+document.getElementById('mainApp').classList.remove('visible');
+document.getElementById('startScreen').classList.add('visible');
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- этап эскиза и передача по бизнес-процессу ---
+const TYPE_RU = { skud: 'СКУД (контроль доступа)', video: 'видеонаблюдения', fire: 'пожарной сигнализации', security: 'охранной сигнализации', hybrid: 'гибридной (интегрированной)' };
+
+function openSketch() {
+document.getElementById('stepSketch').style.display = 'block';
+document.getElementById('stepSketch').scrollIntoView({ behavior: 'smooth' });
+}
+function sendToDraftsman() {
+const type = document.getElementById('sketchType').value;
+const desc = document.getElementById('sketchDesc').value.trim();
+if (!desc) { alert('Опишите эскиз проекта'); return; }
+state.sketch = { type: type, description: desc };
+document.getElementById('notifSketchType').innerText = TYPE_RU[type];
+document.getElementById('notifSketchAddress').innerText = clientData.address || '—';
+document.getElementById('notifSketchClient').innerText = clientData.name || '—';
+document.getElementById('notifSketchDesc').innerText = desc;
+const panel = document.getElementById('stepDraftsman');
+panel.style.display = 'block';
+panel.scrollIntoView({ behavior: 'smooth' });
+const box = document.getElementById('notifDraftsman');
+box.classList.add('notif-flash');
+setTimeout(() => box.classList.remove('notif-flash'), 3000);
+alert('📤 Эскиз передан. Чертёжников А.С. получил уведомление на рабочий стол.');
+}
+function sendToEstimator() {
+const type = state.sketch ? state.sketch.type : 'video';
+document.getElementById('notifDraftType').innerText = TYPE_RU[type];
+document.getElementById('notifDraftAddress').innerText = clientData.address || '—';
+const panel = document.getElementById('stepEstimator');
+panel.style.display = 'block';
+panel.scrollIntoView({ behavior: 'smooth' });
+const box = document.getElementById('notifEstimator');
+box.classList.add('notif-flash');
+setTimeout(() => box.classList.remove('notif-flash'), 3000);
+alert('📨 Чертёж передан. Сметова О.П. приступила к локальной смете.');
+}
+
+// задачи бизнес-процесса: люди уже приступили или выполнили свои этапы
+function bpTasks(type) {
+const sys = TYPE_RU[type] || 'безопасности';
+return [
+{ id: 1001, name: 'Выезд и обследование объекта', duration: 0.5, stage: 'I', employeeId: 1, materials: [], progress: 100, fixed: true },
+{ id: 1002, name: 'Исследование объекта (' + sys + ') и подготовка эскиза проекта', duration: 0.5, stage: 'I', employeeId: 1, materials: [], progress: 100, fixed: true },
+{ id: 1005, name: 'Разработка ТЗ на систему ' + sys, duration: 2, stage: 'I', employeeId: 1, materials: [], progress: 0 },
+{ id: 1003, name: 'Чертёж проекта в AutoCAD', duration: 1, stage: 'I', employeeId: 4, materials: [], progress: 100, fixed: true },
+{ id: 1004, name: 'Локальная смета по чертежу', duration: 1, stage: 'I', employeeId: 5, materials: [], progress: 50, fixed: true }
+];
+}
+
+function goToProject() {
+document.getElementById('startScreen').classList.remove('visible');
+document.getElementById('mainApp').classList.add('visible');
+document.getElementById('projectClientName').innerText = (clientData.name || '—') + ' (' + (clientData.address || '—') + ')';
+document.getElementById('projectFirmDisplay').innerText = clientData.firmName || '...';
+state.client = clientData;
+if (state.tasks.length === 0) {
+state.projectType = state.sketch ? state.sketch.type : 'video';
+state.tasks = bpTasks(state.projectType);
+document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked');
+}
+document.querySelector('.lesson-tab[data-lesson="1"]').classList.remove('locked');
+recalcAll();
+}
+function skipWizard() {
+clientData.firmName = document.getElementById('firmInput').value.trim() || 'ООО «Тест»';
+clientData.name = 'Тестовый Клиент';
+clientData.address = 'ул. Пирогова, 116';
+clientData.visitDate = '2026-07-10 10:00';
+state.sketch = { type: 'video', description: 'Тестовый эскиз: 6 камер, NVR, ИБП.' };
+document.getElementById('firmDisplay').innerText = '🏢 ' + clientData.firmName;
+document.getElementById('projectFirmDisplay').innerText = clientData.firmName;
+goToProject();
+}
+
+// ============================================================
+// 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (STORE)
+// ============================================================
+const RES_CATS = ['Основные средства', 'Аренда офиса', 'Содержание офиса', 'Хостинг и связь', 'Трудовые ресурсы (ГПХ)', 'Грузоперевозки'];
+
+function defaultFirmResources() {
+return [
+{ id: 1, category: 'Основные средства', name: 'Ноутбук инженера', unit: 'шт', qty: 2, price: 65000, period: 'разово' },
+{ id: 2, category: 'Основные средства', name: 'МФУ (печать чертежей и смет)', unit: 'шт', qty: 1, price: 25000, period: 'разово' },
+{ id: 3, category: 'Основные средства', name: 'Подписка AutoCAD LT', unit: 'лиц', qty: 1, price: 3500, period: 'мес' },
+{ id: 4, category: 'Основные средства', name: 'Лицензия сметного ПО', unit: 'лиц', qty: 1, price: 2200, period: 'мес' },
+{ id: 5, category: 'Аренда офиса', name: 'Офис 40 м² (700 ₽/м² в мес)', unit: 'м²', qty: 40, price: 700, period: 'мес' },
+{ id: 6, category: 'Содержание офиса', name: 'Уборка помещения', unit: 'усл', qty: 1, price: 4000, period: 'мес' },
+{ id: 7, category: 'Содержание офиса', name: 'Оплата ЖКХ (свет, вода, тепло)', unit: 'усл', qty: 1, price: 6000, period: 'мес' },
+{ id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', unit: 'усл', qty: 1, price: 1500, period: 'мес' },
+{ id: 9, category: 'Хостинг и связь', name: 'IP-телефония', unit: 'усл', qty: 1, price: 900, period: 'мес' },
+{ id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', unit: 'усл', qty: 1, price: 1200, period: 'мес' },
+{ id: 11, category: 'Трудовые ресурсы (ГПХ)', name: 'Постоянный штат — 10 чел (ФОТ: см. вкладку 2)', unit: 'чел', qty: 10, price: 0, period: 'мес' },
+{ id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', unit: 'дог', qty: 1, price: 15000, period: 'разово' },
+{ id: 13, category: 'Грузоперевозки', name: 'Доставка комплектующих и аппаратов (Газель)', unit: 'рейс', qty: 2, price: 3500, period: 'разово' },
+{ id: 14, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', unit: 'рейс', qty: 1, price: 3500, period: 'разово' }
+];
+}
+
+let state = {
+projectType: 'video',
+priceLevel: 'middle',
+startDate: '2026-07-01',
+firmResources: defaultFirmResources(),
+employees: [
+{ id: 1, name: 'Эскизов В.И.', position: 'Главный инженер', qualification: 'высшее, стаж 10 лет', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 2, name: 'Монтажников С.А.', position: 'Монтажник', qualification: 'среднее, допуск III', ratePerHour: 0, loadFactor: 0.8 },
+{ id: 3, name: 'Наладчиков Ф.И.', position: 'Наладчик', qualification: 'высшее, обучение ПО', ratePerHour: 0, loadFactor: 0.7 },
+{ id: 4, name: 'Чертёжников А.С.', position: 'Инженер-чертёжник (AutoCAD)', qualification: 'высшее, AutoCAD', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 5, name: 'Сметова О.П.', position: 'Бухгалтер-сметчик', qualification: 'высшее, сметное дело', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 6, name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', ratePerHour: 0, loadFactor: 0.2 },
+{ id: 7, name: 'Главнова О.И.', position: 'Главный бухгалтер', qualification: 'высшее, аттестат профбухгалтера', ratePerHour: 0, loadFactor: 0.3 },
+{ id: 8, name: 'Помощников В.Е.', position: 'Специалист-монтажник', qualification: 'среднее спец., допуск II', ratePerHour: 0, loadFactor: 0.8 },
+{ id: 9, name: 'Безопасников И.И.', position: 'Специалист безопасности (юрист, помощник директора)', qualification: 'высшее юридическое', ratePerHour: 0, loadFactor: 0.3 },
+{ id: 10, name: 'Складников Е.П.', position: 'Бухгалтер склада', qualification: 'среднее спец., 1С:Склад', ratePerHour: 0, loadFactor: 0.3 },
+],
+tasks: [],
+resources: [
+{ id: 1, category: 'Основные средства', name: 'Компьютер инженерный', qty: 3, price: 45000, period: 'once' },
+{ id: 2, category: 'Основные средства', name: 'Лицензия AutoCAD LT', qty: 1, price: 60000, period: 'once' },
+{ id: 3, category: 'Основные средства', name: 'Лицензия сметного ПО', qty: 1, price: 30000, period: 'once' },
+{ id: 4, category: 'Основные средства', name: 'МФУ (принтер-сканер)', qty: 1, price: 25000, period: 'once' },
+{ id: 5, category: 'Аренда офиса', name: 'Офис 40 м², бизнес-центр', qty: 1, price: 28000, period: 'monthly' },
+{ id: 6, category: 'Содержание офиса', name: 'Уборка помещения', qty: 1, price: 4000, period: 'monthly' },
+{ id: 7, category: 'Содержание офиса', name: 'Оплата ЖКХ', qty: 1, price: 6000, period: 'monthly' },
+{ id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', qty: 1, price: 1500, period: 'monthly' },
+{ id: 9, category: 'Хостинг и связь', name: 'IP-телефония', qty: 1, price: 1200, period: 'monthly' },
+{ id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', qty: 1, price: 2500, period: 'monthly' },
+{ id: 11, category: 'Трудовые ресурсы (штат)', name: 'Постоянные работники (ставки — вкладка «Штатный персонал»)', qty: 10, price: 0, period: 'monthly' },
+{ id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', qty: 1, price: 15000, period: 'once' },
+{ id: 13, category: 'Трудовые ресурсы (ГПХ)', name: 'Грузчик по договору ГПХ', qty: 2, price: 5000, period: 'once' },
+{ id: 14, category: 'Грузоперевозки', name: 'Газель: доставка комплектующих и аппаратов для монтажа', qty: 2, price: 3500, period: 'once' },
+{ id: 15, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', qty: 1, price: 4500, period: 'once' }
+],
+drawings: [{ name: 'План этажа', url: '' }],
+summary: { totalLabor: 0, totalMaterial: 0, overheads: 0, profit: 0, total: 0, totalWithVAT: 0 },
+budget: { payroll: 0, taxes: 0, rent: 0, transport: 0, other: 0, totalBudget: 0, margin: 0 },
+client: {}
+};
+
+let currentLesson = 1;
+let ganttInstance = null;
+
+// ============================================================
+// 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================================
+function getEmployeeName(id) {
+const e = state.employees.find(emp => emp.id === id);
+return e ? e.name : '—';
+}
+function getEmployeeRate(id) {
+const e = state.employees.find(emp => emp.id === id);
+return e ? e.ratePerHour : 0;
+}
+function calcTaskCost(task) {
+const hours = task.duration * 8;
+const rate = getEmployeeRate(task.employeeId);
+const fullDays = Math.floor(task.duration);
+const totalHours = task.duration * 8;
+const normalLimit = fullDays * 8;
+const overtime = Math.max(0, totalHours - normalLimit);
+const normalHours = totalHours - overtime;
+const laborCost = normalHours * rate + overtime * rate * 1.5;
+let materialCost = 0;
+if (task.materials) {
+task.materials.forEach(m => {
+const price = state.priceLevel === 'budget' ? m.priceBudget : (state.priceLevel === 'vip' ? m.priceVip : m.priceMiddle);
+materialCost += m.qty * (price || 0);
+});
+}
+return { laborCost, materialCost, total: laborCost + materialCost };
+}
+
+function recalcAll() {
+if (!state.firmResources) state.firmResources = defaultFirmResources();
+let totalLabor = 0, totalMaterial = 0, totalDuration = 0;
+const usage = {};
+state.employees.forEach(e => usage[e.id] = 0);
+state.tasks.forEach(t => {
+const cost = calcTaskCost(t);
+totalLabor += cost.laborCost;
+totalMaterial += cost.materialCost;
+totalDuration += t.duration;
+if (t.employeeId) usage[t.employeeId] = (usage[t.employeeId] || 0) + t.duration * 8;
+});
+state.summary.totalLabor = totalLabor;
+state.summary.totalMaterial = totalMaterial;
+state.summary.total = totalLabor + totalMaterial;
+document.getElementById('dispTasks').innerText = state.tasks.length;
+document.getElementById('dispEmps').innerText = state.employees.length;
+document.getElementById('dispDur').innerText = totalDuration.toFixed(1) + ' дн';
+document.getElementById('dispType').innerText = state.projectType.toUpperCase();
+renderSideDynamic(usage);
+renderCurrentLesson();
+}
+
+function renderSideDynamic(usage) {
+const container = document.getElementById('sideDynamic');
+let html = '<div style="font-size:13px; font-weight:600; margin-bottom:8px;">Загрузка сотрудников (ч):</div>';
+state.employees.forEach(e => {
+const h = usage && usage[e.id] ? usage[e.id] : 0;
+html += `<div class="employee-load"><span>${e.name}</span><span>${h.toFixed(1)} ч</span></div>`;
+});
+container.innerHTML = html;
+}
+
+// ============================================================
+// 4. РЕНДЕРИНГ КОНТЕНТА ПО ЗАНЯТИЯМ
+// ============================================================
+function renderCurrentLesson() {
+const container = document.getElementById('panelContent');
+const lockMsg = document.getElementById('lockMessage');
+lockMsg.style.display = 'none';
+
+if (currentLesson === 2 && state.employees.every(e => e.ratePerHour === 0)) {
+lockMsg.style.display = 'block';
+lockMsg.innerText = '⚠️ Сначала установите почасовые ставки сотрудникам в Занятии 1 и экспортируйте JSON.';
+}
+
+let html = `<div class="panel-title"><span>📌 Занятие ${currentLesson}</span><span class="badge">Шаг ${currentLesson}/8</span></div>`;
+
+switch(currentLesson) {
+case 1:
+const prepTasks = state.tasks.filter(t => t.stage === 'I');
+const montTasks = state.tasks.filter(t => t.stage !== 'I');
+const statusCell = (t) => t.progress === 100
+? `<td style="white-space:nowrap;"><span style="color:#16a34a; font-weight:600; cursor:pointer;" title="Нажмите, чтобы снять подтверждение" onclick="toggleDone(${t.id})">✔ ВЫПОЛНЕНА</span></td>`
+: `<td style="white-space:nowrap;"><span style="color:#d97706; font-weight:600; cursor:pointer;" title="Нажмите, чтобы подтвердить выполнение" onclick="toggleDone(${t.id})">🟡 ЖДЁТ ЗАВЕРШЕНИЯ${t.progress > 0 ? ' (' + t.progress + '%)' : ''}</span></td>`;
+const taskRow = (t, num, withStatus) => `
+<tr>
+<td>${num}</td>
+<td><input type="text" value="${t.name}" onchange="updateTask(${t.id}, 'name', this.value)" /></td>
+<td>${t.stage}</td>
+<td><input type="number" value="${t.duration}" step="0.5" style="width:60px;" onchange="updateTask(${t.id}, 'duration', parseFloat(this.value))" /></td>
+<td>
+<select onchange="updateTask(${t.id}, 'employeeId', parseInt(this.value))">
+<option value="">—</option>
+${state.employees.map(e => `<option value="${e.id}" ${e.id === t.employeeId ? 'selected' : ''}>${e.name}</option>`).join('')}
+</select>
+</td>
+${withStatus ? statusCell(t) : ''}
+</tr>`;
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> обеспечить информацией подготовительный этап (веху 1) бизнес-процесса — сбор, анализ и разработка коммерческой информации для будущей системы ИБ клиента.</p>
+
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:6px 0 6px;">Веха 0. Создание ресурсов фирмы</div>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Разовые позиции — вложения на старте или на проект, ежемесячные — регулярные расходы фирмы (попадут в бюджет подрядчика, занятие 6).</p>
+<div class="toolbar">
+<button class="btn btn-primary btn-sm" onclick="addRes()">➕ Добавить потребность</button>
+</div>
+<div style="max-height:300px; overflow-y:auto;">
+<table>
+<thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th>Сумма, ₽</th><th></th></tr></thead>
+<tbody>
+${state.firmResources.map(r => `
+<tr>
+<td><select onchange="updateRes(${r.id}, 'category', this.value)" style="min-width:130px;">${RES_CATS.map(cat => `<option ${cat === r.category ? 'selected' : ''}>${cat}</option>`).join('')}</select></td>
+<td><input type="text" value="${r.name}" onchange="updateRes(${r.id}, 'name', this.value)" style="min-width:180px;" /></td>
+<td><input type="text" value="${r.unit}" style="width:45px;" onchange="updateRes(${r.id}, 'unit', this.value)" /></td>
+<td><input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" /></td>
+<td><input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" /></td>
+<td><select onchange="updateRes(${r.id}, 'period', this.value)"><option ${r.period === 'разово' ? 'selected' : ''}>разово</option><option ${r.period === 'мес' ? 'selected' : ''}>мес</option></select></td>
+<td style="white-space:nowrap; font-weight:600;">${(r.qty * r.price).toFixed(0)}${r.period === 'мес' ? '/мес' : ''}</td>
+<td><button class="btn btn-danger btn-sm" onclick="removeRes(${r.id})">✕</button></td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+<div style="margin:10px 0 4px; background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; gap:28px; flex-wrap:wrap;">
+<span><strong>Разовые вложения:</strong> ${state.firmResources.filter(r => r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
+<span><strong>Ежемесячные расходы фирмы:</strong> ${state.firmResources.filter(r => r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
+</div>
+
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Веха 1. Подготовительный этап</div>
+<div class="toolbar">
+<button class="btn btn-primary btn-sm" onclick="addTask('I')">➕ Добавить задачу (веха 1)</button>
+<button class="btn btn-outline btn-sm" onclick="unlockAll()">🔓 Разблокировать всё (демо)</button>
+</div>
+<div style="max-height:280px; overflow-y:auto;">
+<table>
+<thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длит.</th><th>Исполнитель</th><th>Статус</th></tr></thead>
+<tbody>${prepTasks.map((t, i) => taskRow(t, i + 1, true)).join('')}</tbody>
+</table>
+</div>
+
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Веха 2. Монтаж системы ${TYPE_RU[state.projectType] || ''}</div>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Загрузите шаблон монтажных работ по типу системы — задачи вехи 2 добавятся в график вслед за подготовительным этапом.</p>
+<div class="toolbar">
+<button class="btn btn-success btn-sm" onclick="loadTemplate('skud')">📂 Шаблон СКУД</button>
+<button class="btn btn-success btn-sm" onclick="loadTemplate('video')">📂 Шаблон Видео</button>
+<button class="btn btn-success btn-sm" onclick="loadTemplate('fire')">📂 Шаблон Пожар</button>
+<button class="btn btn-success btn-sm" onclick="loadTemplate('security')">📂 Шаблон Охрана</button>
+<button class="btn btn-success btn-sm" onclick="loadTemplate('hybrid')">📂 Шаблон Гибрид</button>
+<button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу (веха 2)</button>
+</div>
+<div style="max-height:280px; overflow-y:auto;">
+<table>
+<thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длит.</th><th>Исполнитель</th></tr></thead>
+<tbody>${montTasks.length ? montTasks.map((t, i) => taskRow(t, prepTasks.length + i + 1)).join('') : '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:16px;">Задачи вехи 2 ещё не загружены — выберите шаблон выше</td></tr>'}</tbody>
+</table>
+</div>
+`;
+break;
+
+case 2:
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Сформировать штатный персонал фирмы: установить почасовые ставки и коэффициент загрузки каждого сотрудника в проекте.</p>
+<div class="toolbar">
+<button class="btn btn-primary btn-sm" onclick="orgChart()">🏢 Оргструктура фирмы (PNG)</button>
+</div>
+<div id="orgChartBox" style="margin-bottom:14px;"></div>
+<div style="max-height:400px; overflow-y:auto;">
+<table>
+<thead><tr><th>Сотрудник</th><th>Должность</th><th>Ставка (₽/ч)</th><th>Загрузка (от полной ставки)</th></tr></thead>
+<tbody>
+${state.employees.map(e => `
+<tr>
+<td>${e.name}</td>
+<td>${e.position}</td>
+<td><input type="number" value="${e.ratePerHour}" step="50" onchange="updateEmp(${e.id}, 'ratePerHour', parseFloat(this.value))" /></td>
+<td><input type="number" value="${e.loadFactor}" step="0.1" min="0" max="1" onchange="updateEmp(${e.id}, 'loadFactor', parseFloat(this.value))" /></td>
+</tr>
+`).join('')}
+</tbody>
+</table>
+</div>
+<div style="margin-top:12px; background:#f1f5f9; padding:12px; border-radius:8px;">
+<strong>Итого затрат на труд (сверхурочные ×1.5):</strong> ${state.summary.totalLabor.toFixed(0)} ₽
+</div>
+`;
+break;
+
+case 3:
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Добавить материалы и выбрать уровень цен (Бюджет/Мидл/VIP).</p>
+<div class="toolbar">
+<select onchange="state.priceLevel=this.value; recalcAll();">
+<option value="budget" ${state.priceLevel === 'budget' ? 'selected' : ''}>Бюджет</option>
+<option value="middle" ${state.priceLevel === 'middle' ? 'selected' : ''}>Мидл</option>
+<option value="vip" ${state.priceLevel === 'vip' ? 'selected' : ''}>VIP</option>
+</select>
+<span style="font-size:13px; color:#475569;">Текущий уровень: <strong>${state.priceLevel.toUpperCase()}</strong></span>
+</div>
+<div style="max-height:350px; overflow-y:auto;">
+${state.tasks.map((t, idx) => `
+<div style="border:1px solid #e2e8f0; border-radius:8px; padding:10px; margin-bottom:10px;">
+<div style="font-weight:600;">${idx+1}. ${t.name}</div>
+${(t.materials || []).map((m, mi) => `
+<div class="mat-row">
+<input type="text" value="${m.name}" onchange="updateMat(${t.id}, ${mi}, 'name', this.value)" />
+<input type="number" value="${m.qty}" onchange="updateMat(${t.id}, ${mi}, 'qty', parseFloat(this.value))" style="width:50px;" />
+<input type="number" value="${m.priceBudget}" onchange="updateMat(${t.id}, ${mi}, 'priceBudget', parseFloat(this.value))" style="width:60px;" placeholder="Бюдж" />
+<input type="number" value="${m.priceMiddle}" onchange="updateMat(${t.id}, ${mi}, 'priceMiddle', parseFloat(this.value))" style="width:60px;" placeholder="Мидл" />
+<input type="number" value="${m.priceVip}" onchange="updateMat(${t.id}, ${mi}, 'priceVip', parseFloat(this.value))" style="width:60px;" placeholder="VIP" />
+<button class="btn btn-danger btn-sm" onclick="removeMat(${t.id}, ${mi})">✕</button>
+</div>
+`).join('')}
+<button class="btn btn-sm btn-primary" onclick="addMat(${t.id})">+ Добавить материал</button>
+</div>
+`).join('')}
+</div>
+<div style="margin-top:12px; background:#f1f5f9; padding:12px; border-radius:8px;">
+<strong>Стоимость материалов:</strong> ${state.summary.totalMaterial.toFixed(0)} ₽
+</div>
+`;
+break;
+
+case 4:
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Построить календарный график и диаграмму Ганта.</p>
+<div class="toolbar">
+<label>Дата старта: <input type="date" value="${state.startDate}" onchange="state.startDate=this.value; renderGantt();" /></label>
+<span style="font-size:13px;">Общая длительность: <strong>${state.tasks.reduce((s,t) => s+t.duration, 0).toFixed(1)} дн</strong></span>
+</div>
+<div class="gantt-container" id="ganttChart"></div>
+`;
+break;
+
+case 5:
+const overheadPct = 10;
+const profitPct = 15;
+const total = state.summary.total;
+const overheads = total * (overheadPct/100);
+const profit = (total + overheads) * (profitPct/100);
+state.summary.overheads = overheads;
+state.summary.profit = profit;
+state.summary.totalWithVAT = total + overheads + profit;
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Составить итоговую смету для заказчика.</p>
+<div class="summary-grid">
+<div class="summary-card"><label>Труд (чел-ч)</label><span>${state.summary.totalLabor.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Материалы</label><span>${state.summary.totalMaterial.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Прямые затраты</label><span>${total.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Накладные (${overheadPct}%)</label><span>${overheads.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Прибыль (${profitPct}%)</label><span>${profit.toFixed(0)} ₽</span></div>
+<div class="summary-card" style="background:#dbeafe; border-color:#2563eb;"><label>ИТОГО СМЕТА</label><span>${(total + overheads + profit).toFixed(0)} ₽</span></div>
+</div>
+`;
+break;
+
+case 6:
+const payroll = state.employees.reduce((sum, e) => sum + (e.ratePerHour * 160 * e.loadFactor), 0);
+const taxes = payroll * 0.3;
+const resSum = (cats, period) => state.firmResources
+.filter(r => cats.includes(r.category) && r.period === period)
+.reduce((s, r) => s + r.qty * r.price, 0);
+const rent = resSum(['Аренда офиса', 'Содержание офиса', 'Хостинг и связь'], 'мес');
+const transport = resSum(['Грузоперевозки'], 'мес') + resSum(['Грузоперевозки'], 'разово');
+const other = resSum(['Основные средства'], 'мес') + resSum(['Трудовые ресурсы (ГПХ)'], 'разово') + resSum(['Трудовые ресурсы (ГПХ)'], 'мес');
+const totalBudget = payroll + taxes + rent + transport + other;
+const margin = state.summary.totalWithVAT - totalBudget;
+state.budget.rent = rent;
+state.budget.transport = transport;
+state.budget.other = other;
+state.budget.payroll = payroll;
+state.budget.taxes = taxes;
+state.budget.totalBudget = totalBudget;
+state.budget.margin = margin;
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Сформировать бюджет подрядчика (внутренний). Офис, доставка и ГПХ берутся из таблицы потребностей вехи 0 (занятие 1).</p>
+<div class="summary-grid">
+<div class="summary-card"><label>ФОТ (Оклад)</label><span>${payroll.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Налоги (30%)</label><span>${taxes.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Офис: аренда, содержание, связь</label><span>${rent.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Грузоперевозки</label><span>${transport.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Прочее (ОС, ГПХ)</label><span>${other.toFixed(0)} ₽</span></div>
+<div class="summary-card" style="background:#fef2f2; border-color:#ef4444;"><label>Себестоимость</label><span>${totalBudget.toFixed(0)} ₽</span></div>
+<div class="summary-card" style="background:#dcfce7; border-color:#22c55e;"><label>Маржинальность</label><span>${margin.toFixed(0)} ₽ (${(margin/state.summary.totalWithVAT*100).toFixed(1)}%)</span></div>
+</div>
+`;
+break;
+
+case 7:
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Анализ загрузки сотрудников. Красным - перегруз (>8ч/день).</p>
+<div id="resourceChart" style="padding:10px;"></div>
+`;
+const totalDays = state.tasks.reduce((s,t) => s + t.duration, 0) || 1;
+const dailyLoad = {};
+state.employees.forEach(e => dailyLoad[e.id] = 0);
+state.tasks.forEach(t => {
+if (t.employeeId) dailyLoad[t.employeeId] = (dailyLoad[t.employeeId] || 0) + t.duration * 8 / totalDays;
+});
+let resHtml = '<table><tr><th>Сотрудник</th><th>Ср. часов в день</th><th>Статус</th></tr>';
+state.employees.forEach(e => {
+const load = dailyLoad[e.id] || 0;
+const status = load > 8 ? '🔴 Перегруз' : (load < 4 ? '🟡 Недогруз' : '🟢 Норма');
+resHtml += `<tr><td>${e.name}</td><td>${load.toFixed(1)} ч</td><td>${status}</td></tr>`;
+});
+resHtml += '</table>';
+document.getElementById('panelContent').innerHTML = html + resHtml;
+return;
+
+case 8:
+html += `
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Критический путь и оптимизация. Попробуйте уменьшить длительность, изменив длительности задач.</p>
+<div class="gantt-container" id="ganttChartOpt"></div>
+<div style="margin-top:12px;">
+<button class="btn btn-primary" onclick="alert('Оптимизация: Параллельный монтаж камер и контроллеров сократил путь на 2 дня!')">🚀 Применить оптимизацию</button>
+</div>
+`;
+break;
+
+default: html += `<p>Занятие ${currentLesson} в разработке.</p>`;
+}
+container.innerHTML = html;
+if (currentLesson === 4) renderGantt('ganttChart');
+if (currentLesson === 8) renderGantt('ganttChartOpt');
+}
+
+// ============================================================
+// 5. GANTT
+// ============================================================
+function renderGantt(containerId = 'ganttChart') {
+const container = document.getElementById(containerId);
+if (!container) return;
+if (ganttInstance) { ganttInstance.destroy(); ganttInstance = null; }
+const tasks = state.tasks.map((t, idx) => {
+let start = new Date(state.startDate);
+let offset = 0;
+for (let i = 0; i < idx; i++) offset += state.tasks[i].duration;
+start.setDate(start.getDate() + offset);
+const end = new Date(start);
+end.setDate(end.getDate() + t.duration);
+return { id: t.id, name: t.name, start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], progress: t.progress || 0 };
+});
+if (tasks.length === 0) { container.innerHTML = '<p style="padding:20px;text-align:center;color:#999;">Нет задач</p>'; return; }
+try {
+ganttInstance = new Gantt(container, tasks, { header_height: 40, column_width: 30, step: 24, view_mode: 'Day', bar_height: 20 });
+} catch(e) { container.innerHTML = '<p style="padding:20px;color:red;">Ошибка загрузки Gantt. Проверьте интернет.</p>'; }
+}
+
+// ============================================================
+// 6. МУТАЦИИ ДАННЫХ
+// ============================================================
+function updateTask(id, field, value) {
+const t = state.tasks.find(t => t.id === id);
+if (t) { t[field] = value; recalcAll(); }
+}
+function toggleDone(id) {
+const t = state.tasks.find(t => t.id === id);
+if (!t) return;
+t.progress = (t.progress === 100) ? 0 : 100;
+recalcAll();
+}
+// --- реестр ресурсов фирмы (веха 0) ---
+function addRes() {
+state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово' });
+recalcAll();
+}
+function updateRes(id, field, value) {
+const r = state.firmResources.find(r => r.id === id);
+if (r) { r[field] = value; recalcAll(); }
+}
+function removeRes(id) {
+state.firmResources = state.firmResources.filter(r => r.id !== id);
+recalcAll();
+}
+
+// ============================================================
+// ОРГСТРУКТУРА ФИРМЫ (PNG на canvas)
+// ============================================================
+function orgChart() {
+const W = 980, H = 560;
+const c = document.createElement('canvas');
+c.width = W; c.height = H;
+const ctx = c.getContext('2d');
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(0, 0, W, H);
+
+// заголовок — название фирмы
+ctx.fillStyle = '#0f172a';
+ctx.font = 'bold 15px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('Организационная структура: ' + (clientData.firmName || 'фирма'), W / 2, 24);
+
+function box(x, y, w, h, name, pos1, pos2, dept) {
+ctx.fillStyle = dept ? '#f1f5f9' : '#eff6ff';
+ctx.strokeStyle = dept ? '#64748b' : '#2563eb';
+ctx.lineWidth = 1.4;
+ctx.beginPath();
+ctx.roundRect(x, y, w, h, 7);
+ctx.fill(); ctx.stroke();
+ctx.fillStyle = '#0f172a';
+ctx.font = 'bold 12px Arial';
+ctx.textAlign = 'center';
+ctx.fillText(name, x + w / 2, y + 19);
+ctx.fillStyle = '#475569';
+ctx.font = '10px Arial';
+ctx.fillText(pos1, x + w / 2, y + 34);
+if (pos2) ctx.fillText(pos2, x + w / 2, y + 46);
+return { cx: x + w / 2, top: y, bottom: y + h };
+}
+function link(from, to) {
+ctx.strokeStyle = '#94a3b8';
+ctx.lineWidth = 1.2;
+const midY = (from.bottom + to.top) / 2;
+ctx.beginPath();
+ctx.moveTo(from.cx, from.bottom);
+ctx.lineTo(from.cx, midY);
+ctx.lineTo(to.cx, midY);
+ctx.lineTo(to.cx, to.top);
+ctx.stroke();
+}
+
+// уровень 1 — генеральный директор
+const dir = box(390, 44, 200, 52, 'Директоров С.П.', 'Генеральный директор');
+
+// уровень 2 — директору подчиняются только главбух, главный инженер и справа помощник
+const eng = box(50, 152, 210, 52, 'Эскизов В.И.', 'Главный инженер');
+const buh = box(385, 152, 210, 52, 'Главнова О.И.', 'Главный бухгалтер');
+const sec = box(720, 152, 230, 58, 'Безопасников И.И.', 'Помощник директора', '(безопасность, юрист)');
+link(dir, eng); link(dir, buh); link(dir, sec);
+
+// уровень 3 — отдел монтажа/производства и чертёжник у главного инженера; сметчик и склад у главбуха
+const dept = box(30, 268, 220, 52, 'ОТДЕЛ МОНТАЖА', 'и производства', null, true);
+const drf  = box(270, 268, 160, 52, 'Чертёжников А.С.', 'Чертёжник (AutoCAD)');
+link(eng, dept); link(eng, drf);
+const b1 = box(470, 268, 150, 52, 'Сметова О.П.', 'Бухгалтер-сметчик');
+const b2 = box(635, 268, 150, 52, 'Складников Е.П.', 'Бухгалтер склада');
+link(buh, b1); link(buh, b2);
+
+// уровень 4 — состав отдела монтажа и производства
+const m1 = box(20, 400, 150, 52, 'Монтажников С.А.', 'Монтажник');
+const m2 = box(180, 400, 150, 52, 'Помощников В.Е.', 'Специалист-', 'монтажник');
+const m3 = box(340, 400, 150, 52, 'Наладчиков Ф.И.', 'Наладчик');
+link(dept, m1); link(dept, m2); link(dept, m3);
+
+ctx.fillStyle = '#94a3b8';
+ctx.font = '9px Arial';
+ctx.textAlign = 'right';
+ctx.fillText('Сформировано оболочкой практикума УПЗИ', W - 14, H - 12);
+
+const url = c.toDataURL('image/png');
+const holder = document.getElementById('orgChartBox');
+if (holder) holder.innerHTML = '<img src="' + url + '" alt="Оргструктура фирмы" style="max-width:100%; border:1px solid #e2e8f0; border-radius:8px;">';
+const a = document.createElement('a');
+a.href = url;
+a.download = 'оргструктура_фирмы.png';
+a.click();
+}
+function updateEmp(id, field, value) {
+const e = state.employees.find(e => e.id === id);
+if (e) { e[field] = value; recalcAll(); }
+}
+function updateMat(taskId, idx, field, value) {
+const t = state.tasks.find(t => t.id === taskId);
+if (t && t.materials[idx]) { t.materials[idx][field] = value; recalcAll(); }
+}
+function addMat(taskId) {
+const t = state.tasks.find(t => t.id === taskId);
+if (t) { t.materials.push({ name: 'Новый компонент', qty: 1, priceBudget: 100, priceMiddle: 200, priceVip: 400 }); recalcAll(); }
+}
+function removeMat(taskId, idx) {
+const t = state.tasks.find(t => t.id === taskId);
+if (t) { t.materials.splice(idx, 1); recalcAll(); }
+}
+function addTask(stage) {
+state.tasks.push({ id: Date.now(), name: 'Новая задача', duration: 1, stage: stage || 'II', employeeId: null, materials: [] });
+recalcAll();
+}
+function unlockAll() {
+document.querySelectorAll('.lesson-tab').forEach(tab => tab.classList.remove('locked'));
+alert('Все занятия разблокированы (демо-режим).');
+}
+function loadTemplate(type) {
+// шаблоны вехи 2 — только монтажные и пусконаладочные работы
+let tasks = [];
+if (type === 'skud') {
+tasks = [
+{ id: 2001, name: 'Монтаж контроллеров СКУД', duration: 2, stage: 'II', employeeId: 2, materials: [{ name: 'Контроллер', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }] },
+{ id: 2002, name: 'Монтаж считывателей и замков', duration: 2, stage: 'II', employeeId: 2, materials: [{ name: 'Считыватель', qty: 4, priceBudget: 2500, priceMiddle: 5000, priceVip: 12000 }] },
+{ id: 2003, name: 'Настройка ПО СКУД', duration: 2, stage: 'III', employeeId: 3, materials: [{ name: 'Лицензия ПО', qty: 1, priceBudget: 5000, priceMiddle: 10000, priceVip: 25000 }] },
+];
+} else if (type === 'video') {
+tasks = [
+{ id: 2001, name: 'Монтаж внутренних камер', duration: 2, stage: 'II', employeeId: 2, materials: [{ name: 'Камера купольная', qty: 6, priceBudget: 4000, priceMiddle: 8000, priceVip: 15000 }] },
+{ id: 2002, name: 'Монтаж уличных камер', duration: 2, stage: 'II', employeeId: 2, materials: [{ name: 'Камера уличная', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }] },
+{ id: 2003, name: 'Настройка NVR и ПО', duration: 2, stage: 'III', employeeId: 3, materials: [{ name: 'NVR', qty: 1, priceBudget: 15000, priceMiddle: 30000, priceVip: 50000 }] },
+];
+} else {
+tasks = [
+{ id: 2001, name: 'Монтаж оборудования системы', duration: 2, stage: 'II', employeeId: 2, materials: [] },
+{ id: 2002, name: 'Пусконаладочные работы', duration: 2, stage: 'III', employeeId: 3, materials: [] },
+];
+}
+// веха 1 (подготовительный этап) сохраняется, веха 2 заменяется шаблоном
+const prep = state.tasks.filter(t => t.stage === 'I');
+state.tasks = [...(prep.length ? prep : bpTasks(type)), ...tasks];
+state.projectType = type;
+recalcAll();
+alert(`Веха 2 «Монтаж системы»: шаблон "${type}" загружен. Подготовительный этап (веха 1) сохранён.`);
+document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked');
+}
+
+// ============================================================
+// 7. ИМПОРТ / ЭКСПОРТ JSON
+// ============================================================
+function exportJSON() {
+const data = JSON.stringify(state, null, 2);
+const blob = new Blob([data], { type: 'application/json' });
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = `project_lesson_${currentLesson}.json`;
+a.click();
+alert(`✅ JSON экспортирован! (Занятие ${currentLesson})`);
+}
+
+function importJSON(event) {
+const file = event.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const data = JSON.parse(e.target.result);
+state = data;
+recalcAll();
+alert('✅ Данные импортированы!');
+document.querySelectorAll('.lesson-tab').forEach(tab => {
+const num = parseInt(tab.dataset.lesson);
+if (num <= currentLesson + 1) tab.classList.remove('locked');
+});
+} catch(err) { alert('Ошибка импорта: ' + err.message); }
+};
+reader.readAsText(file);
+this.value = '';
+}
+
+// ============================================================
+// 8. НАВИГАЦИЯ ПО ЗАНЯТИЯМ
+// ============================================================
+document.getElementById('lessonTabs').addEventListener('click', function(e) {
+const tab = e.target.closest('.lesson-tab');
+if (!tab || tab.classList.contains('locked')) return;
+currentLesson = parseInt(tab.dataset.lesson);
+document.querySelectorAll('.lesson-tab').forEach(t => t.classList.remove('active'));
+tab.classList.add('active');
+recalcAll();
+});
+</script>
+</body>
+</html>
