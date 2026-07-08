@@ -187,8 +187,9 @@ font-size: 14px; margin-top: 4px;
 .btn-danger { background: #ef4444; color: white; }
 .btn-danger:hover { background: #dc2626; }
 .btn-sm { padding: 4px 12px; font-size: 12px; }
-.firm-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px; margin-bottom: 20px; }
+.firm-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #dbeafe; color: #0f172a; border: 1px solid #93c5fd; padding: 12px 24px; border-radius: 12px; margin-bottom: 20px; }
 .firm-header span { font-weight: 600; }
+.okved-badge { display: inline-block; background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
 
 /* --- ОСНОВНОЙ ИНТЕРФЕЙС ЗАНЯТИЙ --- */
 #mainApp { display: none; }
@@ -295,11 +296,13 @@ input[type="number"] { width: 70px; }
 <div id="startScreen">
 <div class="firm-header">
 <span id="firmDisplay">🏢 Название фирмы не задано</span>
-<button class="btn btn-outline" style="background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.3);" onclick="document.getElementById('firmInput').focus()">✏️ Изменить</button>
+<span class="okved-badge">ОКВЭД 43.21 — Производство электромонтажных работ</span>
+<button class="btn btn-outline" onclick="document.getElementById('firmInput').focus()">✏️ Изменить</button>
 </div>
 <div class="step-panel">
 <h2>Шаг 1. Название вашей компании</h2>
 <p>Введите официальное наименование вашей фирмы (оно будет отображаться во всех документах).</p>
+<p style="font-size:13px; color:#1e40af; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px;">Вид деятельности по ОКВЭД: <strong>43.21 «Производство электромонтажных работ»</strong> (раздел F «Строительство») — монтаж систем видеонаблюдения, СКУД, пожарной и охранной сигнализации.</p>
 <input type="text" id="firmInput" placeholder="Например: ООО «ТехноСистемы»" value="ООО «Безопасный Дом»">
 <button class="btn btn-primary" style="margin-top:10px;" onclick="setFirmName()">✅ Сохранить</button>
 </div>
