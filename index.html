@@ -656,6 +656,7 @@ function defaultFirmResources() {
 return [
 { id: 1, category: 'Основные средства', name: 'Ноутбук инженера', unit: 'шт', qty: 2, price: 65000, period: 'разово', costType: 'CAPEX' },
 { id: 2, category: 'Основные средства', name: 'МФУ (печать чертежей и смет)', unit: 'шт', qty: 1, price: 25000, period: 'разово', costType: 'CAPEX' },
+{ id: 15, category: 'Основные средства', name: 'Грузовой автомобиль монтажников (ГАЗель Next, фургон)', unit: 'шт', qty: 1, price: 2000000, period: 'разово', costType: 'CAPEX' },
 { id: 3, category: 'Основные средства', name: 'Подписка AutoCAD LT', unit: 'лиц', qty: 1, price: 3500, period: 'мес', costType: 'OPEX' },
 { id: 4, category: 'Основные средства', name: 'Лицензия сметного ПО', unit: 'лиц', qty: 1, price: 2200, period: 'мес', costType: 'OPEX' },
 { id: 5, category: 'Аренда офиса', name: 'Офис 40 м² (700 ₽/м² в мес)', unit: 'м²', qty: 40, price: 700, period: 'мес', costType: 'OPEX' },
@@ -689,23 +690,6 @@ employees: [
 { id: 10, name: 'Складников Е.П.', position: 'Бухгалтер склада', qualification: 'среднее спец., 1С:Склад', eduLevel: 'Среднее образ-е', ratePerHour: 0, loadFactor: 0.3 },
 ],
 tasks: [],
-resources: [
-{ id: 1, category: 'Основные средства', name: 'Компьютер инженерный', qty: 3, price: 45000, period: 'once' },
-{ id: 2, category: 'Основные средства', name: 'Лицензия AutoCAD LT', qty: 1, price: 60000, period: 'once' },
-{ id: 3, category: 'Основные средства', name: 'Лицензия сметного ПО', qty: 1, price: 30000, period: 'once' },
-{ id: 4, category: 'Основные средства', name: 'МФУ (принтер-сканер)', qty: 1, price: 25000, period: 'once' },
-{ id: 5, category: 'Аренда офиса', name: 'Офис 40 м², бизнес-центр', qty: 1, price: 28000, period: 'monthly' },
-{ id: 6, category: 'Содержание офиса', name: 'Уборка помещения', qty: 1, price: 4000, period: 'monthly' },
-{ id: 7, category: 'Содержание офиса', name: 'Оплата ЖКХ', qty: 1, price: 6000, period: 'monthly' },
-{ id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', qty: 1, price: 1500, period: 'monthly' },
-{ id: 9, category: 'Хостинг и связь', name: 'IP-телефония', qty: 1, price: 1200, period: 'monthly' },
-{ id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', qty: 1, price: 2500, period: 'monthly' },
-{ id: 11, category: 'Трудовые ресурсы (штат)', name: 'Постоянные работники (ставки — вкладка «Штатный персонал»)', qty: 10, price: 0, period: 'monthly' },
-{ id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', qty: 1, price: 15000, period: 'once' },
-{ id: 13, category: 'Трудовые ресурсы (ГПХ)', name: 'Грузчик по договору ГПХ', qty: 2, price: 5000, period: 'once' },
-{ id: 14, category: 'Грузоперевозки', name: 'Газель: доставка комплектующих и аппаратов для монтажа', qty: 2, price: 3500, period: 'once' },
-{ id: 15, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', qty: 1, price: 4500, period: 'once' }
-],
 drawings: [{ name: 'План этажа', url: '' }],
 summary: { totalLabor: 0, totalMaterial: 0, overheads: 0, profit: 0, total: 0, totalWithVAT: 0 },
 budget: { payroll: 0, taxes: 0, rent: 0, transport: 0, other: 0, totalBudget: 0, margin: 0 },
@@ -843,7 +827,7 @@ ${state.firmResources.map(r => `
 <td><input type="text" value="${r.name}" onchange="updateRes(${r.id}, 'name', this.value)" style="min-width:180px;" /></td>
 <td><input type="text" value="${r.unit}" style="width:45px;" onchange="updateRes(${r.id}, 'unit', this.value)" /></td>
 <td>${r.auto === 'fot' ? `<span style="display:inline-block; padding:6px 8px;">${state.employees.length}</span>` : `<input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" />`}</td>
-<td>${r.auto === 'fot' ? '<span style="font-size:11px; color:#64748b;">оклады со вкладки 2</span>' : `<input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" />`}</td>
+<td>${r.auto === 'fot' ? '<span style="font-size:11px; color:#64748b;">оклады со вкладки 2</span>' : `<input type="number" value="${r.price}" step="100" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" />`}</td>
 <td><select onchange="updateRes(${r.id}, 'period', this.value)"><option ${r.period === 'разово' ? 'selected' : ''}>разово</option><option ${r.period === 'мес' ? 'selected' : ''}>мес</option></select></td>
 <td><select onchange="updateRes(${r.id}, 'costType', this.value)" title="${r.costType === 'CAPEX' ? CAPEX_DEF : OPEX_DEF}" style="font-weight:600; color:${r.costType === 'CAPEX' ? '#7c3aed' : '#0891b2'};"><option ${r.costType === 'CAPEX' ? 'selected' : ''}>CAPEX</option><option ${r.costType === 'OPEX' ? 'selected' : ''}>OPEX</option></select></td>
 <td style="white-space:nowrap; font-weight:600;">${resVal(r).toLocaleString('ru-RU')}${r.period === 'мес' ? '/мес' : ''}</td>
