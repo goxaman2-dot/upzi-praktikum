@@ -205,7 +205,10 @@ font-size: 14px; margin-top: 4px;
 .lesson-tab.done { border-color: #22c55e; background: #dcfce7; color: #166534; }
 .content { display: flex; padding: 24px 30px; gap: 30px; min-height: 600px; }
 .main-panel { flex: 2; }
-.side-panel { flex: 1; background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; max-height: 700px; overflow-y: auto; }
+.side-panel { flex: 0 0 218px; max-width: 218px; background: #f8fafc; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; max-height: 700px; overflow-y: auto; font-size: 12px; }
+.side-panel .summary-card { padding: 6px 10px; margin-bottom: 6px; }
+.side-panel .summary-card label { font-size: 9px; }
+.side-panel .summary-card span { font-size: 14px; }
 .panel-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #0f172a; display: flex; gap: 10px; align-items: center; }
 .panel-title .badge { background: #2563eb; color: white; font-size: 12px; padding: 2px 10px; border-radius: 20px; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -233,6 +236,7 @@ input[type="number"] { width: 70px; }
 .notif-flash { animation: flash 1s ease 3; }
 @keyframes flash { 0% { background-color: #fef2f2; } 50% { background-color: #fecaca; } 100% { background-color: #fef2f2; } }
 .tip { border-bottom: 1px dotted currentColor; cursor: help; }
+.side-sec { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #475569; font-weight: 700; margin: 2px 0 5px; }
 </style>
 </head>
 <body>
@@ -424,19 +428,29 @@ input[type="number"] { width: 70px; }
 <div id="panelContent"><!-- Динамически рендерится JS --></div>
 </div>
 <div class="side-panel" id="sidePanel">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-<h3 style="font-size:16px;">📊 Текущий проект</h3>
-<button class="btn btn-sm btn-primary" onclick="exportJSON()">💾 Экспорт</button>
-<button class="btn btn-sm btn-outline" onclick="document.getElementById('importInput').click()">📂 Импорт</button>
+<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+<h3 style="font-size:13px;">📊 Проект</h3>
+<span style="display:flex; gap:4px;">
+<button class="btn btn-sm btn-primary" onclick="exportJSON()">💾</button>
+<button class="btn btn-sm btn-outline" onclick="document.getElementById('importInput').click()">📂</button>
+</span>
 <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
 </div>
 <div id="projectStats">
-<div class="summary-card"><label>Тип</label><span id="dispType">СКУД</span></div>
-<div class="summary-card"><label>Задач</label><span id="dispTasks">0</span></div>
-<div class="summary-card"><label>Сотрудников</label><span id="dispEmps">0</span></div>
-<div class="summary-card"><label>Длительность</label><span id="dispDur">0 дн</span></div>
+<div class="side-sec">🏢 Бюджет фирмы <span class="tip" style="font-weight:400; text-transform:none;" title="Постоянная экономика организации: существует независимо от конкретного заказа. CAPEX окупается серией проектов, месячный OPEX (офис, связь, подписки, оклады штата) фирма несёт даже без заказов.">ⓘ</span></div>
+<div class="summary-card" style="border-color:#c4b5fd;"><label style="color:#7c3aed;">CAPEX (активы)</label><span id="dispCapex" style="color:#7c3aed;">0 ₽</span></div>
+<div class="summary-card" style="border-color:#67e8f9;"><label style="color:#0891b2;">OPEX / мес (вкл. ФОТ)</label><span id="dispOpexM" style="color:#0891b2;">0 ₽</span></div>
+<div class="summary-card"><label>Штат, чел</label><span id="dispEmps">0</span></div>
+
+<div class="side-sec" style="margin-top:12px;">📋 Бюджет проекта <span class="tip" style="font-weight:400; text-transform:none;" title="Затраты и показатели конкретного заказа: возникают с заявкой клиента и закрываются сдачей объекта. Критерий: не будет проекта — не будет и этих затрат.">ⓘ</span></div>
+<div class="summary-card"><label>Тип системы</label><span id="dispType">СКУД</span></div>
+<div class="summary-card"><label>Задач / длительность</label><span><span id="dispTasks">0</span> / <span id="dispDur">0 дн</span></span></div>
+<div class="summary-card"><label>Труд по задачам</label><span id="dispLaborS">0 ₽</span></div>
+<div class="summary-card"><label>Материалы</label><span id="dispMatS">0 ₽</span></div>
+<div class="summary-card" style="border-color:#67e8f9;"><label style="color:#0891b2;">OPEX разовый (ГПХ, доставка)</label><span id="dispOpexO" style="color:#0891b2;">0 ₽</span></div>
+<div class="summary-card" style="border-color:#93c5fd; background:#eff6ff;"><label style="color:#1d4ed8;">Смета (итого)</label><span id="dispEst" style="color:#1d4ed8;">—</span></div>
 </div>
-<hr style="margin:16px 0;">
+<hr style="margin:10px 0;">
 <div id="sideDynamic"><p style="color:#64748b; font-size:13px;">Загрузите шаблон или импортируйте JSON</p></div>
 </div>
 </div>
@@ -627,7 +641,16 @@ goToProject();
 // ============================================================
 const RES_CATS = ['Основные средства', 'Аренда офиса', 'Содержание офиса', 'Хостинг и связь', 'Трудовые ресурсы (ГПХ)', 'Грузоперевозки'];
 const CAPEX_DEF = '{CAPEX (Capital Expenditure) — капитальные затраты: единовременные вложения в активы длительного пользования (оборудование, техника, инструмент), которые ставятся на баланс фирмы, амортизируются и окупаются в течение нескольких лет серией проектов}';
-const OPEX_DEF = '{OPEX (Operational Expenditure) — операционные затраты: регулярные расходы на текущую деятельность (аренда, связь, подписки ПО, договоры ГПХ, доставка), которые списываются в себестоимость периода и должны покрываться выручкой каждого проекта}';
+const OPEX_DEF = '{OPEX (Operational Expenditure) — операционные затраты: регулярные расходы на текущую деятельность (аренда, связь, подписки ПО, оплата труда, договоры ГПХ, доставка), которые списываются в себестоимость периода и должны покрываться выручкой каждого проекта}';
+
+// месячный ФОТ фирмы: сумма окладов с вкладки 2
+function payrollMonth() {
+return state.employees.reduce((s, e) => s + (e.ratePerHour || 0) * 160 * (e.loadFactor || 0), 0);
+}
+// стоимость строки ресурса: строка ФОТ считается автоматически из окладов
+function resVal(r) {
+return r.auto === 'fot' ? payrollMonth() : (r.qty || 0) * (r.price || 0);
+}
 
 function defaultFirmResources() {
 return [
@@ -641,7 +664,7 @@ return [
 { id: 8, category: 'Хостинг и связь', name: 'Интернет-доступ', unit: 'усл', qty: 1, price: 1500, period: 'мес', costType: 'OPEX' },
 { id: 9, category: 'Хостинг и связь', name: 'IP-телефония', unit: 'усл', qty: 1, price: 900, period: 'мес', costType: 'OPEX' },
 { id: 10, category: 'Хостинг и связь', name: 'Хостинг сайта и CRM', unit: 'усл', qty: 1, price: 1200, period: 'мес', costType: 'OPEX' },
-{ id: 11, category: 'Трудовые ресурсы (ГПХ)', name: 'Постоянный штат — 10 чел (ФОТ: см. вкладку 2)', unit: 'чел', qty: 10, price: 0, period: 'мес', costType: 'OPEX' },
+{ id: 11, category: 'Трудовые ресурсы (ГПХ)', name: 'Постоянный штат — оклады (авторасчёт со вкладки 2)', unit: 'чел', qty: 10, price: 0, period: 'мес', costType: 'OPEX', auto: 'fot' },
 { id: 12, category: 'Трудовые ресурсы (ГПХ)', name: 'Электрик по договору ГПХ (доп. задачи)', unit: 'дог', qty: 1, price: 15000, period: 'разово', costType: 'OPEX' },
 { id: 13, category: 'Грузоперевозки', name: 'Доставка комплектующих и аппаратов (Газель)', unit: 'рейс', qty: 2, price: 3500, period: 'разово', costType: 'OPEX' },
 { id: 14, category: 'Грузоперевозки', name: 'Доставка кабеля и датчиков', unit: 'рейс', qty: 1, price: 3500, period: 'разово', costType: 'OPEX' }
@@ -654,16 +677,16 @@ priceLevel: 'middle',
 startDate: '2026-07-01',
 firmResources: defaultFirmResources(),
 employees: [
-{ id: 1, name: 'Эскизов В.И.', position: 'Главный инженер', qualification: 'высшее, стаж 10 лет', ratePerHour: 0, loadFactor: 0.5 },
-{ id: 2, name: 'Монтажников С.А.', position: 'Монтажник', qualification: 'среднее, допуск III', ratePerHour: 0, loadFactor: 0.8 },
-{ id: 3, name: 'Наладчиков Ф.И.', position: 'Наладчик', qualification: 'высшее, обучение ПО', ratePerHour: 0, loadFactor: 0.7 },
-{ id: 4, name: 'Чертёжников А.С.', position: 'Инженер-чертёжник (AutoCAD)', qualification: 'высшее, AutoCAD', ratePerHour: 0, loadFactor: 0.5 },
-{ id: 5, name: 'Сметова О.П.', position: 'Бухгалтер-сметчик', qualification: 'высшее, сметное дело', ratePerHour: 0, loadFactor: 0.5 },
-{ id: 6, name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', ratePerHour: 0, loadFactor: 0.2 },
-{ id: 7, name: 'Главнова О.И.', position: 'Главный бухгалтер', qualification: 'высшее, аттестат профбухгалтера', ratePerHour: 0, loadFactor: 0.3 },
-{ id: 8, name: 'Помощников В.Е.', position: 'Специалист-монтажник', qualification: 'среднее спец., допуск II', ratePerHour: 0, loadFactor: 0.8 },
-{ id: 9, name: 'Безопасников И.И.', position: 'Специалист безопасности (юрист, помощник директора)', qualification: 'высшее юридическое', ratePerHour: 0, loadFactor: 0.3 },
-{ id: 10, name: 'Складников Е.П.', position: 'Бухгалтер склада', qualification: 'среднее спец., 1С:Склад', ratePerHour: 0, loadFactor: 0.3 },
+{ id: 1, name: 'Эскизов В.И.', position: 'Главный инженер', qualification: 'высшее, стаж 10 лет', eduLevel: 'Магистр', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 2, name: 'Монтажников С.А.', position: 'Монтажник', qualification: 'среднее, допуск III', eduLevel: 'Среднее образ-е', ratePerHour: 0, loadFactor: 0.8 },
+{ id: 3, name: 'Наладчиков Ф.И.', position: 'Наладчик', qualification: 'высшее, обучение ПО', eduLevel: 'Специалист', ratePerHour: 0, loadFactor: 0.7 },
+{ id: 4, name: 'Чертёжников А.С.', position: 'Инженер-чертёжник (AutoCAD)', qualification: 'высшее, AutoCAD', eduLevel: 'Специалист', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 5, name: 'Сметова О.П.', position: 'Бухгалтер-сметчик', qualification: 'высшее, сметное дело', eduLevel: 'Специалист', ratePerHour: 0, loadFactor: 0.5 },
+{ id: 6, name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', eduLevel: 'Магистр', ratePerHour: 0, loadFactor: 0.2 },
+{ id: 7, name: 'Главнова О.И.', position: 'Главный бухгалтер', qualification: 'высшее, аттестат профбухгалтера', eduLevel: 'Специалист', ratePerHour: 0, loadFactor: 0.3 },
+{ id: 8, name: 'Помощников В.Е.', position: 'Специалист-монтажник', qualification: 'среднее спец., допуск II', eduLevel: 'Среднее образ-е', ratePerHour: 0, loadFactor: 0.8 },
+{ id: 9, name: 'Безопасников И.И.', position: 'Специалист безопасности (юрист, помощник директора)', qualification: 'высшее юридическое', eduLevel: 'Магистр', ratePerHour: 0, loadFactor: 0.3 },
+{ id: 10, name: 'Складников Е.П.', position: 'Бухгалтер склада', qualification: 'среднее спец., 1С:Склад', eduLevel: 'Среднее образ-е', ratePerHour: 0, loadFactor: 0.3 },
 ],
 tasks: [],
 resources: [
@@ -725,6 +748,7 @@ return { laborCost, materialCost, total: laborCost + materialCost };
 function recalcAll() {
 if (!state.firmResources) state.firmResources = defaultFirmResources();
 state.firmResources.forEach(r => { if (!r.costType) r.costType = (r.category === 'Основные средства' && r.period === 'разово') ? 'CAPEX' : 'OPEX'; });
+state.employees.forEach(e => { if (!e.eduLevel) e.eduLevel = (e.qualification || '').indexOf('средн') === 0 || (e.qualification || '').indexOf('среднее') >= 0 ? 'Среднее образ-е' : 'Специалист'; });
 let totalLabor = 0, totalMaterial = 0, totalDuration = 0;
 const usage = {};
 state.employees.forEach(e => usage[e.id] = 0);
@@ -742,6 +766,15 @@ document.getElementById('dispTasks').innerText = state.tasks.length;
 document.getElementById('dispEmps').innerText = state.employees.length;
 document.getElementById('dispDur').innerText = totalDuration.toFixed(1) + ' дн';
 document.getElementById('dispType').innerText = state.projectType.toUpperCase();
+const capexSum = state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0);
+const opexM = state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r), 0);
+const opexO = state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r), 0);
+document.getElementById('dispCapex').innerText = capexSum.toLocaleString('ru-RU') + ' ₽';
+document.getElementById('dispOpexM').innerText = opexM.toLocaleString('ru-RU') + ' ₽';
+document.getElementById('dispOpexO').innerText = opexO.toLocaleString('ru-RU') + ' ₽';
+document.getElementById('dispLaborS').innerText = totalLabor.toLocaleString('ru-RU') + ' ₽';
+document.getElementById('dispMatS').innerText = totalMaterial.toLocaleString('ru-RU') + ' ₽';
+document.getElementById('dispEst').innerText = state.summary.totalWithVAT > 0 ? Math.round(state.summary.totalWithVAT).toLocaleString('ru-RU') + ' ₽' : '— (занятие 5)';
 renderSideDynamic(usage);
 renderCurrentLesson();
 }
@@ -805,24 +838,24 @@ html += `
 <thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th><span class="tip" title="${CAPEX_DEF}&#10;&#10;${OPEX_DEF}">Тип затрат</span></th><th>Сумма, ₽</th><th></th></tr></thead>
 <tbody>
 ${state.firmResources.map(r => `
-<tr>
+<tr${r.auto === 'fot' ? ' style="background:#f0fdfa;"' : ''}>
 <td><select onchange="updateRes(${r.id}, 'category', this.value)" style="min-width:130px;">${RES_CATS.map(cat => `<option ${cat === r.category ? 'selected' : ''}>${cat}</option>`).join('')}</select></td>
 <td><input type="text" value="${r.name}" onchange="updateRes(${r.id}, 'name', this.value)" style="min-width:180px;" /></td>
 <td><input type="text" value="${r.unit}" style="width:45px;" onchange="updateRes(${r.id}, 'unit', this.value)" /></td>
-<td><input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" /></td>
-<td><input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" /></td>
+<td>${r.auto === 'fot' ? `<span style="display:inline-block; padding:6px 8px;">${state.employees.length}</span>` : `<input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" />`}</td>
+<td>${r.auto === 'fot' ? '<span style="font-size:11px; color:#64748b;">оклады со вкладки 2</span>' : `<input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" />`}</td>
 <td><select onchange="updateRes(${r.id}, 'period', this.value)"><option ${r.period === 'разово' ? 'selected' : ''}>разово</option><option ${r.period === 'мес' ? 'selected' : ''}>мес</option></select></td>
 <td><select onchange="updateRes(${r.id}, 'costType', this.value)" title="${r.costType === 'CAPEX' ? CAPEX_DEF : OPEX_DEF}" style="font-weight:600; color:${r.costType === 'CAPEX' ? '#7c3aed' : '#0891b2'};"><option ${r.costType === 'CAPEX' ? 'selected' : ''}>CAPEX</option><option ${r.costType === 'OPEX' ? 'selected' : ''}>OPEX</option></select></td>
-<td style="white-space:nowrap; font-weight:600;">${(r.qty * r.price).toFixed(0)}${r.period === 'мес' ? '/мес' : ''}</td>
+<td style="white-space:nowrap; font-weight:600;">${resVal(r).toLocaleString('ru-RU')}${r.period === 'мес' ? '/мес' : ''}</td>
 <td><button class="btn btn-danger btn-sm" onclick="removeRes(${r.id})">✕</button></td>
 </tr>`).join('')}
 </tbody>
 </table>
 </div>
 <div style="margin:10px 0 4px; background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; gap:28px; flex-wrap:wrap;">
-<span style="color:#7c3aed;"><strong class="tip" title="${CAPEX_DEF}">CAPEX (капитальные вложения):</strong> ${state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
-<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX ежемесячный:</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
-<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
+<span style="color:#7c3aed;"><strong class="tip" title="${CAPEX_DEF}">CAPEX (капитальные вложения):</strong> ${state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0).toLocaleString('ru-RU')} ₽</span>
+<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX ежемесячный (включая ФОТ):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r), 0).toLocaleString('ru-RU')} ₽/мес</span>
+<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r), 0).toLocaleString('ru-RU')} ₽</span>
 </div>
 
 <div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Веха 1. Подготовительный этап</div>
@@ -865,21 +898,28 @@ html += `
 <div id="orgChartBox" style="margin-bottom:14px;"></div>
 <div style="max-height:400px; overflow-y:auto;">
 <table>
-<thead><tr><th>Сотрудник</th><th>Должность</th><th>Ставка (₽/ч)</th><th>Загрузка (от полной ставки)</th></tr></thead>
+<thead><tr><th>Сотрудник</th><th>Должность</th><th>Квалификация / наличие образования</th><th>Ставка (₽/ч)</th><th>Загрузка (от полной ставки)</th><th>Итого оклад в месяц</th></tr></thead>
 <tbody>
 ${state.employees.map(e => `
 <tr>
 <td>${e.name}</td>
 <td>${e.position}</td>
+<td><select onchange="updateEmp(${e.id}, 'eduLevel', this.value)" title="${e.qualification}">
+<option ${e.eduLevel === 'Специалист' ? 'selected' : ''}>Специалист</option>
+<option ${e.eduLevel === 'Магистр' ? 'selected' : ''}>Магистр</option>
+<option ${e.eduLevel === 'Среднее образ-е' ? 'selected' : ''}>Среднее образ-е</option>
+</select></td>
 <td><input type="number" value="${e.ratePerHour}" step="50" onchange="updateEmp(${e.id}, 'ratePerHour', parseFloat(this.value))" /></td>
 <td><input type="number" value="${e.loadFactor}" step="0.1" min="0" max="1" onchange="updateEmp(${e.id}, 'loadFactor', parseFloat(this.value))" /></td>
+<td style="white-space:nowrap;"><strong>${(e.ratePerHour * 160 * e.loadFactor).toLocaleString('ru-RU')} ₽</strong><br><span style="font-size:11px; color:#64748b;">${e.ratePerHour} ₽/ч × 160 ч × ${e.loadFactor}</span></td>
 </tr>
 `).join('')}
 </tbody>
 </table>
 </div>
 <div style="margin-top:12px; background:#f1f5f9; padding:12px; border-radius:8px;">
-<strong>Итого затрат на труд (сверхурочные ×1.5):</strong> ${state.summary.totalLabor.toFixed(0)} ₽
+<strong>Итого затрат на труд по задачам проекта (сверхурочные ×1.5):</strong> ${state.summary.totalLabor.toFixed(0)} ₽<br>
+<strong>Итого ФОТ фирмы в месяц (сумма окладов):</strong> ${state.employees.reduce((s, e) => s + e.ratePerHour * 160 * e.loadFactor, 0).toLocaleString('ru-RU')} ₽
 </div>
 `;
 break;
@@ -956,8 +996,8 @@ case 6:
 const payroll = state.employees.reduce((sum, e) => sum + (e.ratePerHour * 160 * e.loadFactor), 0);
 const taxes = payroll * 0.3;
 const resSum = (cats, period) => state.firmResources
-.filter(r => cats.includes(r.category) && r.period === period)
-.reduce((s, r) => s + r.qty * r.price, 0);
+.filter(r => cats.includes(r.category) && r.period === period && r.auto !== 'fot')
+.reduce((s, r) => s + resVal(r), 0);
 const rent = resSum(['Аренда офиса', 'Содержание офиса', 'Хостинг и связь'], 'мес');
 const transport = resSum(['Грузоперевозки'], 'мес') + resSum(['Грузоперевозки'], 'разово');
 const other = resSum(['Основные средства'], 'мес') + resSum(['Трудовые ресурсы (ГПХ)'], 'разово') + resSum(['Трудовые ресурсы (ГПХ)'], 'мес');
