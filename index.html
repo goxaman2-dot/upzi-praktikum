@@ -232,6 +232,7 @@ input[type="number"] { width: 70px; }
 
 .notif-flash { animation: flash 1s ease 3; }
 @keyframes flash { 0% { background-color: #fef2f2; } 50% { background-color: #fecaca; } 100% { background-color: #fef2f2; } }
+.tip { border-bottom: 1px dotted currentColor; cursor: help; }
 </style>
 </head>
 <body>
@@ -625,6 +626,8 @@ goToProject();
 // 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (STORE)
 // ============================================================
 const RES_CATS = ['Основные средства', 'Аренда офиса', 'Содержание офиса', 'Хостинг и связь', 'Трудовые ресурсы (ГПХ)', 'Грузоперевозки'];
+const CAPEX_DEF = '{CAPEX (Capital Expenditure) — капитальные затраты: единовременные вложения в активы длительного пользования (оборудование, техника, инструмент), которые ставятся на баланс фирмы, амортизируются и окупаются в течение нескольких лет серией проектов}';
+const OPEX_DEF = '{OPEX (Operational Expenditure) — операционные затраты: регулярные расходы на текущую деятельность (аренда, связь, подписки ПО, договоры ГПХ, доставка), которые списываются в себестоимость периода и должны покрываться выручкой каждого проекта}';
 
 function defaultFirmResources() {
 return [
@@ -793,13 +796,13 @@ html += `
 <p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> обеспечить информацией подготовительный этап (веху 1) бизнес-процесса — сбор, анализ и разработка коммерческой информации для будущей системы ИБ клиента.</p>
 
 <div style="font-size:16px; font-weight:600; color:#0f172a; margin:6px 0 6px;">Веха 0. Создание ресурсов фирмы</div>
-<p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Каждая потребность отнесена к одному из двух типов затрат: <strong>CAPEX</strong> — капитальные вложения в активы длительного пользования (компьютеры, оборудование), <strong>OPEX</strong> — операционные расходы на текущую деятельность (аренда, подписки, ГПХ, доставка). Это деление понадобится в конце практикума для аналитики: CAPEX окупается серией проектов, OPEX должен покрываться каждым проектом.</p>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Каждая потребность отнесена к одному из двух типов затрат: <strong class="tip" title="${CAPEX_DEF}">CAPEX</strong> — капитальные вложения в активы длительного пользования (компьютеры, оборудование), <strong class="tip" title="${OPEX_DEF}">OPEX</strong> — операционные расходы на текущую деятельность (аренда, подписки, ГПХ, доставка). Наведите мышь на термин — появится определение. Это деление понадобится в конце практикума для аналитики: CAPEX окупается серией проектов, OPEX должен покрываться каждым проектом.</p>
 <div class="toolbar">
 <button class="btn btn-primary btn-sm" onclick="addRes()">➕ Добавить потребность</button>
 </div>
 <div style="max-height:300px; overflow-y:auto;">
 <table>
-<thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th>Тип затрат</th><th>Сумма, ₽</th><th></th></tr></thead>
+<thead><tr><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th><span class="tip" title="${CAPEX_DEF}&#10;&#10;${OPEX_DEF}">Тип затрат</span></th><th>Сумма, ₽</th><th></th></tr></thead>
 <tbody>
 ${state.firmResources.map(r => `
 <tr>
@@ -809,7 +812,7 @@ ${state.firmResources.map(r => `
 <td><input type="number" value="${r.qty}" style="width:55px;" onchange="updateRes(${r.id}, 'qty', parseFloat(this.value) || 0)" /></td>
 <td><input type="number" value="${r.price}" style="width:80px;" onchange="updateRes(${r.id}, 'price', parseFloat(this.value) || 0)" /></td>
 <td><select onchange="updateRes(${r.id}, 'period', this.value)"><option ${r.period === 'разово' ? 'selected' : ''}>разово</option><option ${r.period === 'мес' ? 'selected' : ''}>мес</option></select></td>
-<td><select onchange="updateRes(${r.id}, 'costType', this.value)" style="font-weight:600; color:${r.costType === 'CAPEX' ? '#7c3aed' : '#0891b2'};"><option ${r.costType === 'CAPEX' ? 'selected' : ''}>CAPEX</option><option ${r.costType === 'OPEX' ? 'selected' : ''}>OPEX</option></select></td>
+<td><select onchange="updateRes(${r.id}, 'costType', this.value)" title="${r.costType === 'CAPEX' ? CAPEX_DEF : OPEX_DEF}" style="font-weight:600; color:${r.costType === 'CAPEX' ? '#7c3aed' : '#0891b2'};"><option ${r.costType === 'CAPEX' ? 'selected' : ''}>CAPEX</option><option ${r.costType === 'OPEX' ? 'selected' : ''}>OPEX</option></select></td>
 <td style="white-space:nowrap; font-weight:600;">${(r.qty * r.price).toFixed(0)}${r.period === 'мес' ? '/мес' : ''}</td>
 <td><button class="btn btn-danger btn-sm" onclick="removeRes(${r.id})">✕</button></td>
 </tr>`).join('')}
@@ -817,9 +820,9 @@ ${state.firmResources.map(r => `
 </table>
 </div>
 <div style="margin:10px 0 4px; background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; gap:28px; flex-wrap:wrap;">
-<span style="color:#7c3aed;"><strong>CAPEX (капитальные вложения):</strong> ${state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
-<span style="color:#0891b2;"><strong>OPEX ежемесячный:</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
-<span style="color:#0891b2;"><strong>OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
+<span style="color:#7c3aed;"><strong class="tip" title="${CAPEX_DEF}">CAPEX (капитальные вложения):</strong> ${state.firmResources.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
+<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX ежемесячный:</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽/мес</span>
+<span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + r.qty * r.price, 0).toFixed(0)} ₽</span>
 </div>
 
 <div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Веха 1. Подготовительный этап</div>
