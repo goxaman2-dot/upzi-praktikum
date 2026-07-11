@@ -237,6 +237,48 @@ input[type="number"] { width: 70px; }
 @keyframes flash { 0% { background-color: #fef2f2; } 50% { background-color: #fecaca; } 100% { background-color: #fef2f2; } }
 .tip { border-bottom: 1px dotted currentColor; cursor: help; }
 .side-sec { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #475569; font-weight: 700; margin: 2px 0 5px; }
+
+/* ============================================================
+   РУЛЕТКА ВЫБОРА ТИПА ПРОЕКТА ИБ (после заставки, до воронки)
+   ============================================================ */
+#rouletteScreen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #0A1120; color: #E9EEF6;
+    font-family: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    display: none; flex-direction: column; overflow-y: auto;
+}
+#rouletteScreen.visible { display: flex; }
+.rl-top { padding: 30px 44px 10px; }
+.rl-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:#E8B24A; }
+.rl-title { font-size: clamp(22px,3vw,32px); font-weight:700; margin-top:12px; }
+.rl-sub { color:#8CA0BC; margin-top:12px; max-width:760px; font-size:14.5px; line-height:1.65; }
+.rl-body { flex:1; padding: 20px 44px 44px; display:flex; flex-direction:column; align-items:center; gap:26px; }
+.rl-chests { display:flex; gap:18px; width:100%; max-width:1120px; flex-wrap:wrap; justify-content:center; }
+.rl-chest { flex:1; min-width:260px; background:#0F1A2E; border:1px solid #22304A; border-radius:10px; padding:16px 18px; transition:border-color .3s ease, box-shadow .3s ease; }
+.rl-chest h4 { font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:#E8B24A; margin-bottom:10px; font-weight:600; }
+.rl-chest ul { list-style:none; }
+.rl-chest li { font-size:12.5px; color:#C6D2E4; padding:5px 0; border-bottom:1px dashed #22304A; }
+.rl-chest li:last-child { border-bottom:none; }
+.rl-chest.hit { border-color:#E8B24A; box-shadow:0 0 22px rgba(232,178,74,.25); }
+.rl-result-box { width:min(640px,92vw); background:#0F1A2E; border:1px solid #2C3D5D; border-radius:12px; padding:24px 30px; text-align:center; }
+.rl-result-label { font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.15em; text-transform:uppercase; color:#8CA0BC; }
+.rl-result-name { font-size: clamp(19px,2.5vw,26px); font-weight:700; color:#E8B24A; margin-top:10px; min-height:34px; }
+.rl-result-chest { margin-top:8px; font-size:13px; color:#8CA0BC; }
+.rl-spin-btn { margin-top: 4px; padding:15px 48px; background:#E8B24A; color:#0A1120; border:none; border-radius:4px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:15px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+    transition: background .2s ease, transform .2s ease; }
+.rl-spin-btn:hover { background:#F2C468; transform:translateY(-2px); }
+.rl-spin-btn:disabled { opacity:.4; cursor:not-allowed; }
+.rl-continue-btn { margin-top:12px; padding:13px 40px; background:transparent; color:#E9EEF6; border:1px solid #3A4B6B; border-radius:4px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+    opacity:0; pointer-events:none; transition:opacity .4s ease; }
+.rl-continue-btn.ready { opacity:1; pointer-events:auto; }
+.rl-note { font-size:12.5px; color:#5E7397; max-width:640px; text-align:center; line-height:1.6; }
+.rl-spinning { animation: rlSpinning .12s linear infinite; }
+@keyframes rlSpinning { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+@media (max-width: 860px) {
+    .rl-top, .rl-body { padding-left:20px; padding-right:20px; }
+}
 </style>
 </head>
 <body>
@@ -296,18 +338,43 @@ input[type="number"] { width: 70px; }
     </footer>
 </div>
 
+<!-- ========== РУЛЕТКА ВЫБОРА ТИПА ПРОЕКТА ИБ ========== -->
+<div id="rouletteScreen">
+    <div class="rl-top">
+        <div class="rl-eyebrow">Перед началом практикума</div>
+        <div class="rl-title">Рулетка: тип проекта ИБ для вашей фирмы</div>
+        <p class="rl-sub">Двадцать типов проектов информационной безопасности разложены по трём сундукам.
+        Нажмите «Крутить рулетку» — случайный выбор определит, каким проектом вы будете управлять на всех
+        восьми занятиях практикума. Выбор не подстраивается заранее под заказчика: если результат покажется
+        нестыкующимся с частным домовладением из следующего шага — это тоже часть задания, научиться такие
+        случаи распознавать и обосновывать.</p>
+    </div>
+    <div class="rl-body">
+        <div class="rl-chests" id="rlChests"><!-- рендерится JS --></div>
+        <div class="rl-result-box">
+            <div class="rl-result-label">Результат рулетки</div>
+            <div class="rl-result-name" id="rlResultName">— нажмите «Крутить» —</div>
+            <div class="rl-result-chest" id="rlResultChest">&nbsp;</div>
+        </div>
+        <button class="rl-spin-btn" id="rlSpinBtn" onclick="spinRoulette()">🎲 Крутить рулетку</button>
+        <button class="rl-continue-btn" id="rlContinueBtn" onclick="confirmRouletteAndContinue()">Продолжить в практикум →</button>
+        <p class="rl-note">Можно крутить сколько угодно раз — засчитывается тот результат, с которым вы нажмёте «Продолжить».</p>
+    </div>
+</div>
+
 <div class="app" id="app">
 <!-- ========== СТАРТОВЫЙ ЭКРАН (ВОРОНКА) ========== -->
 <div id="startScreen">
 <div class="firm-header">
 <span id="firmDisplay">🏢 Название фирмы не задано</span>
-<span class="okved-badge">ОКВЭД 43.21 — Производство электромонтажных работ</span>
+<span class="okved-badge" id="okvedBadge">ОКВЭД 43.21 — Производство электромонтажных работ</span>
+<span class="okved-badge" id="assignedProjectBadge" style="background:#fef3c7; border-color:#f59e0b; color:#92400e;">🎲 Тип проекта не выбран</span>
 <button class="btn btn-outline" onclick="document.getElementById('firmInput').focus()">✏️ Изменить</button>
 </div>
 <div class="step-panel">
 <h2>Шаг 1. Название вашей компании</h2>
 <p>Введите официальное наименование вашей фирмы (оно будет отображаться во всех документах).</p>
-<p style="font-size:13px; color:#1e40af; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px;">Вид деятельности по ОКВЭД: <strong>43.21 «Производство электромонтажных работ»</strong> (раздел F «Строительство») — монтаж систем видеонаблюдения, СКУД, пожарной и охранной сигнализации.</p>
+<p id="okvedDesc" style="font-size:13px; color:#1e40af; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px;">Вид деятельности по ОКВЭД: <strong>43.21 «Производство электромонтажных работ»</strong> (раздел F «Строительство») — монтаж систем видеонаблюдения, СКУД, пожарной и охранной сигнализации.</p>
 <input type="text" id="firmInput" placeholder="Например: ООО «ТехноСистемы»" value="ООО «Безопасный Дом»">
 <button class="btn btn-primary" style="margin-top:10px;" onclick="setFirmName()">✅ Сохранить</button>
 </div>
@@ -315,7 +382,7 @@ input[type="number"] { width: 70px; }
 <h2>Шаг 2. 📞 Входящий звонок от заказчика</h2>
 <p><strong>Олеся Половинкина</strong> (офис-менеджер) принимает звонок.</p>
 <p><em>— Здравствуйте! Это компания <span id="firmNamePlaceholder">...</span>. Чем можем помочь?</em></p>
-<p><strong>Клиент:</strong> Мне нужна система видеонаблюдения для частного дома по адресу: <strong>ул. Пирогова, 116</strong>.</p>
+<p id="clientCallLine"><strong>Клиент:</strong> Мне нужна система видеонаблюдения для частного дома по адресу: <strong>ул. Пирогова, 116</strong>.</p>
 <button class="btn btn-success" onclick="openClientForm()">📝 Заполнить анкету клиента</button>
 </div>
 <div class="step-panel" id="clientForm" style="display:none;">
@@ -356,11 +423,32 @@ input[type="number"] { width: 70px; }
 <p>На объект выезжает главный инженер <strong>Эскизов В.И.</strong>: исследует объект и готовит эскиз проекта — тип системы, расстановка оборудования, кабельные трассы.</p>
 <label>Тип проектируемой системы *</label>
 <select id="sketchType">
-<option value="video" selected>Видеонаблюдение</option>
+<optgroup label="Сундук I — ИТСО">
+<option value="video" selected>Видеонаблюдение (СОТ)</option>
 <option value="skud">СКУД (контроль доступа)</option>
 <option value="fire">Пожарная сигнализация</option>
 <option value="security">Охранная сигнализация</option>
-<option value="hybrid">Гибридная система</option>
+<option value="perimeter">Периметральное ограждение и турникеты</option>
+<option value="hybrid">Комплексный проект ИТСО «под ключ»</option>
+</optgroup>
+<optgroup label="Сундук II — программно-аппаратный проект">
+<option value="ngfw">Межсетевой экран / NGFW</option>
+<option value="dlp">DLP-система</option>
+<option value="iam">IAM / MFA / SSO</option>
+<option value="siem">SIEM / SOC-мониторинг</option>
+<option value="edr">Антивирус корпоративного класса / EDR</option>
+<option value="vpn">VPN для защищённого удалённого доступа</option>
+<option value="backup">Резервное копирование (Backup/DR)</option>
+<option value="crypto">Криптографическая защита (СКЗИ)</option>
+</optgroup>
+<optgroup label="Сундук III — организационно-административный проект">
+<option value="policy">Политика и регламенты ИБ</option>
+<option value="kii">Категорирование объекта КИИ</option>
+<option value="pdn">Соответствие 152-ФЗ (ПДн)</option>
+<option value="passport">Паспорт безопасности объекта</option>
+<option value="audit">Аудит / пентест ИБ</option>
+<option value="training">Обучение персонала</option>
+</optgroup>
 </select>
 <label>Краткое описание эскиза *</label>
 <textarea id="sketchDesc">6 купольных камер внутри, 2 уличные камеры, NVR в котельной, кабельные трассы по потолку 1-го этажа, ИБП на 2 часа.</textarea>
@@ -502,11 +590,145 @@ function startApplication() {
     splash.classList.add('fade-out');
     setTimeout(() => {
         splash.style.display = 'none';
-        document.getElementById('startScreen').classList.add('visible');
+        renderRouletteChests();
+        document.getElementById('rouletteScreen').classList.add('visible');
     }, 800);
 }
 
 setTimeout(animateProgress, 400);
+
+// ============================================================
+// 0-Б. РУЛЕТКА ВЫБОРА ТИПА ПРОЕКТА ИБ (20 типов, 3 сундука)
+// ============================================================
+const ROULETTE_CHESTS = [
+    { id: 'itso', title: 'Сундук I — ИТСО (инженерно-технические средства охраны)', items: [
+        { code: 'skud', name: 'СКУД (система контроля и управления доступом)' },
+        { code: 'video', name: 'СОТ (система видеонаблюдения)' },
+        { code: 'security', name: 'Охранная сигнализация' },
+        { code: 'fire', name: 'Пожарная сигнализация' },
+        { code: 'perimeter', name: 'Периметральное ограждение и турникеты' },
+        { code: 'hybrid', name: 'Комплексный проект ИТСО «под ключ»' },
+    ]},
+    { id: 'softhard', title: 'Сундук II — программно-аппаратный проект ИБ', items: [
+        { code: 'ngfw', name: 'Межсетевой экран / NGFW' },
+        { code: 'dlp', name: 'DLP-система' },
+        { code: 'iam', name: 'IAM / MFA / SSO' },
+        { code: 'siem', name: 'SIEM / SOC-мониторинг' },
+        { code: 'edr', name: 'Антивирус корпоративного класса / EDR' },
+        { code: 'vpn', name: 'VPN для защищённого удалённого доступа' },
+        { code: 'backup', name: 'Резервное копирование и восстановление (Backup/DR)' },
+        { code: 'crypto', name: 'Криптографическая защита каналов и данных (СКЗИ)' },
+    ]},
+    { id: 'org', title: 'Сундук III — организационно-административный проект', items: [
+        { code: 'policy', name: 'Разработка политики и регламентов ИБ' },
+        { code: 'kii', name: 'Категорирование объекта КИИ (187-ФЗ)' },
+        { code: 'pdn', name: 'Приведение обработки ПДн в соответствие 152-ФЗ' },
+        { code: 'passport', name: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ №1006)' },
+        { code: 'audit', name: 'Аудит / пентест информационной безопасности' },
+        { code: 'training', name: 'Программа обучения персонала (security awareness)' },
+    ]},
+];
+const ALL_ROULETTE_ITEMS = ROULETTE_CHESTS.flatMap(c => c.items.map(it => Object.assign({}, it, { chest: c.id, chestTitle: c.title })));
+let assignedProject = null;
+let rlSpinTimer = null;
+
+function renderRouletteChests() {
+    const box = document.getElementById('rlChests');
+    if (!box) return;
+    box.innerHTML = ROULETTE_CHESTS.map(c => `
+        <div class="rl-chest" data-chest="${c.id}" id="chest-${c.id}">
+            <h4>${c.title}</h4>
+            <ul>${c.items.map(it => `<li>${it.name}</li>`).join('')}</ul>
+        </div>`).join('');
+}
+
+function spinRoulette() {
+    const btn = document.getElementById('rlSpinBtn');
+    const nameEl = document.getElementById('rlResultName');
+    const chestEl = document.getElementById('rlResultChest');
+    const contBtn = document.getElementById('rlContinueBtn');
+    btn.disabled = true;
+    contBtn.classList.remove('ready');
+    document.querySelectorAll('.rl-chest').forEach(c => c.classList.remove('hit'));
+    nameEl.classList.add('rl-spinning');
+    let ticks = 0;
+    const maxTicks = 18;
+    if (rlSpinTimer) clearInterval(rlSpinTimer);
+    rlSpinTimer = setInterval(() => {
+        const r = ALL_ROULETTE_ITEMS[Math.floor(Math.random() * ALL_ROULETTE_ITEMS.length)];
+        nameEl.textContent = r.name;
+        ticks++;
+        if (ticks >= maxTicks) {
+            clearInterval(rlSpinTimer);
+            assignedProject = r;
+            nameEl.classList.remove('rl-spinning');
+            nameEl.textContent = r.name;
+            chestEl.textContent = r.chestTitle;
+            const chestNode = document.getElementById('chest-' + r.chest);
+            if (chestNode) chestNode.classList.add('hit');
+            btn.disabled = false;
+            contBtn.classList.add('ready');
+        }
+    }, 70);
+}
+
+function confirmRouletteAndContinue() {
+    if (!assignedProject) { alert('Сначала крутите рулетку.'); return; }
+    document.getElementById('rouletteScreen').classList.remove('visible');
+    document.getElementById('startScreen').classList.add('visible');
+    state.projectType = assignedProject.code;
+    applyAssignedProjectToFunnel();
+}
+
+// ОКВЭД-2 (ОК 029-2014) по каждому из 20 типов проекта: код регистрации ФИРМЫ СТУДЕНТА
+// должен соответствовать тому, чем она реально занимается по выпавшему проекту —
+// это отдельный вопрос от того, совпадает ли выпавший проект с заявкой конкретного клиента
+// (см. rl-sub на экране рулетки: несовпадение с клиентом — часть задания, а вот несовпадение
+// ОКВЭД фирмы с её же собственным проектом было багом и здесь исправлено).
+const OKVED_MAP = {
+    skud:      { code: '43.21', title: 'Производство электромонтажных работ', desc: 'монтаж и пусконаладка систем контроля и управления доступом (СКУД).' },
+    video:     { code: '43.21', title: 'Производство электромонтажных работ', desc: 'монтаж и пусконаладка систем видеонаблюдения.' },
+    fire:      { code: '43.21', title: 'Производство электромонтажных работ', desc: 'монтаж и пусконаладка систем пожарной сигнализации и оповещения.' },
+    security:  { code: '43.21', title: 'Производство электромонтажных работ', desc: 'монтаж и пусконаладка охранной сигнализации (доп. код 80.20 — обслуживание систем безопасности).' },
+    perimeter: { code: '43.21', title: 'Производство электромонтажных работ', desc: 'монтаж периметральных извещателей, ограждений и турникетов.' },
+    hybrid:    { code: '43.21', title: 'Производство электромонтажных работ', desc: 'комплексный монтаж интегрированных систем ИТСО «под ключ».' },
+    ngfw:      { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'проектирование и внедрение межсетевых экранов (NGFW).' },
+    dlp:       { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'внедрение и настройка DLP-систем предотвращения утечек данных.' },
+    iam:       { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'внедрение систем управления доступом и идентификацией (IAM/MFA/SSO).' },
+    siem:      { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'внедрение и сопровождение SIEM/SOC-мониторинга.' },
+    edr:       { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'внедрение антивирусной защиты корпоративного класса (EDR).' },
+    vpn:       { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'проектирование защищённых каналов удалённого доступа (VPN).' },
+    backup:    { code: '63.11', title: 'Деятельность по обработке данных, предоставление услуг по размещению информации', desc: 'внедрение систем резервного копирования и аварийного восстановления (Backup/DR).' },
+    crypto:    { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'внедрение СКЗИ (требует также лицензии ФСБ России на данный вид деятельности).' },
+    policy:    { code: '70.22', title: 'Консультирование по вопросам коммерческой деятельности и управления', desc: 'разработка политики и регламентов информационной безопасности.' },
+    kii:       { code: '70.22', title: 'Консультирование по вопросам коммерческой деятельности и управления', desc: 'категорирование объектов критической информационной инфраструктуры (187-ФЗ).' },
+    pdn:       { code: '70.22', title: 'Консультирование по вопросам коммерческой деятельности и управления', desc: 'приведение обработки персональных данных в соответствие 152-ФЗ.' },
+    passport:  { code: '74.90', title: 'Деятельность профессиональная, научная и техническая прочая', desc: 'разработка паспорта безопасности объекта / антитеррористической защищённости.' },
+    audit:     { code: '62.02', title: 'Деятельность консультативная и работы в области компьютерных технологий', desc: 'аудит и тестирование на проникновение (пентест) информационной безопасности.' },
+    training:  { code: '85.42', title: 'Образование дополнительное профессиональное', desc: 'разработка и проведение программ обучения персонала по информационной безопасности.' },
+};
+
+function applyAssignedProjectToFunnel() {
+    const p = assignedProject;
+    if (!p) return;
+    const label = TYPE_RU[p.code] || p.name;
+    const badge = document.getElementById('assignedProjectBadge');
+    if (badge) badge.textContent = '🎲 Тип проекта (рулетка): ' + p.name;
+    const callP = document.getElementById('clientCallLine');
+    if (callP) callP.innerHTML = '<strong>Клиент:</strong> Мне нужна услуга: <strong>' + label + '</strong> для частного дома по адресу: <strong>ул. Пирогова, 116</strong>.';
+    const sel = document.getElementById('sketchType');
+    if (sel) {
+        const has = Array.prototype.some.call(sel.options, o => o.value === p.code);
+        if (has) sel.value = p.code;
+    }
+    const ok = OKVED_MAP[p.code];
+    if (ok) {
+        const okBadge = document.getElementById('okvedBadge');
+        if (okBadge) okBadge.textContent = 'ОКВЭД ' + ok.code + ' — ' + ok.title;
+        const okDesc = document.getElementById('okvedDesc');
+        if (okDesc) okDesc.innerHTML = 'Вид деятельности по ОКВЭД: <strong>' + ok.code + ' «' + ok.title + '»</strong> — ' + ok.desc;
+    }
+}
 
 // ============================================================
 // 1. УПРАВЛЕНИЕ ВОРОНКОЙ
@@ -563,7 +785,19 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // --- этап эскиза и передача по бизнес-процессу ---
-const TYPE_RU = { skud: 'СКУД (контроль доступа)', video: 'видеонаблюдения', fire: 'пожарной сигнализации', security: 'охранной сигнализации', hybrid: 'гибридной (интегрированной)' };
+const TYPE_RU = {
+    skud: 'СКУД (контроль доступа)', video: 'видеонаблюдения', fire: 'пожарной сигнализации',
+    security: 'охранной сигнализации', hybrid: 'гибридной (интегрированной) системы ИТСО',
+    perimeter: 'периметрального ограждения и турникетов',
+    ngfw: 'межсетевого экрана (NGFW)', dlp: 'DLP-системы', iam: 'IAM/MFA/SSO',
+    siem: 'SIEM/SOC-мониторинга', edr: 'антивируса корпоративного класса (EDR)',
+    vpn: 'защищённого удалённого доступа (VPN)', backup: 'резервного копирования (Backup/DR)',
+    crypto: 'криптографической защиты каналов и данных (СКЗИ)',
+    policy: 'политики информационной безопасности', kii: 'категорирования объекта КИИ',
+    pdn: 'приведения обработки ПДн в соответствие 152-ФЗ',
+    passport: 'паспорта безопасности объекта', audit: 'аудита/пентеста информационной безопасности',
+    training: 'программы обучения персонала'
+};
 
 function openSketch() {
 document.getElementById('stepSketch').style.display = 'block';
@@ -810,9 +1044,9 @@ ${state.employees.map(e => `<option value="${e.id}" ${e.id === t.employeeId ? 's
 ${withStatus ? statusCell(t) : ''}
 </tr>`;
 html += `
-<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> обеспечить информацией подготовительный этап (веху 1) бизнес-процесса — сбор, анализ и разработка коммерческой информации для будущей системы ИБ клиента.</p>
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> обеспечить информацией подготовительный Этап 1 бизнес-процесса — сбор, анализ и разработка коммерческой информации для будущей системы ИБ клиента.</p>
 
-<div style="font-size:16px; font-weight:600; color:#0f172a; margin:6px 0 6px;">Веха 0. Создание ресурсов фирмы</div>
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:6px 0 6px;">Этап 0. Создание ресурсов фирмы</div>
 <p style="margin-bottom:10px; color:#475569; font-size:13px;">Таблица потребностей: основные средства, аренда и содержание офиса, хостинг и связь, трудовые ресурсы (постоянный штат и договоры ГПХ), аренда грузоперевозок. Каждая потребность отнесена к одному из двух типов затрат: <strong class="tip" title="${CAPEX_DEF}">CAPEX</strong> — капитальные вложения в активы длительного пользования (компьютеры, оборудование), <strong class="tip" title="${OPEX_DEF}">OPEX</strong> — операционные расходы на текущую деятельность (аренда, подписки, ГПХ, доставка). Наведите мышь на термин — появится определение. Это деление понадобится в конце практикума для аналитики: CAPEX окупается серией проектов, OPEX должен покрываться каждым проектом.</p>
 <div class="toolbar">
 <button class="btn btn-primary btn-sm" onclick="addRes()">➕ Добавить потребность</button>
@@ -842,9 +1076,9 @@ ${state.firmResources.map(r => `
 <span style="color:#0891b2;"><strong class="tip" title="${OPEX_DEF}">OPEX разовый (на проект):</strong> ${state.firmResources.filter(r => r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r), 0).toLocaleString('ru-RU')} ₽</span>
 </div>
 
-<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Веха 1. Подготовительный этап</div>
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 10px;">Этап 1. Подготовительный этап</div>
 <div class="toolbar">
-<button class="btn btn-primary btn-sm" onclick="addTask('I')">➕ Добавить задачу (веха 1)</button>
+<button class="btn btn-primary btn-sm" onclick="addTask('I')">➕ Добавить задачу (этап 1)</button>
 <button class="btn btn-outline btn-sm" onclick="unlockAll()">🔓 Разблокировать всё (демо)</button>
 </div>
 <div style="max-height:280px; overflow-y:auto;">
@@ -854,20 +1088,20 @@ ${state.firmResources.map(r => `
 </table>
 </div>
 
-<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Веха 2. Монтаж системы ${TYPE_RU[state.projectType] || ''}</div>
-<p style="margin-bottom:10px; color:#475569; font-size:13px;">Загрузите шаблон монтажных работ по типу системы — задачи вехи 2 добавятся в график вслед за подготовительным этапом.</p>
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Этап 2. Монтаж системы ${TYPE_RU[state.projectType] || ''}</div>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Загрузите шаблон монтажных работ по типу системы — задачи этапа 2 добавятся в график вслед за подготовительным этапом.</p>
 <div class="toolbar">
 <button class="btn btn-success btn-sm" onclick="loadTemplate('skud')">📂 Шаблон СКУД</button>
 <button class="btn btn-success btn-sm" onclick="loadTemplate('video')">📂 Шаблон Видео</button>
 <button class="btn btn-success btn-sm" onclick="loadTemplate('fire')">📂 Шаблон Пожар</button>
 <button class="btn btn-success btn-sm" onclick="loadTemplate('security')">📂 Шаблон Охрана</button>
 <button class="btn btn-success btn-sm" onclick="loadTemplate('hybrid')">📂 Шаблон Гибрид</button>
-<button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу (веха 2)</button>
+<button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу (этап 2)</button>
 </div>
 <div style="max-height:280px; overflow-y:auto;">
 <table>
 <thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длит.</th><th>Исполнитель</th></tr></thead>
-<tbody>${montTasks.length ? montTasks.map((t, i) => taskRow(t, prepTasks.length + i + 1)).join('') : '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:16px;">Задачи вехи 2 ещё не загружены — выберите шаблон выше</td></tr>'}</tbody>
+<tbody>${montTasks.length ? montTasks.map((t, i) => taskRow(t, prepTasks.length + i + 1)).join('') : '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:16px;">Задачи этапа 2 ещё не загружены — выберите шаблон выше</td></tr>'}</tbody>
 </table>
 </div>
 `;
@@ -995,7 +1229,7 @@ state.budget.taxes = taxes;
 state.budget.totalBudget = totalBudget;
 state.budget.margin = margin;
 html += `
-<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Сформировать бюджет подрядчика (внутренний). Офис, доставка и ГПХ берутся из таблицы потребностей вехи 0 (занятие 1).</p>
+<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Сформировать бюджет подрядчика (внутренний). Офис, доставка и ГПХ берутся из таблицы потребностей этапа 0 (занятие 1).</p>
 <div class="summary-grid">
 <div class="summary-card"><label>ФОТ (Оклад)</label><span>${payroll.toFixed(0)} ₽</span></div>
 <div class="summary-card"><label>Налоги (30%)</label><span>${taxes.toFixed(0)} ₽</span></div>
@@ -1081,7 +1315,7 @@ if (!t) return;
 t.progress = (t.progress === 100) ? 0 : 100;
 recalcAll();
 }
-// --- реестр ресурсов фирмы (веха 0) ---
+// --- реестр ресурсов фирмы (этап 0) ---
 function addRes() {
 state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово', costType: 'CAPEX' });
 recalcAll();
@@ -1208,7 +1442,7 @@ document.querySelectorAll('.lesson-tab').forEach(tab => tab.classList.remove('lo
 alert('Все занятия разблокированы (демо-режим).');
 }
 function loadTemplate(type) {
-// шаблоны вехи 2 — только монтажные и пусконаладочные работы
+// шаблоны этапа 2 — только монтажные и пусконаладочные работы
 let tasks = [];
 if (type === 'skud') {
 tasks = [
@@ -1228,12 +1462,12 @@ tasks = [
 { id: 2002, name: 'Пусконаладочные работы', duration: 2, stage: 'III', employeeId: 3, materials: [] },
 ];
 }
-// веха 1 (подготовительный этап) сохраняется, веха 2 заменяется шаблоном
+// этап 1 (подготовительные работы) сохраняется, этап 2 заменяется шаблоном
 const prep = state.tasks.filter(t => t.stage === 'I');
 state.tasks = [...(prep.length ? prep : bpTasks(type)), ...tasks];
 state.projectType = type;
 recalcAll();
-alert(`Веха 2 «Монтаж системы»: шаблон "${type}" загружен. Подготовительный этап (веха 1) сохранён.`);
+alert(`Этап 2 «Монтаж системы»: шаблон "${type}" загружен. Подготовительный Этап 1 сохранён.`);
 document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked');
 }
 
