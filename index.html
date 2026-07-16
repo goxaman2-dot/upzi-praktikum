@@ -1857,6 +1857,130 @@ const ETALON_20 = {
         key: 'Проведение тренинга/фишинг-симуляции, оценка результатов'
     }
 };
+// ============================================================
+// КОМПЛЕКТУЮЩИЕ ПРОЕКТА (3 цены + вендор) — источник: Комплектующие_v3_проверено.xlsx, лист
+// «Комплектующие_20типов» — итоговая, проверенная агентом по реальным прайс-листам вендоров
+// версия (см. работу по верификации цен, 16.07.2026). Три цены = три уровня комплектации/
+// масштаба (бюджет/средний/VIP), НЕ три цены одного и того же товара — для 6 физических (ИТСО)
+// типов это дешевле/дороже модель компонента; для 14 софтверно-организационных типов это чаще
+// разные лицензионные пакеты под разный масштаб бизнеса. null — на этом уровне позиция не
+// предлагается вендором (нет данных, не выдумано). Это готовая часть цены ДОГОВОРА — без
+// ловушек/вариантов выбора, просто факт рынка (см. case 2, блок «Комплектующие проекта»).
+// ============================================================
+const COMPONENTS_20 = {
+    skud: [
+        { name:"Контроллер СКУД (1-2 двери)", budget:3000, middle:15000, vip:45000, vendor:"Iron Logic / Parsec / Bolid Orion", link:"https://sec-group.ru/c/kontrollery-skud/bolid/" },
+        { name:"Считыватель карт / биометрический", budget:1500, middle:6000, vip:25000, vendor:"Iron Logic / Parsec / ZKTeco", link:"https://skud.global-sec.ru/kontrolleryi/kontrolleryi-iron-logic/" },
+        { name:"Электромагнитный / электромеханический замок", budget:2500, middle:6000, vip:15000, vendor:"AccordTec / Tantos / Smartec", link:null },
+        { name:"Турникет (трипод / полноростовой — верхний уровень)", budget:45000, middle:120000, vip:550000, vendor:"Iron Logic / Parsec / PERCo", link:"https://securityrussia.com/skud/kontrolery/" },
+        { name:"ПО управления СКУД (сервер, лицензия)", budget:0, middle:25000, vip:120000, vendor:"Parsec / Bolid Orion Pro", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid" },
+    ],
+    video: [
+        { name:"IP-камера", budget:6000, middle:8000, vip:35000, vendor:"HiWatch (Hikvision) / Dahua / Hikvision Pro", link:"https://www.dssl.ru/products/kamery-videonablyudeniya/tag/ip-kamery-hikvision/" },
+        { name:"Видеорегистратор (NVR)", budget:12000, middle:45000, vip:150000, vendor:"HiWatch / Dahua / TRASSIR", link:"https://dahuapro.ru/ip-videoregistratory/" },
+        { name:"ПО видеоаналитики (лицензия/канал)", budget:0, middle:5090, vip:25000, vendor:"TRASSIR", link:"https://www.dssl.ru/integratoram/price/" },
+        { name:"ИБП для системы видеонаблюдения", budget:5000, middle:8000, vip:20000, vendor:"Ippon / Bolid РИП", link:null },
+    ],
+    fire: [
+        { name:"ППКП (прибор приёмно-контрольный пожарный)", budget:8000, middle:35000, vip:150000, vendor:"Рубеж / Болид Орион", link:"https://products.rubezh.ru/catalog/pozharnaya_signalizatsiya/" },
+        { name:"Дымовой / тепловой извещатель", budget:350, middle:900, vip:2500, vendor:"Болид / Рубеж / System Sensor", link:"https://bolid.ru/production/fire-detection-alarm-sys/" },
+        { name:"Оповещатель (сирена + световое табло)", budget:700, middle:2000, vip:6000, vendor:"Болид / Рубеж", link:"https://shop.bolid.ru/catalog/803660864/" },
+        { name:"Модуль управления эвакуацией", budget:5000, middle:20000, vip:80000, vendor:"Болид / Рубеж", link:"https://bolid.ru/projects/iso-orion/fire-automatic/ps/" },
+    ],
+    security: [
+        { name:"ПКП (прибор приёмно-контрольный охранный)", budget:3875, middle:12000, vip:45000, vendor:"Bolid", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid" },
+        { name:"ИК-извещатель (объёмный)", budget:415, middle:1153, vip:3500, vendor:"Риэлта (Фотон-9) / Bolid", link:"https://satro-paladin.com/catalog/product/6632/" },
+        { name:"Магнитоконтакт", budget:150, middle:400, vip:1200, vendor:"Bolid / Астра", link:"https://sector-sb.ru/catalog/ops/produktsiya_kompanii_bolid/integrirovannaya_sistema_orion/ohrannye_izveschateli_bolid" },
+        { name:"Комплект радиоканальный начального уровня (Астра-Р)", budget:3450, middle:null, vip:null, vendor:"Teko (Астра-Р)", link:"https://satro-paladin.com/catalog/product/7822/" },
+    ],
+    perimeter: [
+        { name:"Радиоволновый извещатель (Барьер-100/300/500)", budget:24000, middle:47000, vip:90000, vendor:"Forteza (Барьер)", link:"https://forteza.ru/products/barer300" },
+        { name:"Активный ИК-барьер", budget:8000, middle:20000, vip:60000, vendor:"Falcon Eye / Teko / Smartec", link:null },
+        { name:"Быстроразворачиваемый комплекс охраны периметра", budget:null, middle:null, vip:600000, vendor:"Радиобарьер (спец.поставщик)", link:"http://bezopas.ru/catalog/tehnicheskie-sredstva-ohrani/radiobarer.html" },
+        { name:"ПО видеоаналитики периметра (лицензия)", budget:0, middle:15000, vip:60000, vendor:"TRASSIR / AxxonSoft", link:"https://www.dssl.ru/integratoram/price/" },
+    ],
+    hybrid: [
+        { name:"PSIM-платформа интеграции подсистем", budget:50000, middle:200000, vip:800000, vendor:"Итриум (Bolid) / AxxonSoft", link:"https://bolid.ru/" },
+        { name:"Доп. лицензии интеграции протоколов", budget:10000, middle:40000, vip:150000, vendor:"по производителю ядра платформы", link:null },
+    ],
+    ngfw: [
+        { name:"Аппаратный NGFW, малый офис", budget:213000, middle:null, vip:null, vendor:"UserGate NGFW C100", link:"https://www.comnews.ru/content/240416/2025-07-29/2025-w31/1018/besprecedentnoe-snizhenie-cen-mezhsetevye-ekrany-usergate-ngfw-c100" },
+        { name:"NGFW, средний бизнес (250-500 польз.)", budget:null, middle:700000, vip:null, vendor:"UserGate D-серия", link:"https://usergate.com/purchase" },
+        { name:"NGFW, крупная инфраструктура / ЦОД", budget:null, middle:null, vip:2500000, vendor:"UserGate E-серия", link:"https://usergate.com/purchase" },
+    ],
+    dlp: [
+        { name:"DLP, малый пакет (до 50 польз./год)", budget:150000, middle:null, vip:null, vendor:"Solar Dozor (РТ-Солар)", link:"https://fairless.ru/posts/212683/solar-dozor-dlp-tsena/" },
+        { name:"DLP, средний бизнес (лицензия Standard)", budget:null, middle:900000, vip:null, vendor:"InfoWatch Traffic Monitor", link:"https://www.infowatch.ru/products/traffic-monitor" },
+        { name:"DLP, Enterprise (крупный бизнес)", budget:null, middle:null, vip:3000000, vendor:"InfoWatch Traffic Monitor Enterprise", link:"https://rostender.info/category/tendery-infowatch" },
+    ],
+    iam: [
+        { name:"IAM Base (малый бизнес)", budget:400000, middle:null, vip:null, vendor:"Avanpost IDM Base", link:"https://www.avanpost.ru/news/razvertyvanie-avanpost-idm-base" },
+        { name:"IAM, средний бизнес (IDM 6.0)", budget:null, middle:1200000, vip:null, vendor:"Avanpost IDM 6.0", link:"https://picktech.ru/product/avanpost-idm/" },
+        { name:"IAM/IGA, Enterprise (Identity Security Platform)", budget:null, middle:null, vip:3000000, vendor:"Avanpost Identity Security Platform", link:"https://www.avanpost.ru/products/avanpost-isp" },
+    ],
+    siem: [
+        { name:"SIEM, стартовый уровень", budget:500000, middle:null, vip:null, vendor:"RuSIEM", link:"https://tssolution.ru/reshenie/maxpatrol-siem" },
+        { name:"SIEM All-in-One (250-500 узлов)", budget:null, middle:1500000, vip:null, vendor:"MaxPatrol SIEM All-in-One", link:"https://infars.ru/software/product/maxpatrol-siem-all-in-one/" },
+        { name:"SIEM Enterprise (1000+ узлов)", budget:null, middle:null, vip:5000000, vendor:"MaxPatrol SIEM", link:"https://tssolution.ru/reshenie/maxpatrol-siem" },
+    ],
+    edr: [
+        { name:"EDR, 100 узлов/год", budget:300000, middle:null, vip:null, vendor:"Kaspersky EDR для бизнеса Оптимальный", link:"https://store-kaspersky.ru/dlya_biznesa/kaspersky_edr_dlya_biznesa_optimalnyy/" },
+        { name:"EDR, средний парк (Expert)", budget:null, middle:600000, vip:null, vendor:"Kaspersky EDR Expert", link:"https://snabsoft.ru/catalog/kaspersky/kaspersky-edr-dlya-biznesa-optimalnyj" },
+        { name:"XDR Enterprise (полный стек)", budget:null, middle:null, vip:2000000, vendor:"MaxPatrol EDR (Positive Technologies)", link:"https://infars.ru/software/product/maxpatrol-edr/" },
+    ],
+    vpn: [
+        { name:"VPN-шлюз, малый офис", budget:220000, middle:null, vip:null, vendor:"АПКШ Континент IPC-25", link:"https://cryptostore.ru/catalog/kontinent-ipc-25" },
+        { name:"VPN-шлюз, средний бизнес", budget:null, middle:450000, vip:null, vendor:"С-Терра Шлюз 1000", link:"https://www.s-terra.ru/products/catalog/s-terra-shlyuz-4-3/" },
+        { name:"VPN-шлюз, ЦОД (до 10 Гбит)", budget:null, middle:null, vip:1500000, vendor:"С-Терра Шлюз 8000", link:"https://www.s-terra.ru/" },
+    ],
+    backup: [
+        { name:"РК, малый объём (1 ТБ)", budget:86250, middle:null, vip:null, vendor:"RuBackup", link:"https://www.rubackup.ru/buy/" },
+        { name:"РК, средний бизнес (Стандартная редакция, ≈25-30 лицензий)", budget:null, middle:250000, vip:null, vendor:"Кибер Бэкап (Cyberprotect)", link:"https://cyberprotect.ru/products/backup/licensing/" },
+        { name:"РК, Enterprise/DR (Расширенная редакция, объём по проекту)", budget:null, middle:null, vip:800000, vendor:"Кибер Бэкап Расширенная редакция", link:"https://cyberprotect.ru/products/backup/" },
+    ],
+    crypto: [
+        { name:"СКЗИ, 1 рабочее место (годовая лицензия)", budget:1850, middle:null, vip:null, vendor:"КриптоПро CSP 5.0", link:"https://ecp-shop.ru/news/povysheniye-tsen-na-cryptopro-csp-i-rutokeny-s-2025/" },
+        { name:"СКЗИ, сервер", budget:null, middle:70000, vip:null, vendor:"КриптоПро CSP (серверная лицензия)", link:"https://cryptopro.ru/sites/default/files/docs/price.pdf" },
+        { name:"СКЗИ, TLS-сервер (до 1000 подключений)", budget:null, middle:null, vip:85000, vendor:"КриптоПро CSP (TLS-лицензия)", link:"https://cryptopro.ru/sites/default/files/docs/price.pdf" },
+    ],
+    policy: [
+        { name:"Типовой комплект ОРД (шаблонный)", budget:80000, middle:null, vip:null, vendor:"консалтинговая компания по ИБ", link:null },
+        { name:"Индивидуальный комплект ОРД под 17/21/239 приказы", budget:null, middle:250000, vip:null, vendor:"Информзащита / Инфосистемы Джет", link:null },
+        { name:"Комплект ОРД + регламенты SOC/due diligence", budget:null, middle:null, vip:700000, vendor:"УЦСБ / RTM Group", link:"https://ussc.ru/" },
+    ],
+    kii: [
+        { name:"Категорирование, 1 система", budget:150000, middle:null, vip:null, vendor:"региональный интегратор ИБ", link:null },
+        { name:"Категорирование, 3-5 систем", budget:null, middle:400000, vip:null, vendor:"Информзащита / К2 Кибербезопасность", link:null },
+        { name:"Комплексное категорирование холдинга + реестр ФСТЭК", budget:null, middle:null, vip:1200000, vendor:"Инфосистемы Джет", link:null },
+    ],
+    pdn: [
+        { name:"Малый бизнес (1 ИСПДн)", budget:60000, middle:null, vip:null, vendor:"региональный интегратор ИБ", link:null },
+        { name:"Средний бизнес (неск. ИСПДн)", budget:null, middle:200000, vip:null, vendor:"Информзащита", link:null },
+        { name:"Крупная организация (аудит + СКЗИ + ОРД)", budget:null, middle:null, vip:600000, vendor:"Информзащита + КриптоПро (СКЗИ)", link:null },
+    ],
+    passport: [
+        { name:"Паспорт антитеррористической защищённости, типовой", budget:25000, middle:null, vip:null, vendor:"Профилогистик", link:"https://www.profilogistik.ru/services/pasport-antiterror" },
+        { name:"Паспорт + согласование в ведомствах", budget:null, middle:60000, vip:null, vendor:"СБ-Урал", link:"https://profi.ru/remont/razrabotka-pasporta-bezopasnosti-obekta/price/" },
+        { name:"Паспорт для сложного объекта (ТЦ/промкомплекс)", budget:null, middle:null, vip:150000, vendor:"Нормагрупп", link:"https://normativ.org/services/antiterroristicheskaya-zashchishchennost/razrabotka-pasportov-bezopasnosti-obektov-territoriy/" },
+    ],
+    audit: [
+        { name:"Базовый аудит ИБ (малый бизнес)", budget:85000, middle:null, vip:null, vendor:"региональный ИБ-интегратор", link:"https://info-security.su/uslugi/audit-ib/" },
+        { name:"Полный аудит ИБ (средний бизнес, 50-500 чел.)", budget:null, middle:500000, vip:null, vendor:"Ростелеком-Солар / Информзащита", link:"https://toveks.ru/kakova-stoimost-audita-informaczionnoj-bezopasnosti-dlya-srednego-biznesa/" },
+        { name:"Комплексный аудит + due diligence (крупный бизнес)", budget:null, middle:null, vip:1500000, vendor:"RTM Group / Group-IB", link:"https://rtmtech.ru/services/audit-ib/" },
+    ],
+    training: [
+        { name:"Онлайн-курс на сотрудника", budget:3900, middle:null, vip:null, vendor:"Kaspersky Security Awareness", link:null },
+        { name:"Очный тренинг + фишинг-симуляция на сотрудника", budget:null, middle:5000, vip:null, vendor:"Angara Security / региональный провайдер тренингов", link:null },
+        { name:"Комплексная программа с киберполигоном на сотрудника", budget:null, middle:null, vip:15000, vendor:"Positive Technologies (Standoff)", link:null },
+    ],
+};
+// Сумма комплектующих текущего типа проекта по выбранному уровню цены (state.priceLevel) —
+// null-позиции (нет на этом уровне у вендора) в сумму не входят.
+function componentsTotal(projectType, level) {
+    const items = COMPONENTS_20[projectType] || [];
+    const key = level === 'budget' ? 'budget' : (level === 'vip' ? 'vip' : 'middle');
+    return items.reduce((s, it) => s + (typeof it[key] === 'number' ? it[key] : 0), 0);
+}
 const NOTE_CAT_LABEL = { survey: 'Анкета клиента', tz: 'ТЗ / эскиз', key: 'Ключевая задача внедрения' };
 // НИЖЕ — устаревшая привязка (оставлена как справочный материал, в столбце «Примечание» больше
 // не используется, см. TASK_OUTPUT_DOCS/taskOutputDoc): раньше все задачи получали ОДИН и тот же
@@ -2603,8 +2727,12 @@ totalDuration += t.duration;
 getTaskEmployeeIds(t).forEach(eid => { usage[eid] = (usage[eid] || 0) + t.duration * 8; });
 });
 state.summary.totalLabor = totalLabor;
-state.summary.totalMaterial = totalMaterial;
-state.summary.total = totalLabor + totalMaterial;
+// + реальные комплектующие проекта (COMPONENTS_20, см. case 2 «Комплектующие проекта») —
+// готовая часть материальной составляющей цены Договора, по проверенным ценам вендоров.
+const componentsSum = componentsTotal(state.projectType, state.priceLevel);
+state.summary.totalMaterial = totalMaterial + componentsSum;
+state.summary.totalComponents = componentsSum;
+state.summary.total = totalLabor + state.summary.totalMaterial;
 document.getElementById('dispTasks').innerText = state.tasks.length;
 document.getElementById('dispEmps').innerText = state.employees.filter(e => e.studentMark).length;
 document.getElementById('dispDur').innerText = computeSchedule().criticalPathLength.toFixed(1) + ' дн (крит. путь)';
@@ -2950,37 +3078,33 @@ ${state.taskNotesLocked && state.taskNotesResult ? `
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockTaskNotes()" ${state.taskNotesLocked ? 'disabled' : ''}>${state.taskNotesLocked ? '✅ Зафиксировано' : (state.taskNotesResult ? '🔁 Пересмотреть выбор' : '🔎 Проверить точность выбора')}</button>
 </div>
 
-<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Материалы и уровень цен</div>
-<p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Добавить материалы и выбрать уровень цен (Бюджет/Мидл/VIP).</p>
-<div class="toolbar">
-<select onchange="state.priceLevel=this.value; recalcAll();">
+<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Комплектующие проекта (по рулетке — ${TYPE_RU[state.projectType] || ''})</div>
+<p style="margin-bottom:10px; color:#475569; font-size:13px;">Ниже — реальный перечень всего, что подлежит установке по вашему типу проекта (датчики, контроллеры, замки, блок центрального процессора и т.п.), с тремя ценами (Бюджет/Мидл/VIP) и вендором 2026 года — проверено по актуальным прайс-листам рынка. Это готовая часть материальной составляющей цены Договора: без вариантов выбора и без ловушек, просто рыночный факт.</p>
+<div class="toolbar" style="margin-bottom:8px;">
+<label>Уровень цены: <select onchange="state.priceLevel=this.value; recalcAll();">
 <option value="budget" ${state.priceLevel === 'budget' ? 'selected' : ''}>Бюджет</option>
 <option value="middle" ${state.priceLevel === 'middle' ? 'selected' : ''}>Мидл</option>
 <option value="vip" ${state.priceLevel === 'vip' ? 'selected' : ''}>VIP</option>
-</select>
-<span style="font-size:13px; color:#475569;">Текущий уровень: <strong>${state.priceLevel.toUpperCase()}</strong></span>
+</select></label>
 </div>
-<div style="max-height:350px; overflow-y:auto;">
-${state.tasks.map((t, idx) => `
-<div style="border:1px solid #e2e8f0; border-radius:8px; padding:10px; margin-bottom:10px;">
-<div style="font-weight:600;">${idx+1}. ${t.name}</div>
-${(t.materials || []).map((m, mi) => `
-<div class="mat-row">
-<input type="text" value="${m.name}" onchange="updateMat(${t.id}, ${mi}, 'name', this.value)" />
-<input type="number" value="${m.qty}" onchange="updateMat(${t.id}, ${mi}, 'qty', parseFloat(this.value))" style="width:50px;" />
-<input type="number" value="${m.priceBudget}" onchange="updateMat(${t.id}, ${mi}, 'priceBudget', parseFloat(this.value))" style="width:60px;" placeholder="Бюдж" />
-<input type="number" value="${m.priceMiddle}" onchange="updateMat(${t.id}, ${mi}, 'priceMiddle', parseFloat(this.value))" style="width:60px;" placeholder="Мидл" />
-<input type="number" value="${m.priceVip}" onchange="updateMat(${t.id}, ${mi}, 'priceVip', parseFloat(this.value))" style="width:60px;" placeholder="VIP" />
-<button class="btn btn-danger btn-sm" onclick="removeMat(${t.id}, ${mi})">✕</button>
+<div>
+<table>
+<thead><tr><th>#</th><th>Наименование</th><th>Бюджетная</th><th>Middle</th><th>VIP</th><th>Вендор</th></tr></thead>
+<tbody>
+${(COMPONENTS_20[state.projectType] || []).map((it, i) => `
+<tr>
+<td>${i + 1}</td>
+<td>${it.name}</td>
+<td style="${state.priceLevel === 'budget' ? 'font-weight:700; background:#ecfdf5;' : ''}">${it.budget != null ? it.budget.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+<td style="${state.priceLevel === 'middle' ? 'font-weight:700; background:#ecfdf5;' : ''}">${it.middle != null ? it.middle.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+<td style="${state.priceLevel === 'vip' ? 'font-weight:700; background:#ecfdf5;' : ''}">${it.vip != null ? it.vip.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+<td>${it.link ? `<a href="${it.link}" target="_blank" rel="noopener">${it.vendor}</a>` : it.vendor}</td>
+</tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:12px;">Нет данных по комплектующим для этого типа проекта</td></tr>'}
+</tbody>
+<tfoot><tr style="font-weight:700; background:#f1f5f9;"><td colspan="2">ИТОГО по уровню «${state.priceLevel.toUpperCase()}»</td><td colspan="3">${componentsTotal(state.projectType, state.priceLevel).toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
+</table>
 </div>
-`).join('')}
-<button class="btn btn-sm btn-primary" onclick="addMat(${t.id})">+ Добавить материал</button>
-</div>
-`).join('')}
-</div>
-<div style="margin-top:12px; background:#f1f5f9; padding:12px; border-radius:8px;">
-<strong>Стоимость материалов:</strong> ${state.summary.totalMaterial.toFixed(0)} ₽
-</div>
+<p style="margin-top:8px; margin-bottom:0; color:#475569; font-size:12.5px;">Сумма комплектующих по выбранному уровню цены уже включена в общую материальную составляющую проекта (см. панель «Бюджет проекта» справа и занятие 4 «Смета») — это часть цены Договора, которую видит заказчик.</p>
 `;
 break;
 
