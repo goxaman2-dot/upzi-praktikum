@@ -1858,17 +1858,76 @@ const ETALON_20 = {
     }
 };
 const NOTE_CAT_LABEL = { survey: 'Анкета клиента', tz: 'ТЗ / эскиз', key: 'Ключевая задача внедрения' };
-// К какой из трёх реперных точек относится КОНКРЕТНАЯ задача бизнес-процесса/монтажа.
-// id 1001/1002 — предпродажное обследование (совпадает с «Анкета клиента»); 1003/1004/1005 —
-// чертёж/смета/ТЗ (совпадает с «ТЗ/эскиз»); любая задача этапа II (монтаж/внедрение конкретной
-// системы) — совпадает с «Ключевой задачей этапа внедрения». Остальные задачи (1006-1012 —
-// складской аудит, дозаказ, согласования, счёт, аванс) к анкете/ТЗ/внедрению напрямую не относятся
-// и в проверку точности выбора не включаются.
+// НИЖЕ — устаревшая привязка (оставлена как справочный материал, в столбце «Примечание» больше
+// не используется, см. TASK_OUTPUT_DOCS/taskOutputDoc): раньше все задачи получали ОДИН и тот же
+// набор из 3 реперных ответов на весь проект, из-за чего для складского аудита/согласований/счёта
+// приходилось выбирать между «анкетой клиента» и «ТЗ» — бессмысленно, задача не про это.
 function taskNoteCategory(t) {
     if (t.id === 1001 || t.id === 1002) return 'survey';
     if (t.id === 1003 || t.id === 1004 || t.id === 1005) return 'tz';
     if (t.stage && t.stage !== 'I') return 'key';
     return null;
+}
+// ============================================================
+// СУТЬ УПРАВЛЕНИЯ ПРОЕКТОМ: у КАЖДОЙ задачи есть конкретный, проверяемый РЕЗУЛЬТАТ —
+// документ/артефакт, без которого нельзя перейти к следующему шагу цепочки. Не "работа
+// проделана", а "вот документ, подтверждающий это". Столбец «Примечание» теперь заставляет
+// студента для каждой строки задать себе вопрос "что здесь появляется на ВЫХОДЕ?" и выбрать
+// этот документ из трёх вариантов — среди которых два выходных документа ДРУГИХ задач проекта
+// (специально подставлены как правдоподобные ловушки, см. noteOptionsFor в case 2).
+// Бизнес-процесс (id 1001-1012) — один и тот же для всех 20 типов проектов, поэтому документы
+// для него заданы один раз, без привязки к state.projectType.
+// ============================================================
+const TASK_OUTPUT_DOCS = {
+    1001: 'Акт первичного обследования объекта (с фотофиксацией)',
+    1002: 'Эскизный проект — эскиз системы',
+    1005: 'Техническое задание (ТЗ) на систему',
+    1003: 'Рабочий чертёж проекта в AutoCAD',
+    1004: 'Локальная смета по чертежу',
+    1006: 'Ведомость остатков комплектующих на складе (дефицитная ведомость)',
+    1007: 'Заявка/счёт поставщику на дозаказ комплектующих',
+    1008: 'Коммерческое предложение с тремя уровнями цены (бюджетная/средняя/дорогая)',
+    1009: 'Протокол согласования проекта, подписанный заказчиком',
+    1010: 'Протокол согласования размера аванса',
+    1011: 'Счёт на оплату (авансовый счёт) заказчику',
+    1012: 'Платёжное поручение / выписка банка о поступлении аванса',
+    1013: 'Приказ/протокол об инициализации проекта (старт монтажных/внедренческих работ)'
+};
+// ============================================================
+// ОСОБЫЕ ЭЛЕКТРОТЕХНИЧЕСКИЕ ВИДЫ ПРОВЕРОЧНЫХ РАБОТ (из Комплектующие_v2.xlsx, «Гантт_ИТСО»,
+// стадия IV «Технико-измерительный этап»: коды IV.1-IV.3). Это три РАЗНЫХ по физическому смыслу
+// электроизмерения, которые легко перепутать между собой именно потому, что все три — «проверка
+// электрики»: сопротивление изоляции ≠ сопротивление контура заземления ≠ поведение при
+// отклонении напряжения сети. Дополнительная ловушка-столбец на стр.8 (см. electroCheckType/
+// electroOptionsFor в case 2): студент должен указать ТОЧНЫЙ вид проверки для конкретной задачи,
+// выбирая среди всех трёх — 2 других вида здесь как раз и есть правдоподобные неверные варианты.
+// ============================================================
+const ELECTRO_CHECK_TYPES = {
+    'IV.1': 'Измерение сопротивления изоляции кабельных линий (мегомметром, норма ≥0,5 МОм)',
+    'IV.2': 'Измерение сопротивления заземляющего устройства / контура защитного заземления (норма ≤4 Ом)',
+    'IV.3': 'Испытание работоспособности при пониженном (0,85·Uном) и повышенном (1,1·Uном) напряжении сети'
+};
+function electroCheckType(t) {
+    return (t.code && ELECTRO_CHECK_TYPES[t.code]) || null;
+}
+// Ровно 3 известных варианта — детерминированно ротируются от t.id, чтобы верный ответ не был
+// всегда на одной и той же позиции, и порядок не менялся между перерисовками (recalcAll()).
+function electroOptionsFor(t) {
+    const all = Object.values(ELECTRO_CHECK_TYPES);
+    const seed = t.id % all.length;
+    return all.slice(seed).concat(all.slice(0, seed));
+}
+// Задачи этапов II-V (монтаж/наладка/испытания/приёмка) строятся из РЕАЛЬНОГО перечня Гантта
+// (см. GANTT_ITSO/GANTT_SOFT_COMMON/GANTT_SOFT_SPECIFIC и buildRealStage2Tasks ниже) и несут
+// СВОЙ настоящий документ прямо на объекте задачи (t.refDoc — из колонки «Документ/подтверждение»
+// исходного xlsx). Табличный fallback ниже используется только для задач, добавленных студентом
+// вручную кнопкой «Добавить задачу» (у них t.refDoc не задан).
+function taskOutputDoc(t) {
+    if (t.refDoc) return t.refDoc;
+    if (TASK_OUTPUT_DOCS[t.id]) return TASK_OUTPUT_DOCS[t.id];
+    if (t.stage === 'II') return 'Акт скрытых работ / акт монтажа — ' + t.name;
+    if (t.stage === 'III') return 'Акт пусконаладочных работ (ПНР) и протокол испытаний — ' + t.name;
+    return 'Акт выполненных работ по задаче — ' + t.name;
 }
 
 function openSketch() {
@@ -1997,7 +2056,11 @@ return [
 { id: 1009, name: 'Согласование и подписание чертежей и проекта монтажа с заказчиком', duration: 2, stage: 'I', employeeId: director.id, predecessors: [1003, 1008], materials: [], progress: 0 },
 { id: 1010, name: 'Согласование % аванса на оплату с заказчиком', duration: 0, stage: 'I', employeeId: director.id, predecessors: [1008], materials: [], progress: 0 },
 { id: 1011, name: 'Выставление счёта заказчику (оценка срока)', duration: 0, stage: 'I', employeeId: accountant.id, predecessors: [1009, 1010, 1007], materials: [], progress: 0 },
-{ id: 1012, name: 'Ожидание поступления аванса по Договору (оценка срока, без трудозатрат)', duration: 2, stage: 'I', employeeId: null, predecessors: [1011], materials: [], progress: 0 }
+{ id: 1012, name: 'Ожидание поступления аванса по Договору (оценка срока, без трудозатрат)', duration: 2, stage: 'I', employeeId: null, predecessors: [1011], materials: [], progress: 0 },
+// Завершающая задача Этапа 1 — мост к монтажным работам (полный реальный перечень которых
+// строится в buildRealStage2Tasks() из реальных данных Гантта, см. ниже). Именно от неё
+// (id 1013), а не от 1012 напрямую, стартуют все задачи этапа монтажа/внедрения.
+{ id: 1013, name: 'Инициализация проекта «' + sys + '» после зачисления авансовой суммы по Договору', duration: 0, stage: 'I', employeeId: director.id, predecessors: [1012], materials: [], progress: 0 }
 ];
 }
 
@@ -2661,7 +2724,6 @@ let html = `<div class="panel-title"><span>📌 Занятие ${currentLesson}<
 switch(currentLesson) {
 case 1:
 const prepTasks = state.tasks.filter(t => t.stage === 'I');
-const montTasks = state.tasks.filter(t => t.stage !== 'I');
 const statusCell = (t) => t.progress === 100
 ? `<td style="white-space:nowrap;"><span style="color:#16a34a; font-weight:600; cursor:pointer;" title="Нажмите, чтобы снять подтверждение" onclick="toggleDone(${t.id})">✔ ВЫПОЛНЕНА</span></td>`
 : `<td style="white-space:nowrap;"><span style="color:#d97706; font-weight:600; cursor:pointer;" title="Нажмите, чтобы подтвердить выполнение" onclick="toggleDone(${t.id})">🟡 ЖДЁТ ЗАВЕРШЕНИЯ${t.progress > 0 ? ' (' + t.progress + '%)' : ''}</span></td>`;
@@ -2788,37 +2850,42 @@ ${state.resourcesLocked && state.resResult ? `
 <button class="btn btn-success btn-sm" onclick="saveProjectCheckpoint()">💾 Сохранить проект на текущей отметке</button>
 </div>
 <p style="font-size:12px; color:#64748b; margin-top:6px;">Сохранение выгружает файл .json со всем состоянием проекта на компьютер — сохраните его на USB-флешку или отправьте себе на почту вложением, а на следующем занятии загрузите обратно кнопкой «📂» в панели «Проект» справа.</p>
-
-<div style="font-size:16px; font-weight:600; color:#0f172a; margin:22px 0 6px;">Этап 2. Монтаж системы ${TYPE_RU[state.projectType] || ''}</div>
-<p style="margin-bottom:10px; color:#475569; font-size:13px;">Загрузите шаблон монтажных работ по типу системы — задачи этапа 2 добавятся в график вслед за подготовительным этапом.</p>
-<div class="toolbar">
-<button class="btn btn-success btn-sm" onclick="loadTemplate('skud')">📂 Шаблон СКУД</button>
-<button class="btn btn-success btn-sm" onclick="loadTemplate('video')">📂 Шаблон Видео</button>
-<button class="btn btn-success btn-sm" onclick="loadTemplate('fire')">📂 Шаблон Пожар</button>
-<button class="btn btn-success btn-sm" onclick="loadTemplate('security')">📂 Шаблон Охрана</button>
-<button class="btn btn-success btn-sm" onclick="loadTemplate('hybrid')">📂 Шаблон Гибрид</button>
-<button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу (этап 2)</button>
-</div>
-<div style="max-height:280px; overflow-y:auto;">
-<table>
-<thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длит.</th><th>Исполнитель</th><th>Сумма по задаче</th><th>Предшественники</th></tr></thead>
-<tbody>${montTasks.length ? montTasks.map((t, i) => taskRow(t, prepTasks.length + i + 1)).join('') : '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:16px;">Задачи этапа 2 ещё не загружены — выберите шаблон выше</td></tr>'}</tbody>
-</table>
-</div>
 `;
 break;
 
 case 2:
 const fullTaskList = state.tasks;
+// Индекс "выходной документ каждой задачи" строится ОДИН раз на весь рендер таблицы — из него
+// берутся 2 правдоподобные ловушки (документы ДРУГИХ задач) для выпадающего списка. Подбор
+// ловушек детерминирован от t.id — при повторных recalcAll() (например, при вводе в другом
+// поле) варианты в списке НЕ перемешиваются заново, иначе уже выбранный ответ визуально теряется.
+const outputDocIndex = fullTaskList.map(x => ({ id: x.id, doc: taskOutputDoc(x) }));
+const noteOptionsFor = (t) => {
+const correct = taskOutputDoc(t);
+const others = outputDocIndex.filter(x => x.id !== t.id && x.doc !== correct).map(x => x.doc);
+if (!others.length) return [correct];
+const i1 = t.id % others.length;
+const i2 = (t.id * 7 + 3) % others.length;
+const d1 = others[i1];
+const d2 = others[i2] !== d1 ? others[i2] : others[(i2 + 1) % others.length];
+const opts = (d2 && d2 !== d1) ? [correct, d1, d2] : [correct, d1];
+const seed = t.id % opts.length;
+return opts.slice(seed).concat(opts.slice(0, seed));
+};
 const fullTaskRow = (t, num) => {
-const execs = getTaskEmployeeIds(t).map(eid => state.employees.find(e => e.id === eid)).filter(Boolean);
+const execs = getTaskEmployeeIds(t).map(eid => state.employees.find(eid2 => eid2.id === eid)).filter(Boolean);
 const hours = t.duration * 8;
 const cost = taskLaborCost(t);
-const etalon = ETALON_20[state.projectType] || {};
-const cat = taskNoteCategory(t);
-const noteOptions = ['survey', 'tz', 'key'].filter(k => etalon[k]).map(k =>
-`<option value="${(etalon[k] || '').replace(/"/g, '&quot;')}" ${t.studentNote === etalon[k] ? 'selected' : ''}>${NOTE_CAT_LABEL[k]}: ${(etalon[k] || '').slice(0, 60)}${etalon[k] && etalon[k].length > 60 ? '…' : ''}</option>`
+const noteOptions = noteOptionsFor(t).map(doc =>
+`<option value="${doc.replace(/"/g, '&quot;')}" ${t.studentNote === doc ? 'selected' : ''}>${doc.slice(0, 70)}${doc.length > 70 ? '…' : ''}</option>`
 ).join('');
+const echeck = electroCheckType(t);
+const electroCell = echeck
+? `<select onchange="updateTaskElectro(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:230px;">
+<option value="">— вид проверки? —</option>
+${electroOptionsFor(t).map(v => `<option value="${v.replace(/"/g, '&quot;')}" ${t.studentElectroCheck === v ? 'selected' : ''}>${v.slice(0, 60)}${v.length > 60 ? '…' : ''}</option>`).join('')}
+</select>`
+: '<span style="color:#94a3b8;">н/п</span>';
 return `
 <tr>
 <td>${num}</td>
@@ -2828,28 +2895,46 @@ return `
 <td>${execs.length ? execs.map(e => `${e.name}<br><span style="font-size:11px; color:#64748b;">${e.qualification}</span>`).join('<hr style="border:none; border-top:1px dashed #e2e8f0; margin:4px 0;">') : '—'}</td>
 <td style="white-space:nowrap; font-weight:600;">${Math.round(cost).toLocaleString('ru-RU')} ₽<br><span style="font-size:11px; color:#64748b; font-weight:400;">${execs.map(e => e.ratePerHour + ' ₽/ч').join(' + ') || '0 ₽/ч'} × ${hours.toFixed(0)} ч</span></td>
 <td>
-<select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:220px;">
-<option value="">— выбрать —</option>
+<select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:250px;">
+<option value="">— что появляется на выходе? —</option>
 ${noteOptions}
 </select>
-${!cat ? '<div style="font-size:10.5px; color:#94a3b8; margin-top:2px;">не оценивается (не привязана к реперной точке)</div>' : ''}
 </td>
+<td>${electroCell}</td>
 </tr>`;
 };
+// Визуальный «водораздел»: после ПОСЛЕДНЕЙ задачи Этапа 1 (1013 «Инициализация проекта») —
+// граница между подготовительным этапом и реальным началом монтажа/внедрения. Ищем позицию
+// динамически (по смене stage 'I' → не 'I'), а не по жёсткому индексу — переживёт добавление/
+// удаление задач студентом кнопкой «Добавить задачу».
+const stageDividerRow = `<tr class="stage-divider-row"><td colspan="8" style="padding:12px 14px; background:linear-gradient(90deg,#1e293b,#334155); color:#fbbf24; font-weight:700; font-size:13.5px; text-align:center; letter-spacing:.03em; border-top:3px solid #f59e0b; border-bottom:3px solid #f59e0b;">⚡ ВОДОРАЗДЕЛ — конец подготовительного этапа (аванс получен, проект инициализирован) ⚡<br><span style="font-weight:400; font-size:12px; color:#e2e8f0;">Ниже — начало монтажа / внедрения проекта «${TYPE_RU[state.projectType] || ''}»: задачи этапов II-V (монтаж → наладка → испытания → приёмка)</span></td></tr>`;
+const fullTaskRowsHtml = (() => {
+const parts = [];
+fullTaskList.forEach((t, i) => {
+parts.push(fullTaskRow(t, i + 1));
+const next = fullTaskList[i + 1];
+if (t.stage === 'I' && (!next || next.stage !== 'I')) parts.push(stageDividerRow);
+});
+return parts.join('');
+})();
 const taskDurTotal = fullTaskList.reduce((s, t) => s + t.duration, 0);
 const taskCostTotal = fullTaskList.reduce((s, t) => s + taskLaborCost(t), 0);
 html += `
 <p style="margin-bottom:6px; color:#475569;"><strong>Цель:</strong> Собрать полную таблицу этапов и задач проекта (по рулетке) с автосчётом стоимости — основа для будущего Договора.</p>
-<p style="margin-bottom:12px; color:#92400e; font-size:13px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px;">В столбце «Примечание» для каждой задачи выберите ОДИН из трёх эталонных ответов по вашему типу проекта (анкета клиента / ТЗ-эскиз / ключевая задача внедрения) — тот, что действительно относится к этой задаче. Задачи, не привязанные ни к одной из трёх реперных точек (складской аудит, дозаказ, согласования, счёт, аванс), в проверку не входят. Порог верности — 40% (ниже, чем для ресурсов/персонала на стр. 7, т.к. сама задача сопоставления — более неоднозначная).</p>
-<div style="max-height:420px; overflow-y:auto;">
+<p style="margin-bottom:12px; color:#92400e; font-size:13px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px;">Суть управления проектом — не "работа проделана", а конкретный документ на выходе, без которого нельзя перейти к следующему шагу. В столбце «Примечание» для каждой задачи выберите, что должен проконтролировать студент — какой документ появляется именно на ЕЁ выходе. Среди трёх вариантов — выходные документы ДРУГИХ задач проекта, подставленные как правдоподобные ловушки: они реальны, просто относятся не к этой строке. Для трёх задач технико-измерительного этапа (проверка изоляции / заземления / напряжения сети) есть дополнительный столбец «Вид проверочных работ» — там три реальных, но РАЗНЫХ по физическому смыслу электротехнических измерения, легко перепутать одно с другим, если не понимать разницы. Порог верности — 40% (ниже, чем для ресурсов/персонала на стр. 7, т.к. само сопоставление ответа с задачей — более неоднозначная когнитивная операция); оба столбца считаются в один общий счётчик.</p>
+<div class="toolbar" style="margin-bottom:10px;">
+<button class="btn btn-success btn-sm" onclick="loadTemplate(state.projectType)">📂 Загрузить полный перечень задач этапов монтажа/внедрения-наладки-испытаний-приёмки (${TYPE_RU[state.projectType] || ''})</button>
+<button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу вручную</button>
+</div>
+<div>
 <table>
-<thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длительность</th><th>Исполнитель (ФИО, квалификация)</th><th>Стоимость (ФОТ)</th><th>Примечание</th></tr></thead>
-<tbody>${fullTaskList.map((t, i) => fullTaskRow(t, i + 1)).join('')}</tbody>
-<tfoot><tr style="font-weight:700; background:#f1f5f9;"><td colspan="3">ИТОГО по проекту</td><td style="white-space:nowrap;">${taskDurTotal.toFixed(1)} дн<br><span style="font-size:11px; font-weight:400;">${(taskDurTotal*8).toFixed(0)} ч</span></td><td></td><td style="white-space:nowrap;">${taskCostTotal.toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
+<thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длительность</th><th>Исполнитель (ФИО, квалификация)</th><th>Стоимость (ФОТ)</th><th>Примечание</th><th>Вид проверочных работ</th></tr></thead>
+<tbody>${fullTaskRowsHtml}</tbody>
+<tfoot><tr style="font-weight:700; background:#f1f5f9;"><td colspan="3">ИТОГО по проекту</td><td style="white-space:nowrap;">${taskDurTotal.toFixed(1)} дн<br><span style="font-size:11px; font-weight:400;">${(taskDurTotal*8).toFixed(0)} ч</span></td><td></td><td style="white-space:nowrap;">${taskCostTotal.toLocaleString('ru-RU')} ₽</td><td></td><td></td></tr></tfoot>
 </table>
 </div>
 <div class="trap-check-panel" style="flex:none; position:static; max-width:460px; margin-top:14px;">
-<div class="trap-check-title">СЧЁТЧИК — точность выбора примечаний</div>
+<div class="trap-check-title">СЧЁТЧИК — точность выбора примечаний и видов проверок</div>
 ${state.taskNotesLocked && state.taskNotesResult ? `
 <div class="trap-check-line ok">✅ Верных сопоставлений: ${state.taskNotesResult.correct}</div>
 <div class="trap-check-line bad">❌ Неверных/невыбранных: ${state.taskNotesResult.wrong}</div>
@@ -3204,24 +3289,40 @@ if (state.taskNotesLocked) return;
 const t = state.tasks.find(t => t.id === id);
 if (t) { t.studentNote = value; recalcAll(); }
 }
+// столбец «Вид проверочных работ» (только задачи IV.1-IV.3, см. electroCheckType) — та же
+// ловушка-логика, тот же счётчик/порог 40%, что и «Примечание» (см. lockTaskNotes)
+function updateTaskElectro(id, value) {
+if (state.taskNotesLocked) return;
+const t = state.tasks.find(t => t.id === id);
+if (t) { t.studentElectroCheck = value; recalcAll(); }
+}
 function lockTaskNotes() {
 if (state.taskNotesLocked) return;
 let correct = 0, wrong = 0, total = 0;
-const etalon = ETALON_20[state.projectType] || {};
+// Теперь оцениваются ВСЕ задачи проекта (у каждой есть свой выходной документ, см.
+// taskOutputDoc) — раньше проверялась только часть задач, привязанных к трём реперным точкам.
 state.tasks.forEach(t => {
-const cat = taskNoteCategory(t);
-if (!cat) return; // задача не привязана ни к одной из трёх реперных точек — не участвует в проверке
+const doc = taskOutputDoc(t);
+if (!doc) return;
 total++;
-if (t.studentNote && etalon[cat] && t.studentNote === etalon[cat]) correct++; else wrong++;
+if (t.studentNote && t.studentNote === doc) correct++; else wrong++;
+});
+// + отдельно задачи IV.1-IV.3 (электротехнические проверки) — тот же счётчик, тот же порог 40%,
+// просто ещё один вид сопоставления «задача → правильный ответ из похожих вариантов»
+state.tasks.forEach(t => {
+const check = electroCheckType(t);
+if (!check) return;
+total++;
+if (t.studentElectroCheck && t.studentElectroCheck === check) correct++; else wrong++;
 });
 const accuracy = total > 0 ? (correct / total) * 100 : 0;
 state.taskNotesResult = { correct, wrong, total, accuracy };
 if (accuracy >= 40) {
 // порог верности (40%) достигнут — выбор фиксируется автоматически, сведения «вшиваются»
 // в итоговый отчёт по проекту (см. submitProjectReport); порог ниже, чем для ресурсов/
-// персонала (75%), т.к. сопоставление задачи с фазой процесса — более неоднозначная задача
+// персонала (75%), т.к. сопоставление задачи с её выходным документом — более неоднозначная задача
 state.taskNotesLocked = true;
-state.taskNotesReportNote = 'верность выбора примечаний по задачам проекта: ' + accuracy.toFixed(1) + '% (' + correct + ' из ' + total + ') — порог 40% достигнут.';
+state.taskNotesReportNote = 'верность определения выходных документов по задачам проекта: ' + accuracy.toFixed(1) + '% (' + correct + ' из ' + total + ') — порог 40% достигнут.';
 } else {
 state.taskNotesLocked = false;
 state.taskNotesReportNote = null;
@@ -3580,37 +3681,220 @@ function unlockAll() {
 document.querySelectorAll('.lesson-tab').forEach(tab => tab.classList.remove('locked'));
 alert('Все занятия разблокированы (демо-режим).');
 }
-function loadTemplate(type) {
-// шаблоны этапа 2 — только монтажные и пусконаладочные работы
-let tasks = [];
-// Обе монтажные задачи этапа II назначены на РАЗНЫХ монтажников (id 2 и id 8) и обе ждут
-// только поступления аванса (1012) — общего предшественника у них нет, поэтому они реально
-// МОГУТ идти параллельно (две бригады одновременно), что и видно на диаграмме Ганта. Настройка
-// ПО — отдельный специалист (наладчик, id 3), стартует только когда обе смонтированы.
-if (type === 'skud') {
-tasks = [
-{ id: 2001, name: 'Монтаж контроллеров СКУД', duration: 2, stage: 'II', employeeId: 2, predecessors: [1012], materials: [{ name: 'Контроллер', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }] },
-{ id: 2002, name: 'Монтаж считывателей и замков', duration: 2, stage: 'II', employeeId: 8, predecessors: [1012], materials: [{ name: 'Считыватель', qty: 4, priceBudget: 2500, priceMiddle: 5000, priceVip: 12000 }] },
-{ id: 2003, name: 'Настройка ПО СКУД', duration: 2, stage: 'III', employeeId: 3, predecessors: [2001, 2002], materials: [{ name: 'Лицензия ПО', qty: 1, priceBudget: 5000, priceMiddle: 10000, priceVip: 25000 }] },
+// ============================================================
+// РЕАЛЬНЫЙ ПЕРЕЧЕНЬ ЗАДАЧ ЭТАПОВ II-V (монтаж/внедрение → наладка → испытания → приёмка) —
+// источник: Комплектующие_v2.xlsx, листы «Гантт_ИТСО (6 типов)» и «Гантт_Софт_Орг (14 типов)».
+// Этап I (обследование/ТЗ/чертёж/смета/согласования/аванс) НЕ дублируется — он уже полностью
+// реализован нашим бизнес-процессом 1001-1013 (см. bpTasks). Раньше здесь был упрощённый шаблон
+// из 2-3 условных задач (skud/video/generic) — теперь для ВСЕХ 20 типов подставляется реальная
+// цепочка задач с реальными длительностями, предшественниками и документом-подтверждением.
+// ============================================================
+const GANTT_ITSO = [
+    { code:"II.1", stage:"II", name:"Разметка трасс кабельных линий и мест крепления оборудования", dur:1, pred:"I.10", role:"Монтажник", doc:"Фото разметки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.2", stage:"II", name:"Штробление стен, перекрытий, сверление отверстий", dur:3, pred:"II.1", role:"Монтажник", doc:"Акт скрытых работ", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.3", stage:"II", name:"Установка кабель-каналов, коробов, труб", dur:2, pred:"II.2", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.4", stage:"II", name:"Прокладка кабелей и проводов (силовых, сигнальных, интерфейсных)", dur:3, pred:"II.3", role:"Монтажник", doc:"Акт прокладки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.5", stage:"II", name:"Монтаж несущих конструкций, кронштейнов, стоек", dur:2, pred:"II.4", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.6", stage:"II", name:"Установка контроллеров / приёмно-контрольных приборов, блоков питания", dur:1, pred:"II.5", role:"Монтажник", doc:"Акт установки", apply:{ skud:true, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.7", stage:"II", name:"Установка считывателей / карт-ридеров, замков, кнопок выхода, турникетов", dur:2, pred:"II.6", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"II.8", stage:"II", name:"Установка видеокамер и кронштейнов видеонаблюдения", dur:2, pred:"II.7", role:"Монтажник", doc:"Фото, акт", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"II.9", stage:"II", name:"Установка извещателей (дымовых, тепловых, ИК, магнитоконтактных)", dur:2, pred:"II.8", role:"Монтажник", doc:"Фото, акт", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.10", stage:"II", name:"Подключение силового питания (автоматы, УЗО, ИБП)", dur:1, pred:"II.9", role:"Электромонтажник", doc:"Схема подключения", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.11", stage:"II", name:"Подключение кабелей к оборудованию (обжим, коммутация)", dur:2, pred:"II.10", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.12", stage:"II", name:"Укладка кабельных запасов (не менее 5 м на вводе)", dur:1, pred:"II.11", role:"Монтажник", doc:"Фото", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.13", stage:"II", name:"Маркировка кабелей и проводов", dur:1, pred:"II.12", role:"Монтажник", doc:"Фото маркировки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.14", stage:"II", name:"Заделка штроб, отверстий, восстановление отделки", dur:1, pred:"II.13", role:"Монтажник", doc:"Фото", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.15", stage:"II", name:"Уборка монтажного мусора", dur:1, pred:"II.14", role:"Монтажник", doc:"Акт уборки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.1", stage:"III", name:"Проверка целостности кабельных линий (прозвонка)", dur:1, pred:"II.15", role:"Наладчик", doc:"Протокол прозвонки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.2", stage:"III", name:"Проверка наличия и качества питания на всех точках", dur:1, pred:"III.1", role:"Наладчик", doc:"Акт замеров", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.3", stage:"III", name:"Настройка и программирование контроллеров, приборов", dur:2, pred:"III.2", role:"Наладчик", doc:"Конфигурационный файл", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.4", stage:"III", name:"Установка и настройка ПО управления системой", dur:1, pred:"III.3", role:"Программист", doc:"Скриншоты, лицензии", apply:{ skud:true, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"III.5", stage:"III", name:"Регистрация пользователей / карт доступа, раздача прав", dur:1, pred:"III.4", role:"Наладчик", doc:"База пользователей", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"III.6", stage:"III", name:"Проверка работоспособности каждого устройства (поштучно)", dur:2, pred:"III.5", role:"Наладчик", doc:"Акт проверки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.7", stage:"III", name:"Проверка срабатывания датчиков, извещателей", dur:1, pred:"III.6", role:"Наладчик", doc:"Акт проверки", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.8", stage:"III", name:"Настройка сценариев реакции системы на события", dur:1, pred:"III.7", role:"Наладчик", doc:"Таблица сценариев", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.9", stage:"III", name:"Проверка интеграции с другими системами (только гибрид)", dur:2, pred:"III.8", role:"Наладчик", doc:"Акт интеграции", apply:{ skud:false, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"III.10", stage:"III", name:"Настройка резервирования и аварийного питания", dur:1, pred:"III.9", role:"Наладчик", doc:"Акт проверки ИБП", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.1", stage:"IV", name:"Проверка сопротивления изоляции кабельных линий", dur:1, pred:"III.10", role:"Наладчик", doc:"Протокол измерений", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.2", stage:"IV", name:"Проверка заземления и контуров защитного заземления", dur:1, pred:"IV.1", role:"Электролаборатория", doc:"Протокол", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.3", stage:"IV", name:"Проверка работоспособности при пониженном/повышенном напряжении", dur:1, pred:"IV.2", role:"Наладчик", doc:"Протокол", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.4", stage:"IV", name:"Проверка чувствительности датчиков и зон покрытия", dur:1, pred:"IV.3", role:"Наладчик", doc:"Протокол, схема", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.5", stage:"IV", name:"Проверка уровня освещённости (для видеокамер)", dur:0.5, pred:"IV.4", role:"Наладчик", doc:"Люксметр, протокол", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"IV.6", stage:"IV", name:"Проверка скорости реакции системы на тревогу", dur:0.5, pred:"IV.5", role:"Наладчик", doc:"Протокол замеров", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.1", stage:"V", name:"Контрольные и приёмо-сдаточные испытания всей системы", dur:2, pred:"IV.6", role:"Комиссия", doc:"Протокол испытаний", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.2", stage:"V", name:"Составление исполнительной документации (акты, схемы)", dur:2, pred:"V.1", role:"Инженер проекта", doc:"Исполнительная документация", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.3", stage:"V", name:"Обучение персонала Заказчика эксплуатации системы", dur:1, pred:"V.2", role:"Наладчик", doc:"Протокол обучения", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.4", stage:"V", name:"Передача паролей, ключей, лицензий Заказчику", dur:1, pred:"V.3", role:"Руководитель проекта", doc:"Акт передачи", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.5", stage:"V", name:"Подписание акта ввода в эксплуатацию", dur:1, pred:"V.4", role:"Комиссия", doc:"Акт ввода в эксплуатацию", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
 ];
-} else if (type === 'video') {
-tasks = [
-{ id: 2001, name: 'Монтаж внутренних камер', duration: 2, stage: 'II', employeeId: 2, predecessors: [1012], materials: [{ name: 'Камера купольная', qty: 6, priceBudget: 4000, priceMiddle: 8000, priceVip: 15000 }] },
-{ id: 2002, name: 'Монтаж уличных камер', duration: 2, stage: 'II', employeeId: 8, predecessors: [1012], materials: [{ name: 'Камера уличная', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }] },
-{ id: 2003, name: 'Настройка NVR и ПО', duration: 2, stage: 'III', employeeId: 3, predecessors: [2001, 2002], materials: [{ name: 'NVR', qty: 1, priceBudget: 15000, priceMiddle: 30000, priceVip: 50000 }] },
+// doc — в исходном листе «Гантт_Софт_Орг» такой колонки нет (только «Норматив/основание») —
+// сформулирован по аналогии с колонкой «Документ/подтверждение» листа Гантт_ИТСО: что физически
+// подтверждает выполнение задачи.
+const GANTT_SOFT_COMMON = [
+    { code:"II.1", stage:"II", name:"Разработка архитектуры внедрения (схема сети, точки установки)", dur:4, pred:"I.6", role:"Архитектор ИБ", norm:"ГОСТ Р ИСО/МЭК 27002-2021", doc:"Архитектурная схема внедрения", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"II.2", stage:"II", name:"Разработка комплекта организационно-распорядительной документации (политики, регламенты, инструкции)", dur:6, pred:"II.1", role:"Специалист по ИБ", norm:"Приказ ФСТЭК №21/№17/№239 (состав мер)", doc:"Комплект организационно-распорядительной документации (ОРД)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:true, training:true } },
+    { code:"II.3", stage:"II", name:"Разработка модели угроз и модели нарушителя", dur:3, pred:"II.2", role:"Специалист по ИБ", norm:"Методика ФСТЭК (05.02.2021)", doc:"Модель угроз и модель нарушителя", apply:{ ngfw:true, dlp:false, iam:false, siem:true, edr:false, vpn:false, backup:false, crypto:true, policy:true, kii:true, pdn:true, passport:false, audit:true, training:false } },
+    { code:"II.4", stage:"II", name:"Разработка проекта паспорта безопасности / антитеррористического паспорта объекта", dur:5, pred:"II.3", role:"Комиссия Заказчика", norm:"ПП РФ №1006 (02.08.2019); ПП РФ №1421 (07.11.2019); ФЗ №35-ФЗ", doc:"Проект паспорта безопасности объекта", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:true, audit:false, training:false } },
+    { code:"II.5", stage:"II", name:"Проектирование политик доступа / правил обработки данных (ACL, DLP-политики, IAM-роли)", dur:4, pred:"II.4", role:"Инженер ИБ", norm:"Приказ ФСТЭК №21 (категория ИАФ, УПД)", doc:"Матрица политик доступа (ACL/DLP/IAM-роли)", apply:{ ngfw:true, dlp:true, iam:true, siem:false, edr:false, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"II.6", stage:"II", name:"Согласование проектных решений с Заказчиком", dur:1, pred:"II.5", role:"Руководитель проекта", norm:"Внутренний регламент проекта", doc:"Протокол согласования проектных решений", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"III.1", stage:"III", name:"Закупка лицензий / оборудования / сертифицированных СКЗИ", dur:7, pred:"II.6", role:"Зав. складом / юрист", norm:"Приказ ФАПСИ №152 (13.06.2001) — для СКЗИ", doc:"Накладные / лицензионные соглашения на закупку", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.2", stage:"III", name:"Установка и базовая настройка ПО / оборудования в тестовом контуре", dur:4, pred:"III.1", role:"Инженер ИБ", norm:"Документация производителя", doc:"Акт установки в тестовом контуре", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.3", stage:"III", name:"Интеграция с существующей инфраструктурой (AD/LDAP, SIEM, сеть)", dur:3, pred:"III.2", role:"Инженер ИБ", norm:"-", doc:"Акт интеграции с инфраструктурой", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.4", stage:"III", name:"Утверждение и подписание разработанных документов руководством Заказчика", dur:2, pred:"III.3", role:"Руководитель Заказчика", norm:"Внутренний регламент документооборота", doc:"Подписанный комплект документов Заказчика", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"III.5", stage:"III", name:"Включение объекта КИИ в реестр значимых объектов ФСТЭК", dur:2, pred:"III.4", role:"Комиссия Заказчика", norm:"ПП РФ №127; Приказ ФСТЭК №235", doc:"Выписка из реестра значимых объектов ФСТЭК", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.6", stage:"III", name:"Уведомление Роскомнадзора об обработке персональных данных", dur:1, pred:"III.5", role:"Юрист", norm:"ФЗ №152-ФЗ, ст.22", doc:"Уведомление в Роскомнадзор с отметкой о приёме", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:true, passport:false, audit:false, training:false } },
+    { code:"III.7", stage:"III", name:"Развёртывание решения в промышленном контуре (production)", dur:3, pred:"III.6", role:"Инженер ИБ", norm:"-", doc:"Акт ввода решения в промышленную эксплуатацию", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.1", stage:"IV", name:"Настройка правил / политик / сценариев реагирования", dur:4, pred:"III.7", role:"Инженер ИБ", norm:"MITRE ATT&CK (справочно, вектора угроз)", doc:"Регламент/таблица правил реагирования", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.2", stage:"IV", name:"Тестирование решения (пилот, нагрузочное и функциональное тестирование)", dur:3, pred:"IV.1", role:"Инженер ИБ", norm:"-", doc:"Протокол тестирования (пилот/нагрузочное)", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.3", stage:"IV", name:"Тестовое восстановление из резервной копии (DRP-тест)", dur:1, pred:"IV.2", role:"Инженер ИБ", norm:"ISO/IEC 27031:2011", doc:"Протокол тестового восстановления (DRP-тест)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:true, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.4", stage:"IV", name:"Проведение внутреннего аудита / gap-анализа соответствия", dur:3, pred:"IV.3", role:"Аудитор ИБ", norm:"ГОСТ Р ИСО/МЭК 27001-2021", doc:"Отчёт по gap-анализу соответствия", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:true, training:false } },
+    { code:"IV.5", stage:"IV", name:"Разработка программы обучения и проведение обучения / фишинг-симуляции персонала", dur:3, pred:"IV.4", role:"Специалист по обучению", norm:"ГОСТ Р ИСО/МЭК 27002-2021, п.6.3", doc:"Протокол обучения и результатов фишинг-симуляции", apply:{ ngfw:false, dlp:false, iam:true, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:false, training:true } },
+    { code:"IV.6", stage:"IV", name:"Ознакомление персонала с политиками под подпись", dur:1, pred:"IV.5", role:"Специалист по ИБ", norm:"Приказ ФСТЭК №21 (ИАФ)", doc:"Лист ознакомления с политиками (подписи)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:false, pdn:true, passport:false, audit:false, training:true } },
+    { code:"V.1", stage:"V", name:"Приёмо-сдаточные испытания и подписание акта ввода в эксплуатацию", dur:2, pred:"IV.6", role:"Комиссия", norm:"Внутренний регламент приёмки", doc:"Акт ввода в эксплуатацию", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"V.2", stage:"V", name:"Оформление итогового отчёта / акта аудита / заключения", dur:2, pred:"V.1", role:"Аудитор / руководитель проекта", norm:"ГОСТ Р ИСО/МЭК 27001-2021", doc:"Итоговый отчёт / акт аудита", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:true, passport:true, audit:true, training:false } },
+    { code:"V.3", stage:"V", name:"Передача документации, ключей доступа, лицензий Заказчику", dur:1, pred:"V.2", role:"Руководитель проекта", norm:"Внутренний регламент проекта", doc:"Акт передачи документации и ключей доступа", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"V.4", stage:"V", name:"Постановка на сопровождение (SLA) и плановый пересмотр/аудит", dur:1, pred:"V.3", role:"Руководитель проекта", norm:"ГОСТ Р ИСО/МЭК 27001-2021 (PDCA)", doc:"Договор (регламент) SLA на сопровождение", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
 ];
-} else {
-tasks = [
-{ id: 2001, name: 'Монтаж оборудования системы', duration: 2, stage: 'II', employeeId: 2, predecessors: [1012], materials: [] },
-{ id: 2002, name: 'Пусконаладочные работы', duration: 2, stage: 'III', employeeId: 3, predecessors: [2001], materials: [] },
-];
+// по одной уникальной задаче на каждый из 14 типов, дополняющей общую стадийность выше
+const GANTT_SOFT_SPECIFIC = {
+    ngfw: { name:"Разработка и внедрение правил межсетевого экранирования (ACL, NAT, приложения)", dur:3, doc:"Акт внедрения правил межсетевого экранирования" },
+    dlp: { name:"Настройка политик контроля каналов утечки (почта, USB, печать, облако)", dur:4, doc:"Утверждённая политика контроля каналов утечки" },
+    iam: { name:"Интеграция с LDAP/AD, настройка ролевой модели доступа (RBAC)", dur:4, doc:"Акт внедрения ролевой модели доступа (RBAC)" },
+    siem: { name:"Подключение источников логов (log sources) и разработка корреляционных правил", dur:5, doc:"Перечень источников логов и корреляционных правил" },
+    edr: { name:"Развёртывание агентов на конечных точках, настройка политик реагирования", dur:3, doc:"Акт развёртывания агентов EDR" },
+    vpn: { name:"Настройка туннелей (IPsec/SSL/ГОСТ VPN), выдача сертификатов и ключей", dur:3, doc:"Акт настройки каналов, реестр сертификатов/ключей" },
+    backup: { name:"Настройка расписания РК, проверка RPO/RTO, тестовое восстановление", dur:3, doc:"Акт проверки RPO/RTO и тестового восстановления" },
+    crypto: { name:"Установка сертифицированных СКЗИ, генерация и учёт ключей", dur:4, doc:"Акт установки СКЗИ, журнал учёта ключей" },
+    policy: { name:"Разработка комплекта ОРД: политика ИБ, регламенты, инструкции пользователя/администратора", dur:6, doc:"Утверждённый комплект ОРД по ИБ" },
+    kii: { name:"Категорирование объекта, разработка модели угроз, включение в реестр ФСТЭК", dur:8, doc:"Акт категорирования и включения в реестр ФСТЭК" },
+    pdn: { name:"Классификация ИСПДн, разработка модели угроз, уведомление в Роскомнадзор", dur:5, doc:"Модель угроз ПДн и уведомление в Роскомнадзор" },
+    passport: { name:"Разработка паспорта безопасности / антитеррористического паспорта, согласование с органами", dur:5, doc:"Согласованный паспорт безопасности объекта" },
+    audit: { name:"Проведение внутреннего аудита, gap-анализ по ГОСТ Р ИСО/МЭК 27001, отчёт с рекомендациями", dur:5, doc:"Отчёт по итогам аудита с рекомендациями" },
+    training: { name:"Разработка программы обучения, проведение тренинга и фишинг-симуляции, оценка результатов", dur:3, doc:"Протокол обучения и оценки результатов" },
+};
+// материалы (компоненты с ценами по 3 уровням) — привязаны к конкретным задачам монтажа,
+// проверены агентом по реальным рыночным ценам (см. работу по Комплектующие_20типов); сохранены
+// при переходе на реальный перечень задач Гантта (раньше жёстко лежали в шаблонах id 2001-2003).
+const REAL_TASK_MATERIALS = {
+    skud: {
+        'II.6': [{ name: 'Контроллер СКУД', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }],
+        'II.7': [{ name: 'Считыватель/замок', qty: 4, priceBudget: 2500, priceMiddle: 5000, priceVip: 12000 }],
+        'III.4': [{ name: 'Лицензия ПО СКУД', qty: 1, priceBudget: 5000, priceMiddle: 10000, priceVip: 25000 }]
+    },
+    video: {
+        'II.8': [{ name: 'Видеокамера', qty: 8, priceBudget: 5000, priceMiddle: 9000, priceVip: 18000 }],
+        'III.4': [{ name: 'Видеорегистратор (NVR) + ПО', qty: 1, priceBudget: 15000, priceMiddle: 30000, priceVip: 50000 }]
+    }
+};
+// Сопоставление роли из реального листа Гантта с сотрудником фирмы (только среди «эталонных»,
+// correct===true для ПОРТФЕЛЯ текущего типа проекта — см. defaultEmployees/portfolioOfCode).
+// Роли, которых в штате фирмы физически нет (внешние/клиентские — Комиссия Заказчика, Комиссия
+// приёмки, Электролаборатория, Руководитель Заказчика), намеренно возвращают null: это НЕ
+// сотрудник фирмы, трудозатраты по такой строке в ФОТ фирмы не входят (внешняя/подрядная работа,
+// за рамками расчёта фирмы) — студент увидит «—» и должен это понимать, а не считать багом.
+function roleEmployee(role, portfolio) {
+    const find = (name) => { const e = state.employees.find(e => e.name === name && e.correct); return e ? e.id : null; };
+    const R = (role || '').toLowerCase();
+    if (/комисси|заказчика|электролаборатория/.test(R)) return null;
+    if (portfolio === 'I') {
+        if (/монтажник|электромонтажник|мастер/.test(R)) return find('Монтажников С.А.') || find('Помощников В.Е.');
+        if (/наладчик|программист/.test(R)) return find('Наладчиков Ф.И.');
+        if (/проектировщик/.test(R)) return find('Чертёжников А.С.');
+        if (/зав\.?\s*склад/.test(R)) return find('Складников Е.П.');
+        if (/юрист/.test(R)) return null;
+        if (/руководитель проекта|инженер проекта|^инженер$/.test(R)) return find('Эскизов В.И.');
+        return find('Директоров С.П.');
+    }
+    if (portfolio === 'II') {
+        if (/аудитор|тестиров/.test(R)) return find('Стендов П.С.');
+        if (/архитектор|специалист по иб|инженер иб|аналитик иб/.test(R)) return find('Романов Д.А.');
+        if (/юрист|зав\.?\s*склад/.test(R)) return find('Главнова О.И.');
+        if (/руководитель проекта/.test(R)) return find('Директоров С.П.');
+        return find('Романов Д.А.');
+    }
+    // portfolio III
+    if (/юрист/.test(R)) return find('Правова Н.С.');
+    if (/аудитор|аналитик иб|специалист по иб|инженер иб|архитектор/.test(R)) return find('Разумовский К.В.');
+    if (/обучени/.test(R)) return find('Учителева М.И.');
+    if (/руководитель проекта|зав\.?\s*склад/.test(R)) return find('Директоров С.П.') || find('Главнова О.И.');
+    return find('Директоров С.П.');
 }
-// этап 1 (подготовительные работы) сохраняется, этап 2 заменяется шаблоном
+// Предшественник задачи мог быть ИСКЛЮЧЁН фильтром применимости для конкретного типа проекта
+// (например, «II.7 Установка считывателей» не входит в тип video) — тогда ищем ближайшего
+// ВКЛЮЧЁННОГО предка вверх по цепочке исходного (полного) списка. Дошли до начала — задача
+// стартует от моста 1013 (см. bpTasks).
+function resolveIncludedPred(code, fullList, includedCodes) {
+    let cur = code;
+    const guard = new Set();
+    while (cur && !guard.has(cur)) {
+        guard.add(cur);
+        if (includedCodes.has(cur)) return cur;
+        const rec = fullList.find(r => r.code === cur);
+        cur = rec ? rec.pred : null;
+    }
+    return null;
+}
+const ITSO_TYPES = ['skud', 'video', 'fire', 'security', 'perimeter', 'hybrid'];
+function buildRealStage2Tasks(projectType) {
+    const portfolio = portfolioOfCode(projectType);
+    const out = [];
+    let nextId = 2001;
+    if (ITSO_TYPES.includes(projectType)) {
+        const included = GANTT_ITSO.filter(r => r.apply[projectType]);
+        const includedCodes = new Set(included.map(r => r.code));
+        const codeToId = {};
+        included.forEach(r => {
+            const id = nextId++;
+            codeToId[r.code] = id;
+            const predCode = r.pred ? resolveIncludedPred(r.pred, GANTT_ITSO, includedCodes) : null;
+            out.push({
+                id, name: r.name, duration: r.dur, stage: r.stage,
+                employeeId: roleEmployee(r.role, portfolio),
+                predecessors: [predCode ? codeToId[predCode] : 1013],
+                materials: (REAL_TASK_MATERIALS[projectType] && REAL_TASK_MATERIALS[projectType][r.code]) || [],
+                refDoc: r.doc, code: r.code
+            });
+        });
+    } else {
+        const included = GANTT_SOFT_COMMON.filter(r => r.apply[projectType]);
+        const includedCodes = new Set(included.map(r => r.code));
+        const codeToId = {};
+        included.forEach(r => {
+            const id = nextId++;
+            codeToId[r.code] = id;
+            const predCode = r.pred ? resolveIncludedPred(r.pred, GANTT_SOFT_COMMON, includedCodes) : null;
+            out.push({
+                id, name: r.name, duration: r.dur, stage: r.stage,
+                employeeId: roleEmployee(r.role, portfolio),
+                predecessors: [predCode ? codeToId[predCode] : 1013],
+                materials: [], refDoc: r.doc
+            });
+        });
+        const spec = GANTT_SOFT_SPECIFIC[projectType];
+        if (spec) {
+            const specId = nextId++;
+            const lastII = out.filter(t => t.stage === 'II').slice(-1)[0];
+            out.push({
+                id: specId, name: spec.name + ' (специфика типа проекта)', duration: spec.dur, stage: 'II',
+                employeeId: roleEmployee('Специалист по ИБ', portfolio),
+                predecessors: [lastII ? lastII.id : 1013], materials: [], refDoc: spec.doc
+            });
+            const acceptance = out.find(t => /Приёмо-сдаточные/.test(t.name));
+            if (acceptance && !acceptance.predecessors.includes(specId)) acceptance.predecessors.push(specId);
+        }
+    }
+    return out;
+}
+function loadTemplate(type) {
+// Полный реальный перечень задач монтажа/внедрения — из buildRealStage2Tasks() (см. выше),
+// построен по данным реального листа Гантта, а не по упрощённому шаблону из 2-3 задач, как раньше.
+const tasks = buildRealStage2Tasks(type);
+// этап 1 (подготовительные работы) сохраняется, этап 2+ заменяется реальным перечнем
 const prep = state.tasks.filter(t => t.stage === 'I');
 state.tasks = [...(prep.length ? prep : bpTasks(type)), ...tasks];
 state.projectType = type;
 recalcAll();
-alert(`Этап 2 «Монтаж системы»: шаблон "${type}" загружен. Подготовительный Этап 1 сохранён.`);
+alert(`Загружен реальный перечень задач этапов монтажа/внедрения-наладки-испытаний-приёмки для типа "${TYPE_RU[type] || type}": ${tasks.length} задач. Подготовительный Этап 1 сохранён.`);
 document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked');
 }
 
