@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=cyrillic" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@1.5.0/dist/frappe-gantt.umd.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@1.5.0/dist/frappe-gantt.css">
+<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@1.2.2/dist/frappe-gantt.umd.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@1.2.2/dist/frappe-gantt.css">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #f4f7fc; padding: 20px; }
@@ -368,13 +368,18 @@ font-size: 14px; margin-top: 4px;
 .side-panel .summary-card span { font-size: 14px; }
 .panel-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #0f172a; display: flex; gap: 10px; align-items: center; }
 .panel-title .badge { background: #2563eb; color: white; font-size: 12px; padding: 2px 10px; border-radius: 20px; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: #f1f5f9; text-align: left; padding: 10px 8px; font-weight: 600; color: #334155; position: sticky; top: 0; }
-td { padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+/* --- Таблицы: карточный вид с закруглением, лёгкой тенью, зеброй и подсветкой строки --- */
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; background: #fff; border: 1px solid #e3e8ef; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 16px rgba(15,23,42,.05); }
+th { background: linear-gradient(180deg, #f8fafc 0%, #eef1f6 100%); text-align: left; padding: 11px 10px; font-weight: 700; color: #1e293b; font-size: 12.5px; letter-spacing: .01em; position: sticky; top: 0; border-bottom: 2px solid #e2e8f0; }
+td { padding: 9px 10px; border-bottom: 1px solid #eef1f5; vertical-align: middle; }
+tbody tr:nth-child(even) { background: #fafbfd; }
+tbody tr:hover { background: #eef4ff; }
+tbody tr:last-child td { border-bottom: none; }
+tfoot td { background: #f1f5f9; font-weight: 700; border-top: 2px solid #dbe3ee; }
 input, select { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
 input[type="number"] { width: 70px; }
 .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
-.gantt-container { background: white; border-radius: 8px; padding: 10px; margin-top: 15px; border: 1px solid #e2e8f0; min-height: 200px; }
+.gantt-container { background: white; border-radius: 8px; padding: 10px; margin-top: 15px; border: 1px solid #e2e8f0; min-height: 200px; overflow-x: auto; }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin: 15px 0; }
 .summary-card { background: white; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
 .summary-card label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -2224,16 +2229,34 @@ const RES_CATS = ['Основные средства', 'Аренда офиса'
 const CAPEX_DEF = '{CAPEX (Capital Expenditure) — капитальные затраты: единовременные вложения в активы длительного пользования (оборудование, техника, инструмент), которые ставятся на баланс фирмы, амортизируются и окупаются в течение нескольких лет серией проектов}';
 const OPEX_DEF = '{OPEX (Operational Expenditure) — операционные затраты: регулярные расходы на текущую деятельность (аренда, связь, подписки ПО, оплата труда, договоры ГПХ, доставка), которые списываются в себестоимость периода и должны покрываться выручкой каждого проекта}';
 
-// месячный ФОТ фирмы: сумма окладов ТОЛЬКО по сотрудникам, отмеченным студентом как нужные
-// (studentMark === true) — должно совпадать с «Итого ФОТ в месяц» на странице 6 (подбор персонала).
-// Раньше здесь суммировались ВСЕ сотрудники справочника (включая неотмеченные и ловушечные),
-// из-за чего сумма в таблице ресурсов фирмы не совпадала со штатным расписанием на стр. 6.
+// ============================================================
+// СТРАХОВЫЕ ВЗНОСЫ РАБОТОДАТЕЛЯ (НК РФ, гл. 34, единый тариф с 2023 г.): ОПС+ОМС+ВНиМ = 30% с
+// выплат в пределах единой предельной базы + взносы «на травматизм» (ФЗ №125-ФЗ от 24.07.1998) —
+// минимальный I класс профессионального риска (офисные и большинство монтажных работ) = 0,2% на
+// 2026 г. Итого 30,2% СВЕРХ оклада — это реальная стоимость сотрудника для фирмы, а не то, что
+// сотрудник получает "на руки". Раньше в расчёте практикума взносы фигурировали ТОЛЬКО на
+// странице «Бюджет» (занятие 5, отдельной строкой «Налоги») и не входили ни в строку ФОТ ресурсов
+// фирмы (стр. 7), ни в стоимость задач, формирующую цену Договора (стр. 8) — то есть Договор
+// считался по заниженной, "очищенной" стоимости труда. Исправлено: взносы теперь входят в
+// payrollMonthFull() (строка ФОТ ресурсов) и в taskLaborCost() (стоимость каждой задачи).
+// ============================================================
+const INSURANCE_RATE = 0.302;
+// месячный ФОТ фирмы (ОКЛАД, без страховых взносов): сумма окладов ТОЛЬКО по сотрудникам,
+// отмеченным студентом как нужные (studentMark === true) — должно совпадать с «Итого ФОТ в
+// месяц» на странице 6 (подбор персонала). Раньше здесь суммировались ВСЕ сотрудники справочника
+// (включая неотмеченные и ловушечные), из-за чего сумма в таблице ресурсов фирмы не совпадала со
+// штатным расписанием на стр. 6.
 function payrollMonth() {
 return state.employees.filter(e => e.studentMark).reduce((s, e) => s + (e.ratePerHour || 0) * 160 * (e.loadFactor || 0), 0);
 }
-// стоимость строки ресурса: строка ФОТ считается автоматически из окладов
+// РЕАЛЬНАЯ месячная стоимость персонала для фирмы: оклад + страховые взносы 30,2% сверху.
+function payrollMonthFull() {
+return payrollMonth() * (1 + INSURANCE_RATE);
+}
+// стоимость строки ресурса: строка ФОТ считается автоматически из окладов + страховые взносы
+// (реальная стоимость персонала для фирмы, а не только "чистый" оклад)
 function resVal(r) {
-return r.auto === 'fot' ? payrollMonth() : (r.qty || 0) * (r.price || 0);
+return r.auto === 'fot' ? payrollMonthFull() : (r.qty || 0) * (r.price || 0);
 }
 
 // Портфель ('I' | 'II' | 'III') по коду типа проекта — используется, чтобы подобрать
@@ -2615,16 +2638,19 @@ return t.employeeId ? [t.employeeId] : [];
 // Стоимость труда по задаче — сумма по ВСЕМ исполнителям задачи (обычно один, но для задач
 // с несколькими исполнителями считается для каждого отдельно и складывается). Переработка
 // сверх нормы дня (>8ч × кол-во полных дней) считается по каждому исполнителю по ставке ×1.5.
+// Возвращается РЕАЛЬНАЯ стоимость для фирмы — оклад по ставке + страховые взносы 30,2%
+// (см. INSURANCE_RATE), т.к. именно эта сумма формирует цену Договора, а не "голая" ставка.
 function taskLaborCost(t) {
 const fullDays = Math.floor(t.duration);
 const totalHours = t.duration * 8;
 const normalLimit = fullDays * 8;
 const overtime = Math.max(0, totalHours - normalLimit);
 const normalHours = totalHours - overtime;
-return getTaskEmployeeIds(t).reduce((sum, id) => {
+const gross = getTaskEmployeeIds(t).reduce((sum, id) => {
 const rate = getEmployeeRate(id);
 return sum + normalHours * rate + overtime * rate * 1.5;
 }, 0);
+return gross * (1 + INSURANCE_RATE);
 }
 // ============================================================
 // РАСЧЁТ КАЛЕНДАРНОГО ГРАФИКА ПО ПРЕДШЕСТВЕННИКАМ (для Гантта и критического пути)
@@ -3021,7 +3047,7 @@ return `
 <td style="text-align:center;">${t.stage}</td>
 <td style="white-space:nowrap;">${t.duration} дн<br><span style="font-size:11px; color:#64748b;">${hours.toFixed(0)} ч</span></td>
 <td>${execs.length ? execs.map(e => `${e.name}<br><span style="font-size:11px; color:#64748b;">${e.qualification}</span>`).join('<hr style="border:none; border-top:1px dashed #e2e8f0; margin:4px 0;">') : '—'}</td>
-<td style="white-space:nowrap; font-weight:600;">${Math.round(cost).toLocaleString('ru-RU')} ₽<br><span style="font-size:11px; color:#64748b; font-weight:400;">${execs.map(e => e.ratePerHour + ' ₽/ч').join(' + ') || '0 ₽/ч'} × ${hours.toFixed(0)} ч</span></td>
+<td style="white-space:nowrap; font-weight:600;">${Math.round(cost).toLocaleString('ru-RU')} ₽<br><span style="font-size:11px; color:#64748b; font-weight:400;">${execs.map(e => e.ratePerHour + ' ₽/ч').join(' + ') || '0 ₽/ч'} × ${hours.toFixed(0)} ч × 1,302 (взносы 30,2%)</span></td>
 <td>
 <select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:250px;">
 <option value="">— что появляется на выходе? —</option>
@@ -3116,6 +3142,7 @@ html += `
 <label>Дата старта: <input type="date" value="${state.startDate}" onchange="state.startDate=this.value; renderGantt();" /></label>
 <span style="font-size:13px;">Календарный срок (критический путь): <strong>${calSched.criticalPathLength.toFixed(1)} дн</strong></span>
 <span style="font-size:13px; color:#94a3b8;">(сумма всех длительностей подряд: ${calSched.naiveSum.toFixed(1)} дн)</span>
+<button class="btn btn-primary btn-sm" onclick="renderGantt('ganttChart')">📊 Построить</button>
 </div>
 <div class="gantt-container" id="ganttChart"></div>
 `;
@@ -3144,8 +3171,12 @@ html += `
 break;
 
 case 5:
-const payroll = state.employees.reduce((sum, e) => sum + (e.ratePerHour * 160 * e.loadFactor), 0);
-const taxes = payroll * 0.3;
+// ИСПРАВЛЕНО: раньше суммировались ВСЕ сотрудники справочника (включая непомеченных и
+// ловушечных), из-за чего ФОТ на этой странице не совпадал с «Итого ФОТ в месяц» на стр. 6 —
+// теперь используется тот же payrollMonth(), что и везде (единый источник данных). Ставка взносов
+// уточнена до реальной 30,2% (см. INSURANCE_RATE) вместо приближённых 30%.
+const payroll = payrollMonth();
+const taxes = payroll * INSURANCE_RATE;
 const resSum = (cats, period) => state.firmResources
 .filter(r => cats.includes(r.category) && r.period === period && r.auto !== 'fot')
 .reduce((s, r) => s + resVal(r), 0);
@@ -3165,7 +3196,7 @@ html += `
 <p style="margin-bottom:12px; color:#475569;"><strong>Цель:</strong> Сформировать бюджет подрядчика (внутренний). Офис, доставка и ГПХ берутся из таблицы потребностей этапа 0 (занятие 1).</p>
 <div class="summary-grid">
 <div class="summary-card"><label>ФОТ (Оклад)</label><span>${payroll.toFixed(0)} ₽</span></div>
-<div class="summary-card"><label>Налоги (30%)</label><span>${taxes.toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Страховые взносы (30,2%)</label><span>${taxes.toFixed(0)} ₽</span></div>
 <div class="summary-card"><label>Офис: аренда, содержание, связь</label><span>${rent.toFixed(0)} ₽</span></div>
 <div class="summary-card"><label>Грузоперевозки</label><span>${transport.toFixed(0)} ₽</span></div>
 <div class="summary-card"><label>Прочее (ОС, ГПХ)</label><span>${other.toFixed(0)} ₽</span></div>
@@ -3322,6 +3353,14 @@ break;
 
 default: html += `<p>Занятие ${currentLesson} в разработке.</p>`;
 }
+
+html += `
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; padding-top:18px; border-top:1px solid #e2e8f0;">
+<button class="btn btn-outline" onclick="prevLesson()">&larr; Назад</button>
+<button class="btn btn-primary" onclick="nextLesson()">Перейди к следующему этапу практикума &rarr;</button>
+</div>
+`;
+
 container.innerHTML = html;
 if (currentLesson === 3) renderGantt('ganttChart');
 if (currentLesson === 7) renderGantt('ganttChartOpt');
@@ -3348,8 +3387,15 @@ const deps = (t.predecessors || []).join(',');
 return { id: String(t.id), name: t.name, start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], progress: t.progress || 0, dependencies: deps };
 });
 if (tasks.length === 0) { container.innerHTML = '<p style="padding:20px;text-align:center;color:#999;">Нет задач</p>'; return; }
+// Автомасштаб: ширина колонки-дня подбирается так, чтобы ВЕСЬ срок проекта (даже 50-60 дней)
+// помещался в видимую ширину контейнера без горизонтальной прокрутки (раньше column_width был
+// фиксирован в 30px, и при длинных проектах диаграмма растягивалась на 1500+ px и вылезала за экран).
+const totalDays = Math.max(1, ...state.tasks.map(t => (sched.startOf[t.id] || 0) + Math.max(t.duration, 0.25)));
+const availWidth = Math.max(container.clientWidth || 0, container.parentElement ? container.parentElement.clientWidth : 0, 900) - 40;
+const colWidth = Math.max(6, Math.min(30, Math.floor(availWidth / totalDays)));
+const barH = colWidth < 14 ? 14 : 20;
 try {
-ganttInstance = new Gantt(container, tasks, { header_height: 40, column_width: 30, step: 24, view_mode: 'Day', bar_height: 20 });
+ganttInstance = new Gantt(container, tasks, { header_height: 40, column_width: colWidth, step: 24, view_mode: 'Day', bar_height: barH });
 } catch(e) { container.innerHTML = '<p style="padding:20px;color:red;">Ошибка загрузки Gantt. Проверьте интернет.</p>'; }
 }
 
