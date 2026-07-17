@@ -215,7 +215,10 @@ body { font-family: 'Segoe UI', sans-serif; background: #0A1120; padding: 20px; 
 }
 #conceptScreen1.visible, #conceptScreen2.visible { display: flex; }
 .concept-diagram-wrap {
-    width: 100%; max-width: 1400px; margin: 0 auto;
+    /* Уменьшено на ~15% (было 1400px) — компромисс между 10% и 20%, чтобы схема заняла меньше
+       вертикали (кнопка «Далее» видна без лишней прокрутки), но подписи внутри (11-14px) остались
+       читаемыми — при 20% часть текста в блоках уже была бы на грани разборчивости. */
+    width: 100%; max-width: 1190px; margin: 0 auto;
 }
 .concept-diagram-wrap svg { width: 100%; height: auto; display: block; }
 .concept-title-row {
@@ -532,7 +535,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 }
 .firm-blink-glow { animation: firmBlinkGlow 1.3s ease-in-out infinite; }
 
-.trap-check-panel { flex: 0 0 260px; min-width: 220px; background: var(--gr-text); border-radius: 12px; padding: 14px 16px; align-self: flex-start; position: sticky; top: 12px; }
+.trap-check-panel { flex: 0 0 260px; min-width: 220px; background: var(--gr-panel); border: 1px solid var(--gr-line); border-radius: 12px; padding: 14px 16px; align-self: flex-start; position: sticky; top: 12px; }
 .trap-check-title { color: var(--gr-cyan); font-size: 12.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 10px; }
 .trap-check-pending { color: var(--gr-line2); font-size: 12.5px; line-height: 1.5; }
 .trap-check-line { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
@@ -741,6 +744,9 @@ input:disabled, select:disabled { opacity: 0.45; }
 
 <!-- ========== СТРАНИЦА 2b: КОНЦЕПЦИЯ УЧЕБНИКА УПЗИ и ЭЗИ (ЧАСТЬ 2) ========== -->
 <div id="conceptScreen2"><div class="page-num-badge"><span class="page-nav-arrow" onclick="goToConceptPage1()" title="Назад">&#9664;</span> Стр. 3/14 <span>· Концепция — контроль и аудит</span> <span class="page-nav-arrow" onclick="goToRouletteFromConcept()" title="Далее">&#9654;</span></div>
+    <div class="concept-title-row" style="margin-top:0;">
+        <span class="concept-title">Концепция учебника УПЗИ и ЭЗИ — часть 2. Контроль исполнения и аудит</span>
+    </div>
     <div class="concept-diagram-wrap">
 <svg viewBox="1150 0 1350 650" xmlns="http://www.w3.org/2000/svg" role="img">
 <rect width="2500" height="650" fill="#0A1120"/>
@@ -864,10 +870,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 <text x="2322" y="14" font-family="IBM Plex Sans, Arial, sans-serif" font-size="12.5" fill="#C9D4E6">эффективность (риск)</text>
 </svg>
     </div>
-    <div class="concept-title-row">
-        <span class="concept-title">Концепция учебника УПЗИ и ЭЗИ — часть 2. Контроль исполнения и аудит</span>
-    </div>
-    <div class="concept-btn-row">
+    <div class="concept-btn-row" style="margin-top:18px;">
         <button class="concept-back" id="conceptBackBtn2" onclick="goToConceptPage1()">&larr; Назад</button>
         <button class="concept-next" id="conceptNextBtn2" onclick="goToRouletteFromConcept()">Далее &rarr;</button>
     </div>
@@ -2627,11 +2630,14 @@ const c = threatProjectCode(t);
 return c && portfolioOfCode(c) !== portfolio;
 });
 // для типов без прямых угроз в эталоне (напр. «Периметральное ограждение», «VPN») берём
-// несколько угроз того же портфеля как условно закрываемые этим проектом (приближение)
-const correctSet = matched.length ? matched : shuffleArr(sameFolioOthers).slice(0, 5);
+// несколько угроз того же портфеля как условно закрываемые этим проектом (приближение).
+// Пулы ловушек расширены (было 6+6=12) — при малом числе «правильных» угроз итоговый список
+// получался слишком коротким (14-17 позиций) для содержательного аудита; теперь пулы 10+8,
+// плюс расширенный запасной набор «правильных» (8 вместо 5) — упражнение полноценнее.
+const correctSet = matched.length ? matched : shuffleArr(sameFolioOthers).slice(0, 8);
 const correctCodes = new Set(correctSet.map(t => t.code));
-const trapPoolSame = shuffleArr(sameFolioOthers.filter(t => !correctCodes.has(t.code))).slice(0, 6);
-const trapPoolOther = shuffleArr(otherFolio).slice(0, 6);
+const trapPoolSame = shuffleArr(sameFolioOthers.filter(t => !correctCodes.has(t.code))).slice(0, 10);
+const trapPoolOther = shuffleArr(otherFolio).slice(0, 8);
 const traps = trapPoolSame.concat(trapPoolOther);
 
 let nextId = 1;
@@ -2667,6 +2673,7 @@ auditDoReportNote: null,
 auditAfterLocked: false,
 auditAfterResult: null,
 auditAfterReportNote: null,
+delphiExperts: { e1: '', e2: '', e3: '' },
 taskNotesLocked: false,
 taskNotesResult: null,
 taskNotesReportNote: null,
@@ -2681,7 +2688,7 @@ client: {},
 // реквизиты сторон Договора (занятие 4) — студент заполняет сам, это часть задания: понять,
 // какие именно реквизиты нужны для реального договора подряда (ИНН/ОГРН/банк — у юрлица-Исполнителя,
 // паспортные данные/ИНН — у Заказчика-физлица), нежели получить их уже готовыми
-contract: { firmINN: '', firmOGRN: '', firmAddr: '', firmBank: '', firmPhone: '', custINN: '', custPassport: '', advancePct: 30, warrantyMonths: 24 }
+contract: { firmINN: '', firmOGRN: '', firmAddr: '', firmBank: '', firmPhone: '', custINN: '', custPassport: '', advancePct: 70, warrantyMonths: 24, accumPct: 35 }
 };
 }
 
@@ -2888,13 +2895,23 @@ if (typeof state.resourcesReportNote === 'undefined') state.resourcesReportNote 
 if (typeof state.staffResult === 'undefined') state.staffResult = null;
 if (typeof state.staffReportNote === 'undefined') state.staffReportNote = null;
 if (!state.auditThreats) state.auditThreats = defaultAuditThreats(state.projectType);
-if (!state.contract) state.contract = { firmINN: '', firmOGRN: '', firmAddr: '', firmBank: '', firmPhone: '', custINN: '', custPassport: '', advancePct: 30, warrantyMonths: 24 };
+if (!state.contract) state.contract = { firmINN: '', firmOGRN: '', firmAddr: '', firmBank: '', firmPhone: '', custINN: '', custPassport: '', advancePct: 70, warrantyMonths: 24, accumPct: 35 };
+// Плановые накопления фирмы (см. п.2 Договора, занятие 4) — доля от цены Договора, которую
+// фирма откладывает в резерв на развитие; выбирается вручную (25/35/60%), по умолчанию — 35%.
+if (typeof state.contract.accumPct === 'undefined') state.contract.accumPct = 35;
+// Схема аванса теперь выпадающий список только с тремя вариантами (70/80/100%) — старые
+// сохранённые проекты с произвольным %% (напр. 30) переводим на ближайший разрешённый вариант.
+if (![70, 80, 100].includes(Number(state.contract.advancePct))) state.contract.advancePct = 70;
 if (typeof state.auditDoLocked === 'undefined') state.auditDoLocked = false;
 if (typeof state.auditDoResult === 'undefined') state.auditDoResult = null;
 if (typeof state.auditDoReportNote === 'undefined') state.auditDoReportNote = null;
 if (typeof state.auditAfterLocked === 'undefined') state.auditAfterLocked = false;
 if (typeof state.auditAfterResult === 'undefined') state.auditAfterResult = null;
 if (typeof state.auditAfterReportNote === 'undefined') state.auditAfterReportNote = null;
+// Мини-метод Дельфи (2-3 эксперта, оценка риска P x I ДО/ПОСЛЕ проекта) — см. лист
+// «Оценка_риска_Дельфи» в threat_db_защищено.xlsx; поля самих угроз (dP1Do..dIAgreeAfter)
+// не мигрируются отдельно — их отсутствие эквивалентно null/undefined в расчётах.
+if (!state.delphiExperts) state.delphiExperts = { e1: '', e2: '', e3: '' };
 if (typeof state.taskNotesLocked === 'undefined') state.taskNotesLocked = false;
 if (typeof state.taskNotesResult === 'undefined') state.taskNotesResult = null;
 if (typeof state.taskNotesReportNote === 'undefined') state.taskNotesReportNote = null;
@@ -3392,14 +3409,6 @@ ${costCurveSvg()}
 break;
 
 case 4:
-const overheadPct = 10;
-const profitPct = 15;
-const total = state.summary.total;
-const overheads = total * (overheadPct/100);
-const profit = (total + overheads) * (profitPct/100);
-state.summary.overheads = overheads;
-state.summary.profit = profit;
-state.summary.totalWithVAT = total + overheads + profit;
 // --- данные для Договора: реальные срок/суммы/стороны из уже собранных данных проекта ---
 const contrSched = computeSchedule();
 const contrStart = new Date(state.startDate);
@@ -3411,36 +3420,126 @@ const firmName = cust.firmName || 'ООО «Исполнитель»';
 const custName = cust.name || 'Заказчик не определён';
 const custAddr = cust.address || '—';
 const custPhone = cust.phone || '—';
+const total = state.summary.total;
+// ИСПРАВЛЕНО (round 1): раньше накладные в смете считались условной плоской ставкой (10% от
+// прямых затрат) — это НЕ совпадало с реальными накладными расходами офиса (аренда, связь,
+// транспорт, ОС из занятия 1), которые показывались в п.2.6 Договора и в блоке 7-8 занятия 5,
+// отсюда и расхождение сумм на одной и той же странице. Накладные в смете сделаны РЕАЛЬНОЙ
+// суммой (ovhTotal), одна и та же формула используется здесь, в п.2.6 Договора и в занятии 5.
+// ИСПРАВЛЕНО (round 2 — обнаружено при проверке: накладные получались 305% от прямых затрат,
+// абсурдно много): ОС (CAPEX) — грузовой автомобиль монтажников (2 000 000 ₽), автомобиль
+// директора (3 500 000 ₽) и т.п. — раньше добавлялись в накладные ПОЛНОЙ суммой покупки на
+// ОДИН проект, как будто фирма покупает новую машину под каждый отдельный проект. Это неверно:
+// ОС служат несколько лет и амортизируются, в стоимость конкретного проекта должна попадать
+// только доля амортизации за срок ЭТОГО проекта. Принята единая учебная норма амортизации —
+// 36 месяцев (3 года) на все ОС; месячная сумма амортизации пропорционируется по сроку проекта
+// точно так же, как и обычные месячные статьи (аренда, связь).
+const CAPEX_AMORT_MONTHS = 36;
+const ovhDays = contrSched.criticalPathLength || 0;
+const ovhMonthly = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r), 0);
+const ovhOneTime = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r), 0);
+const ovhCapexFull = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0);
+const ovhCapexMonthly = ovhCapexFull / CAPEX_AMORT_MONTHS;
+const ovhMonthlyProrated = ovhMonthly * (ovhDays / 30);
+const ovhCapexProrated = ovhCapexMonthly * (ovhDays / 30);
+const ovhTotal = ovhMonthlyProrated + ovhOneTime + ovhCapexProrated;
+const profitPct = 15;
+const overheadPct = total ? (ovhTotal / total * 100) : 0;
+const overheads = ovhTotal;
+// ОРИЕНТИР по накладным (не заменяет реальный расчёт, а служит для САМОПРОВЕРКИ студента):
+// в среднем по рынку накладные монтажных фирм составляют 25% от прямых затрат при бюджетном
+// уровне комплектующих, 35% — при среднем, 60% — при дорогом (тот же ориентир, что и для
+// накоплений, — более дорогой заказ подразумевает более оснащённый, а значит и более затратный
+// офис). Реальный % (overheadPct выше) СЧИТАННО ЗАВИСИТ от того, что студент отметил в занятии 1
+// как «нужные фирме ресурсы»: если там по ошибке остались ненужные для этого профиля проекта
+// или уже сильно изношенные ОС (например, б/у автомобиль директора, б/у ГАЗель) — реальный %
+// разойдётся с ориентиром, и это разойдение — сигнал вернуться в занятие 1 и пересмотреть выбор.
+const OVERHEAD_BENCHMARK = { budget: 25, middle: 35, vip: 60 };
+const overheadBenchmarkPct = OVERHEAD_BENCHMARK[state.priceLevel] || 35;
+const overheadGapPts = overheadPct - overheadBenchmarkPct;
+const profit = (total + overheads) * (profitPct/100);
+// НДС — выделяется ОТДЕЛЬНОЙ строкой поверх цены без налога (прямые затраты + накладные +
+// прибыль), по стандартной ставке 20% (гл. 21 НК РФ; применимо для фирмы на ОСНО — при УСН
+// «Доходы» или «Доходы минус расходы» НДС в цену не закладывается и эта строка была бы нулевой).
+const vatRate = 20;
+const priceBeforeVAT = total + overheads + profit;
+const vatAmount = priceBeforeVAT * (vatRate/100);
+state.summary.overheads = overheads;
+state.summary.profit = profit;
+state.summary.priceBeforeVAT = priceBeforeVAT;
+state.summary.vatRate = vatRate;
+state.summary.vatAmount = vatAmount;
+state.summary.totalWithVAT = priceBeforeVAT + vatAmount;
 const contrTotal = state.summary.totalWithVAT;
 const advance = contrTotal * (state.contract.advancePct / 100);
 const remainder = contrTotal - advance;
+// ИСПРАВЛЕНО (обнаружено при проверке): накопления считались как % от ВСЕЙ цены Договора —
+// при 60% это могло ПРЕВЫШАТЬ саму прибыль (15%, см. смету выше), как будто фирма откладывает в
+// резерв не только заработанное, но и деньги, уже потраченные на труд/материалы/накладные. Это
+// бессмысленно: откладывать в накопления можно только ИЗ ПРИБЫЛИ, а не из выручки целиком.
+// Накопления — это доля от прибыли (${profitPct}%, см. карточку «Прибыль» и строку 4 сметы выше),
+// которую фирма откладывает в резерв на развитие (закупка оборудования, обучение, подушка на
+// непредвиденные расходы) вместо того, чтобы распределить/потратить её иначе. Доля выбирается
+// студентом (25/35/60%) — ориентир: 25% для бюджетного уровня цены комплектующих (заказчик менее
+// платёжеспособен, работаем на объём, прибыль меньше — меньше и запас прочности на накопления),
+// 35% для среднего, 60% для дорогого уровня (более платёжеспособный заказчик, прибыль больше —
+// можно отложить больше). Эта же величина (state.contract.accumPct) переиспользуется в блоке 8
+// занятия 5 «Бюджет проекта для фирмы», где накопления также считаются от маржи (прибыли) проекта,
+// а не от полной цены Договора.
+const accumSum = profit * (state.contract.accumPct / 100);
 const contractNo = 'Д-' + (state.projectType || 'ИБ').toUpperCase() + '-' + contrStart.getFullYear() + '/' + String(contrStart.getMonth() + 1).padStart(2, '0');
 const reqInput = (label, field, ph) => `<label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">${label}</label><input type="text" value="${(state.contract[field] || '').replace(/"/g, '&quot;')}" placeholder="${ph}" onchange="updateContract('${field}', this.value)" style="width:100%; margin-bottom:8px; padding:6px 8px; border:1px solid var(--gr-line2); border-radius:6px; font-size:13px;" />`;
 html += `
 <p style="margin-bottom:12px; color:var(--gr-muted2);"><strong>Цель:</strong> Составить итоговую смету для заказчика и оформить Договор подряда на выполнение работ.</p>
+<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Ниже — визуальная сборка цены «снизу вверх»: труд и материалы складываются в прямые затраты; прямые затраты и реальные накладные офиса складываются в базовую стоимость, от которой считаются прибыль и НДС.</p>
+<div style="display:flex; align-items:stretch; gap:6px; margin-bottom:14px; flex-wrap:wrap;">
+  <div style="display:flex; flex-direction:column; gap:8px; flex:1 1 220px;">
+    <div class="summary-card" style="margin:0;"><label>Труд (чел-ч, с начислениями 30,2%)</label><span>${state.summary.totalLabor.toFixed(0)} ₽</span></div>
+    <div class="summary-card" style="margin:0;"><label>Материалы</label><span>${state.summary.totalMaterial.toFixed(0)} ₽</span></div>
+  </div>
+  <div style="display:flex; align-items:center; justify-content:center; font-size:46px; line-height:1; color:var(--gr-dim); font-family:Georgia,'Times New Roman',serif; padding:0 4px; flex:0 0 auto;">&#125;</div>
+  <div style="display:flex; align-items:center; flex:1 1 220px;">
+    <div class="summary-card" style="margin:0; width:100%; border-color:var(--gr-cyan);"><label>Прямые затраты (в т.ч. ФОТ)</label><span>${total.toFixed(0)} ₽</span></div>
+  </div>
+</div>
+<div style="display:flex; align-items:stretch; gap:6px; margin-bottom:14px; flex-wrap:wrap;">
+  <div style="display:flex; flex-direction:column; gap:8px; flex:1 1 220px;">
+    <div class="summary-card" style="margin:0;"><label>Прямые затраты</label><span>${total.toFixed(0)} ₽</span></div>
+    <div class="summary-card" style="margin:0;"><label>Накладные по офису (реальные, ${overheadPct.toFixed(1)}%; ориентир для уровня «${state.priceLevel.toUpperCase()}» — ${overheadBenchmarkPct}%)</label><span>${overheads.toFixed(0)} ₽</span></div>
+  </div>
+  <div style="display:flex; align-items:center; justify-content:center; font-size:46px; line-height:1; color:var(--gr-dim); font-family:Georgia,'Times New Roman',serif; padding:0 4px; flex:0 0 auto;">&#125;</div>
+  <div style="display:flex; align-items:center; flex:1 1 220px;">
+    <div class="summary-card" style="margin:0; width:100%; border-color:var(--gr-cyan);"><label>ИТОГО (база для прибыли и НДС)</label><span>${(total+overheads).toFixed(0)} ₽</span></div>
+  </div>
+</div>
+${Math.abs(overheadGapPts) > 10 ? `
+<p style="margin:0 0 14px; color:#F2CB7A; font-size:13px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:8px 12px;">⚠️ Реальные накладные (${overheadPct.toFixed(1)}%) заметно ${overheadGapPts > 0 ? 'ВЫШЕ' : 'НИЖЕ'} ориентира для вашего уровня цены (${overheadBenchmarkPct}%). ${overheadGapPts > 0 ? 'Вернитесь в занятие 1 «Ресурсы фирмы» и проверьте: не остались ли отмечены ненужные для этого профиля проекта или уже сильно изношенные основные средства (например, б/у автомобиль директора, б/у ГАЗель) — они «утяжеляют» бюджет офиса, который должен окупаться за счёт ЭТОГО проекта.' : 'Возможно, в занятии 1 отмечено меньше ресурсов, чем реально нужно офису для сопровождения проекта такого уровня — проверьте полноту выбора.'}</p>
+` : `
+<p style="margin:0 0 14px; color:#8fd68f; font-size:13px; background:rgba(90,200,90,0.08); border:1px solid rgba(90,200,90,0.3); border-radius:8px; padding:8px 12px;">✓ Реальные накладные (${overheadPct.toFixed(1)}%) близки к ориентиру для вашего уровня цены (${overheadBenchmarkPct}%) — состав ресурсов, отмеченных в занятии 1, соразмерен масштабу проекта.</p>
+`}
 <div class="summary-grid">
-<div class="summary-card"><label>Труд (чел-ч)</label><span>${state.summary.totalLabor.toFixed(0)} ₽</span></div>
-<div class="summary-card"><label>Материалы</label><span>${state.summary.totalMaterial.toFixed(0)} ₽</span></div>
-<div class="summary-card"><label>Прямые затраты</label><span>${total.toFixed(0)} ₽</span></div>
-<div class="summary-card"><label>Накладные (${overheadPct}%)</label><span>${overheads.toFixed(0)} ₽</span></div>
 <div class="summary-card"><label>Прибыль (${profitPct}%)</label><span>${profit.toFixed(0)} ₽</span></div>
-<div class="summary-card" style="background:rgba(51,230,255,0.1); border-color:var(--gr-cyan);"><label>ИТОГО СМЕТА</label><span>${(total + overheads + profit).toFixed(0)} ₽</span></div>
+<div class="summary-card"><label>Цена без НДС</label><span>${priceBeforeVAT.toFixed(0)} ₽</span></div>
+<div class="summary-card" style="border-color:var(--gr-gold);"><label>НДС (${vatRate}%)</label><span>${vatAmount.toFixed(0)} ₽</span></div>
+<div class="summary-card" style="background:rgba(51,230,255,0.1); border-color:var(--gr-cyan);"><label>ИТОГО СМЕТА (с НДС)</label><span>${contrTotal.toFixed(0)} ₽</span></div>
 </div>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:26px 0 6px;">📄 Локальная смета № ${contractNo}-С на выполнение работ по проекту «${TYPE_RU[state.projectType] || ''}»</div>
-<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Калькуляция сформирована автоматически по фактическим данным проекта: трудозатратам исполнителей (стр. 1, с учётом страховых взносов 30,2%) и стоимости комплектующих (стр. 2, по выбранному уровню цены). Ниже — постатейная разбивка, являющаяся Приложением №1 к Договору.</p>
+<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Калькуляция сформирована автоматически по фактическим данным проекта: трудозатратам исполнителей (стр. 1, с учётом страховых взносов 30,2%), стоимости комплектующих (стр. 2, по выбранному уровню цены) и реальным накладным расходам офиса (стр. 1, пропорционально сроку проекта — та же сумма, что в п.2.6 Договора). Ниже — постатейная разбивка, являющаяся Приложением №1 к Договору.</p>
 <table>
 <thead><tr><th style="width:46px;">№</th><th>Статья затрат</th><th style="text-align:right;">Сумма, ₽</th><th style="text-align:right;">% от прямых затрат</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>Оплата труда исполнителей (с начислениями 30,2%)</td><td style="text-align:right; white-space:nowrap;">${state.summary.totalLabor.toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.totalLabor/total*100 : 0).toFixed(1)}%</td></tr>
 <tr><td>2</td><td>Материалы и комплектующие (уровень «${state.priceLevel.toUpperCase()}»)</td><td style="text-align:right; white-space:nowrap;">${state.summary.totalMaterial.toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.totalMaterial/total*100 : 0).toFixed(1)}%</td></tr>
 <tr style="font-weight:600; background:var(--gr-panel2);"><td colspan="2">Итого прямые затраты</td><td style="text-align:right; white-space:nowrap;">${total.toLocaleString('ru-RU')}</td><td style="text-align:right;">100%</td></tr>
-<tr><td>3</td><td>Накладные расходы (аренда, связь, транспорт, содержание офиса)</td><td style="text-align:right; white-space:nowrap;">${overheads.toLocaleString('ru-RU')}</td><td style="text-align:right;">${overheadPct}%</td></tr>
+<tr><td>3</td><td>Накладные расходы (аренда, связь, транспорт, содержание офиса + амортизация ОС — за ${ovhDays.toFixed(0)} дн. проекта)</td><td style="text-align:right; white-space:nowrap;">${Math.round(overheads).toLocaleString('ru-RU')}</td><td style="text-align:right;">${overheadPct.toFixed(1)}%</td></tr>
 <tr><td>4</td><td>Плановая прибыль исполнителя</td><td style="text-align:right; white-space:nowrap;">${profit.toLocaleString('ru-RU')}</td><td style="text-align:right;">${profitPct}%</td></tr>
+<tr style="font-weight:600; background:var(--gr-panel2);"><td colspan="2">Итого цена работ без НДС</td><td style="text-align:right; white-space:nowrap;">${Math.round(priceBeforeVAT).toLocaleString('ru-RU')}</td><td style="text-align:right;">—</td></tr>
+<tr><td>5</td><td>В том числе НДС (${vatRate}%, гл. 21 НК РФ)</td><td style="text-align:right; white-space:nowrap;">${Math.round(vatAmount).toLocaleString('ru-RU')}</td><td style="text-align:right;">—</td></tr>
 </tbody>
-<tfoot><tr style="font-weight:700; background:rgba(51,230,255,0.1);"><td colspan="2">ИТОГО СМЕТНАЯ СТОИМОСТЬ (цена Договора)</td><td style="text-align:right; white-space:nowrap;">${contrTotal.toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
+<tfoot><tr style="font-weight:700; background:rgba(51,230,255,0.1);"><td colspan="2">ИТОГО СМЕТНАЯ СТОИМОСТЬ С НДС (цена Договора)</td><td style="text-align:right; white-space:nowrap;">${Math.round(contrTotal).toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
 </table>
-<p style="margin:8px 0 22px; color:var(--gr-muted2); font-size:13px;">Смета подтверждает, из чего складывается цена Договора: прямые затраты (труд + материалы) плюс накладные расходы и прибыль исполнителя. Именно итоговая строка ниже переносится в п.2 Договора как цена работ.</p>
+<p style="margin:8px 0 22px; color:var(--gr-muted2); font-size:13px;">Смета подтверждает, из чего складывается цена Договора: прямые затраты (труд + материалы) плюс реальные накладные расходы офиса и плановая прибыль исполнителя — это цена без НДС; сверху начисляется НДС ${vatRate}% (для фирмы на общей системе налогообложения; при УСН эта строка была бы нулевой). Именно итоговая строка ниже (с НДС) переносится в п.2 Договора как цена работ.</p>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:6px 0 10px;">📝 Договор подряда № ${contractNo}</div>
 <p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Заполните недостающие реквизиты сторон — без них Договор юридически неполон (см. также вывод по итогам занятия ниже текста Договора).</p>
@@ -3459,8 +3558,12 @@ ${reqInput('Телефон', 'firmPhone', '+7 (8652) 00-00-00')}
 <input type="text" value="${custPhone.replace(/"/g, '&quot;')}" disabled style="width:100%; margin-bottom:8px; padding:6px 8px; border:1px solid var(--gr-line); border-radius:6px; font-size:13px; background:var(--gr-panel2); color:var(--gr-dim);" />
 ${reqInput('ИНН (если ИП/юрлицо)', 'custINN', '263401234567')}
 ${reqInput('Паспортные данные (если физлицо)', 'custPassport', 'серия 0700 № 123456, выдан ...')}
-<label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Аванс, % от цены Договора</label>
-<input type="number" min="0" max="100" value="${state.contract.advancePct}" onchange="updateContract('advancePct', this.value)" style="width:100%; margin-bottom:8px; padding:6px 8px; border:1px solid var(--gr-line2); border-radius:6px; font-size:13px;" />
+<label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Схема оплаты (аванс / остаток)</label>
+<select onchange="updateContract('advancePct', this.value)" style="width:100%; margin-bottom:8px; padding:6px 8px; border:1px solid var(--gr-line2); border-radius:6px; font-size:13px; background:var(--gr-panel2); color:var(--gr-text);">
+<option value="70" ${Number(state.contract.advancePct) === 70 ? 'selected' : ''}>70% аванс / 30% по завершении</option>
+<option value="80" ${Number(state.contract.advancePct) === 80 ? 'selected' : ''}>80% аванс / 20% по завершении</option>
+<option value="100" ${Number(state.contract.advancePct) === 100 ? 'selected' : ''}>100% аванс (полная предоплата)</option>
+</select>
 <label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Гарантийный срок, мес.</label>
 <input type="number" min="0" value="${state.contract.warrantyMonths}" onchange="updateContract('warrantyMonths', this.value)" style="width:100%; padding:6px 8px; border:1px solid var(--gr-line2); border-radius:6px; font-size:13px;" />
 </div>
@@ -3476,7 +3579,7 @@ ${reqInput('Паспортные данные (если физлицо)', 'custP
 <p style="text-align:justify; font-size:13.5px;">1.1. Исполнитель обязуется выполнить по заданию Заказчика работы по проектированию, монтажу, пусконаладке и вводу в эксплуатацию системы «${TYPE_RU[state.projectType] || ''}» на объекте по адресу: ${custAddr} (далее — «Объект»), а Заказчик обязуется принять и оплатить результат работ.<br>1.2. Полный перечень и последовательность работ приведены в Приложении №2 (Календарный график, стр. 3 практикума), перечень поставляемого оборудования — в Приложении №3 (Спецификация комплектующих, стр. 2 практикума).</p>
 
 <p style="font-weight:700; margin:16px 0 4px;">2. Стоимость работ и порядок оплаты</p>
-<p style="text-align:justify; font-size:13.5px;">2.1. Общая стоимость работ по настоящему Договору составляет <strong>${contrTotal.toLocaleString('ru-RU')} ₽</strong> (согласно смете — Приложение №1).<br>2.2. Заказчик уплачивает аванс в размере ${state.contract.advancePct}% от стоимости Договора — <strong>${advance.toLocaleString('ru-RU')} ₽</strong> — в течение 5 банковских дней с момента подписания Договора.<br>2.3. Оставшаяся сумма — <strong>${remainder.toLocaleString('ru-RU')} ₽</strong> — уплачивается в течение 5 банковских дней с момента подписания Акта сдачи-приёмки выполненных работ (п.6).</p>
+<p style="text-align:justify; font-size:13.5px;">2.1. Общая стоимость работ по настоящему Договору составляет <strong>${contrTotal.toLocaleString('ru-RU')} ₽</strong>, в том числе НДС ${vatRate}% — <strong>${Math.round(vatAmount).toLocaleString('ru-RU')} ₽</strong> (цена без НДС — ${Math.round(priceBeforeVAT).toLocaleString('ru-RU')} ₽; согласно смете — Приложение №1).<br>2.2. Заказчик уплачивает аванс в размере ${state.contract.advancePct}% от стоимости Договора — <strong>${advance.toLocaleString('ru-RU')} ₽</strong> — в течение 5 банковских дней с момента подписания Договора.<br>2.3. ${Number(state.contract.advancePct) >= 100 ? 'Оплата производится в полном объёме авансом (п.2.2); отдельного платежа по завершении работ не предусмотрено.' : `Оставшаяся сумма — <strong>${remainder.toLocaleString('ru-RU')} ₽</strong> — уплачивается в течение 5 банковских дней с момента подписания Акта сдачи-приёмки выполненных работ (п.6).`}<br>2.4. Из плановой прибыли Исполнителя по настоящему Договору (<strong>${Math.round(profit).toLocaleString('ru-RU')} ₽</strong>, ${profitPct}% — см. смету выше, Приложение №1) Исполнитель планирует направить в собственные накопления (резерв на развитие фирмы) <span style="display:inline-flex; align-items:center; gap:4px;">не менее <select onchange="updateContract('accumPct', this.value)" style="font-family:Georgia,'Times New Roman',serif; font-size:13px; padding:1px 3px; border:1px solid #999; border-radius:4px; background:#fdfdfb;"><option value="25" ${Number(state.contract.accumPct) === 25 ? 'selected' : ''}>25%</option><option value="35" ${Number(state.contract.accumPct) === 35 ? 'selected' : ''}>35%</option><option value="60" ${Number(state.contract.accumPct) === 60 ? 'selected' : ''}>60%</option></select></span> от этой прибыли (ориентир по уровню цены комплектующих, занятие 2: 25% — бюджетный уровень, 35% — средний, 60% — дорогой; накопления — это часть заработанной прибыли, а не часть выручки, которая ещё не покрыла затраты); данный пункт является внутренним плановым показателем Исполнителя и не изменяет сумму, причитающуюся к оплате Заказчиком по п.2.1-2.3.<br>2.5. Плановая сумма накоплений по настоящему Договору: <strong>${Math.round(profit).toLocaleString('ru-RU')} ₽ (прибыль) × ${state.contract.accumPct}% = ${Math.round(accumSum).toLocaleString('ru-RU')} ₽</strong> (справочно — используется при формировании планового бюджета фирмы, занятие 5, п.8).<br>2.6. В цену Договора (п.2.1) также заложены накладные расходы Исполнителя за период выполнения работ (${ovhDays.toFixed(0)} дн. по календарному графику, Приложение №2) — аренда и содержание офиса, связь и хостинг, транспорт (пропорционально сроку проекта), а также амортизация основных средств (компьютеры, транспорт и т.п., занятие 1; учебная норма — ${CAPEX_AMORT_MONTHS} мес. полезного использования, в цену входит доля износа за срок ЭТОГО проекта, а не полная стоимость покупки): <strong>${Math.round(ovhTotal).toLocaleString('ru-RU')} ₽</strong> (справочно; та же сумма — в блоке 7-8 планового бюджета фирмы, занятие 5).</p>
 
 <p style="font-weight:700; margin:16px 0 4px;">3. Сроки выполнения работ</p>
 <p style="text-align:justify; font-size:13.5px;">3.1. Срок начала работ — ${fmtRuDate(contrStart)}. Срок окончания работ — ${fmtRuDate(contrEnd)} (${contrDays} календарных дней, согласно критическому пути календарного графика, Приложение №2).<br>3.2. Датой окончания работ считается дата подписания Акта сдачи-приёмки (п.6).</p>
@@ -3587,24 +3690,56 @@ const plEmpRows = state.employees.filter(e => (plEmpHours[e.id] || 0) > 0)
 const plEmpTotal = plEmpRows.reduce((s, e) => s + (plEmpCost[e.id] || 0), 0);
 
 // --- Блок 7. Накладные расходы офиса фирмы — OPEX (мес./разово) и CAPEX (из занятия 1) ---
+// ИСПРАВЛЕНО (round 1): раньше месячные статьи (аренда, связь и т.п.) брались ПОЛНОЙ месячной
+// суммой независимо от фактического срока проекта — если проект по рулетке короче месяца (обычно
+// так и есть, 20-45 дней), это завышало накладные почти вдвое. Месячные статьи пропорционируются
+// по факту (plProjectDays / 30) — та же формула, что в п.2.6 Договора (занятие 4).
+// ИСПРАВЛЕНО (round 2 — обнаружено при проверке занятия 4: накладные получались 305% от прямых
+// затрат): ОС (CAPEX — грузовой автомобиль монтажников 2 000 000 ₽, автомобиль директора
+// 3 500 000 ₽ и т.п.) раньше добавлялись в накладные ПОЛНОЙ суммой покупки на один проект. Как и
+// в занятии 4, принята единая учебная норма амортизации ОС — 36 месяцев (3 года); в накладные
+// проекта входит только доля амортизации за срок ЭТОГО проекта, а не вся стоимость машины разом.
+const plProjectDays = plSched.criticalPathLength || 0;
 const plOpexM = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r), 0);
+const plOpexMProrated = plOpexM * (plProjectDays / 30);
 const plOpexO = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r), 0);
-const plCapex = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0);
-const plOverheadTotal = plOpexM + plOpexO + plCapex;
+const PL_CAPEX_AMORT_MONTHS = 36;
+const plCapexFull = state.firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0);
+const plCapexProrated = (plCapexFull / PL_CAPEX_AMORT_MONTHS) * (plProjectDays / 30);
+const plOverheadTotal = plOpexMProrated + plOpexO + plCapexProrated;
+// Ориентир по накладным — тот же, что и в занятии 4 (см. п.2.6 Договора): 25/35/60% от прямых
+// затрат по уровню цены комплектующих. Здесь сравнивается с реальным % (от труда+материалов
+// этапов, без комплектующих) — расхождение подсказывает вернуться в занятие 1 и проверить состав
+// отмеченных ресурсов (лишние/устаревшие ОС утяжеляют накладные сверх ориентира).
+const PL_OVERHEAD_BENCHMARK = { budget: 25, middle: 35, vip: 60 };
+const plOverheadBenchmarkPct = PL_OVERHEAD_BENCHMARK[state.priceLevel] || 35;
+const plOverheadPct = plStagesTotal ? (plOverheadTotal / plStagesTotal * 100) : 0;
+const plOverheadGapPts = plOverheadPct - plOverheadBenchmarkPct;
 
 // --- Блок 8. ИТОГО плановый бюджет = комплектующие(+10%) + труд/материалы этапов + накладные ---
 const plGrandTotal = plCompTotal + plStagesTotal + plOverheadTotal;
 const plContractPrice = state.summary.totalWithVAT || 0;
 const plMargin = plContractPrice - plGrandTotal;
+// ИСПРАВЛЕНО (согласовано с занятием 4): накопления — это доля ОТ ПРИБЫЛИ (маржи) проекта, а не
+// от всей цены Договора — иначе при 60% накопления могли бы превысить саму прибыль, как будто
+// фирма откладывает в резерв ещё не заработанные деньги, которыми должны покрываться затраты.
+// Используется тот же процент (state.contract.accumPct), что выбран в п.2.4-2.5 Договора (занятие
+// 4), но применяется к марже ИМЕННО текущего проекта (plMargin), чтобы обе страницы были логически
+// согласованы (в занятии 4 накопления считаются от смeтного profit, здесь — от plMargin; величины
+// близки, но не обязаны совпадать до копейки, т.к. plMargin считается по бюджету снизу вверх).
+const plAccumPct = state.contract.accumPct || 35;
+const plAccumSum = plMargin * (plAccumPct / 100);
 state.budget.payroll = plEmpTotal;
 state.budget.taxes = plEmpTotal * INSURANCE_RATE / (1 + INSURANCE_RATE);
-state.budget.rent = plOpexM;
+state.budget.rent = plOpexMProrated;
 state.budget.transport = plOpexO;
-state.budget.other = plCapex;
+state.budget.other = plCapexProrated;
 state.budget.components = plCompTotal;
 state.budget.stages = plStagesTotal;
 state.budget.totalBudget = plGrandTotal;
 state.budget.margin = plMargin;
+state.budget.accumulationPct = plAccumPct;
+state.budget.accumulation = plAccumSum;
 
 html += `
 <p style="margin-bottom:14px; color:var(--gr-muted2);"><strong>Цель:</strong> собрать план бюджета фирмы-исполнителя для текущего проекта «${TYPE_RU[state.projectType] || ''}» — от комплектующих до итоговой плановой себестоимости и сверки с ценой Договора (занятие 4).</p>
@@ -3649,25 +3784,33 @@ ${plEmpRows.length ? plEmpRows.map(e => `
 <tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="3">Итого по сотрудникам (справочно — не приплюсовывается повторно к ИТОГО в блоке 8)</td><td style="text-align:right; white-space:nowrap;">${Math.round(plEmpTotal).toLocaleString('ru-RU')}</td></tr></tfoot>
 </table>
 
-<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:22px 0 8px;">7. Накладные расходы по офису фирмы — OPEX и CAPEX</div>
+<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:22px 0 8px;">7. Накладные расходы по офису фирмы — OPEX и CAPEX (за срок проекта — ${plProjectDays.toFixed(0)} дн.)</div>
 <div class="summary-grid">
-<div class="summary-card"><label>OPEX, регулярные (мес.)</label><span>${plOpexM.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card"><label>OPEX, регулярные — полная ставка, ₽/мес.</label><span>${plOpexM.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card" style="border-color:var(--gr-cyan);"><label>OPEX регулярные, доля за ${plProjectDays.toFixed(0)} дн. проекта</label><span>${Math.round(plOpexMProrated).toLocaleString('ru-RU')} ₽</span></div>
 <div class="summary-card"><label>OPEX, разовые</label><span>${plOpexO.toLocaleString('ru-RU')} ₽</span></div>
-<div class="summary-card"><label>CAPEX (основные средства)</label><span>${plCapex.toLocaleString('ru-RU')} ₽</span></div>
-<div class="summary-card" style="background:rgba(232,178,74,0.08); border-color:var(--gr-gold);"><label>Итого накладные</label><span>${plOverheadTotal.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card"><label>CAPEX — полная стоимость ОС (покупка)</label><span>${plCapexFull.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card" style="border-color:var(--gr-cyan);"><label>CAPEX, доля амортизации за ${plProjectDays.toFixed(0)} дн. проекта</label><span>${Math.round(plCapexProrated).toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card" style="background:rgba(232,178,74,0.08); border-color:var(--gr-gold);"><label>Итого накладные на проект (${plOverheadPct.toFixed(1)}% от труда+материалов; ориентир «${(state.priceLevel||'').toUpperCase()}» — ${plOverheadBenchmarkPct}%)</label><span>${Math.round(plOverheadTotal).toLocaleString('ru-RU')} ₽</span></div>
 </div>
-<p style="margin:8px 0 20px; color:var(--gr-dim); font-size:12.5px;">Состав — из таблицы ресурсов фирмы (занятие 1): аренда/содержание офиса, связь и хостинг, грузоперевозки, ГПХ и основные средства, отмеченные как нужные. OPEX и CAPEX разнесены автоматически по типу ресурса.</p>
+<p style="margin:8px 0 8px; color:var(--gr-dim); font-size:12.5px;">Состав — из таблицы ресурсов фирмы (занятие 1): аренда/содержание офиса, связь и хостинг, грузоперевозки, ГПХ и основные средства, отмеченные как нужные. Регулярные (месячные) статьи пропорционируются по фактическому сроку проекта (${plProjectDays.toFixed(0)} из 30 дней) — иначе на короткий проект «вешался» бы целый месяц офисных расходов. ОС (CAPEX — автомобили, компьютеры и т.п.) служат несколько лет, поэтому амортизируются: в накладные проекта входит не вся стоимость покупки, а доля износа за ${PL_CAPEX_AMORT_MONTHS} мес. (учебная норма), пропорционально сроку проекта. Итоговая сумма совпадает с п.2.6 Договора (занятие 4).</p>
+${Math.abs(plOverheadGapPts) > 10 ? `
+<p style="margin:0 0 20px; color:#F2CB7A; font-size:12.5px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:8px 12px;">⚠️ Реальные накладные (${plOverheadPct.toFixed(1)}%) заметно ${plOverheadGapPts > 0 ? 'ВЫШЕ' : 'НИЖЕ'} ориентира (${plOverheadBenchmarkPct}%) для уровня «${(state.priceLevel||'').toUpperCase()}». ${plOverheadGapPts > 0 ? 'Проверьте занятие 1 «Ресурсы фирмы»: не отмечены ли лишние или уже сильно изношенные основные средства (например, б/у автомобиль директора, б/у ГАЗель) — именно они «утяжеляют» бюджет офиса, который должен окупиться за срок ЭТОГО проекта.' : 'Возможно, отмечено меньше ресурсов, чем реально нужно для сопровождения проекта такого масштаба.'}</p>
+` : `
+<p style="margin:0 0 20px; color:#8fd68f; font-size:12.5px; background:rgba(90,200,90,0.08); border:1px solid rgba(90,200,90,0.3); border-radius:8px; padding:8px 12px;">✓ Реальные накладные близки к ориентиру — состав ресурсов из занятия 1 соразмерен масштабу проекта.</p>
+`}
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:4px 0 8px;">8. ИТОГО плановый бюджет проекта для фирмы</div>
 <div class="summary-grid">
 <div class="summary-card"><label>Комплектующие (блок 1)</label><span>${plCompTotal.toLocaleString('ru-RU')} ₽</span></div>
 <div class="summary-card"><label>Труд + материалы задач (блоки 2-5)</label><span>${plStagesTotal.toLocaleString('ru-RU')} ₽</span></div>
-<div class="summary-card"><label>Накладные офиса (блок 7)</label><span>${plOverheadTotal.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card"><label>Накладные офиса (блок 7)</label><span>${Math.round(plOverheadTotal).toLocaleString('ru-RU')} ₽</span></div>
 <div class="summary-card" style="background:rgba(255,59,92,0.08); border-color:var(--gr-red);"><label>ИТОГО плановая себестоимость</label><span>${Math.round(plGrandTotal).toLocaleString('ru-RU')} ₽</span></div>
-<div class="summary-card"><label>Цена Договора с заказчиком (занятие 4)</label><span>${Math.round(plContractPrice).toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card"><label>Цена Договора с заказчиком, с НДС (занятие 4)</label><span>${Math.round(plContractPrice).toLocaleString('ru-RU')} ₽</span></div>
 <div class="summary-card" style="background:rgba(57,255,157,0.1); border-color:var(--gr-green);"><label>Маржинальность</label><span>${Math.round(plMargin).toLocaleString('ru-RU')} ₽ (${plContractPrice ? (plMargin/plContractPrice*100).toFixed(1) : '0.0'}%)</span></div>
+<div class="summary-card" style="background:rgba(232,178,74,0.08); border-color:var(--gr-gold);"><label>Плановые накопления (${plAccumPct}% от маржи — см. п.2.4-2.5 Договора)</label><span>${Math.round(plAccumSum).toLocaleString('ru-RU')} ₽</span></div>
 </div>
-<p style="margin:8px 0 4px; color:var(--gr-dim); font-size:12.5px;">Плановая себестоимость = комплектующие с запасом на фурнитуру + труд и материалы всех этапов + накладные расходы офиса. Маржинальность — разница между ценой Договора (занятие 4, с накладными 10% и прибылью 15%) и плановой себестоимостью фирмы.</p>
+<p style="margin:8px 0 4px; color:var(--gr-dim); font-size:12.5px;">Плановая себестоимость = комплектующие с запасом на фурнитуру + труд и материалы всех этапов + реальные накладные расходы офиса (аренда, связь, транспорт, амортизация ОС — занятие 1). Маржинальность — разница между ценой Договора (занятие 4, с НДС) и плановой себестоимостью фирмы. Плановые накопления — тот же процент, что выбран в п.2.4 Договора (занятие 4), но от маржи (прибыли) проекта, а не от всей цены Договора — иначе накопления могли бы превысить саму прибыль. Измените выпадающий список на занятии 4 — и сумма здесь пересчитается автоматически.</p>
 `;
 break;
 
@@ -3751,8 +3894,41 @@ return `
 <td>${t.name}</td>
 </tr>`;
 };
+const delphiRow = (t, phase, idx) => {
+const c = delphiRowCalc(t, phase);
+const numIn = (val, on) => `<input type="number" min="1" max="5" step="1" style="width:42px; padding:4px;" value="${typeof val === 'number' ? val : ''}" onchange="${on}" />`;
+return `
+<tr>
+<td style="text-align:center; color:var(--gr-dim); font-size:11.5px;">${idx}</td>
+<td style="white-space:nowrap; font-family:monospace; font-size:11px; color:var(--gr-dim);">${t.code}</td>
+<td style="font-size:12px; max-width:220px;">${t.name}</td>
+<td style="text-align:center;">${numIn(t['dP1' + phase], `updateDelphiScore(${t.id},'${phase}',1,'P',this.value)`)}</td>
+<td style="text-align:center;">${numIn(t['dI1' + phase], `updateDelphiScore(${t.id},'${phase}',1,'I',this.value)`)}</td>
+<td style="text-align:center;">${numIn(t['dP2' + phase], `updateDelphiScore(${t.id},'${phase}',2,'P',this.value)`)}</td>
+<td style="text-align:center;">${numIn(t['dI2' + phase], `updateDelphiScore(${t.id},'${phase}',2,'I',this.value)`)}</td>
+<td style="text-align:center;">${numIn(t['dP3' + phase], `updateDelphiScore(${t.id},'${phase}',3,'P',this.value)`)}</td>
+<td style="text-align:center;">${numIn(t['dI3' + phase], `updateDelphiScore(${t.id},'${phase}',3,'I',this.value)`)}</td>
+<td style="text-align:center; font-size:12px; color:${c.needRound2 ? 'var(--gr-red)' : 'var(--gr-dim)'};">${c.deltaP !== null ? c.deltaP : '—'}</td>
+<td style="text-align:center; font-size:12px; color:${c.needRound2 ? 'var(--gr-red)' : 'var(--gr-dim)'};">${c.deltaI !== null ? c.deltaI : '—'}</td>
+<td style="text-align:center; white-space:nowrap; font-size:11.5px;">${c.needRound2 ? '<span style="color:var(--gr-red); font-weight:600;">⚠️ раунд 2</span>' : ((c.deltaP !== null || c.deltaI !== null) ? '<span style="color:var(--gr-green);">✅ согласовано</span>' : '—')}</td>
+<td style="text-align:center;"><input type="number" min="1" max="5" step="0.5" style="width:48px; padding:4px;" placeholder="${c.avgP !== null ? c.avgP.toFixed(1) : '—'}" value="${typeof t['dPAgree' + phase] === 'number' ? t['dPAgree' + phase] : ''}" onchange="updateDelphiAgreed(${t.id},'${phase}','P',this.value)" /></td>
+<td style="text-align:center;"><input type="number" min="1" max="5" step="0.5" style="width:48px; padding:4px;" placeholder="${c.avgI !== null ? c.avgI.toFixed(1) : '—'}" value="${typeof t['dIAgree' + phase] === 'number' ? t['dIAgree' + phase] : ''}" onchange="updateDelphiAgreed(${t.id},'${phase}','I',this.value)" /></td>
+<td style="text-align:center; font-weight:700; color:var(--gr-text);">${c.risk !== null ? c.risk.toFixed(1) : '—'}</td>
+</tr>`;
+};
+const delphiScored = state.auditThreats.filter(t => t.studentMarkDo);
+const delphiDoTotal = delphiScored.reduce((s, t) => s + (delphiRowCalc(t, 'Do').risk || 0), 0);
+const delphiAfterTotal = delphiScored.reduce((s, t) => s + (delphiRowCalc(t, 'After').risk || 0), 0);
+const delphiReduction = delphiDoTotal > 0 ? (delphiDoTotal - delphiAfterTotal) / delphiDoTotal * 100 : 0;
+const delphiExpertsBlock = `
+<div style="display:flex; gap:12px; flex-wrap:wrap; margin:10px 0 14px;">
+<div style="flex:1 1 200px;"><label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Эксперт 1 (ФИО студента):</label><input type="text" value="${(state.delphiExperts.e1 || '').replace(/"/g, '&quot;')}" onchange="updateDelphiExpertName('e1', this.value)" /></div>
+<div style="flex:1 1 200px;"><label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Эксперт 2 (ФИО одногруппника):</label><input type="text" value="${(state.delphiExperts.e2 || '').replace(/"/g, '&quot;')}" onchange="updateDelphiExpertName('e2', this.value)" /></div>
+<div style="flex:1 1 200px;"><label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">Эксперт 3 (ФИО, желательно — точнее сходимость):</label><input type="text" value="${(state.delphiExperts.e3 || '').replace(/"/g, '&quot;')}" onchange="updateDelphiExpertName('e3', this.value)" /></div>
+</div>`;
+const delphiTableHead = `<thead><tr><th>№</th><th>Код</th><th>Угроза</th><th colspan="2">Эксперт 1</th><th colspan="2">Эксперт 2</th><th colspan="2">Эксперт 3</th><th>ΔP</th><th>ΔI</th><th>Статус</th><th>Согл. P</th><th>Согл. I</th><th>Балл риска</th></tr><tr><th></th><th></th><th></th><th>P</th><th>I</th><th>P</th><th>I</th><th>P</th><th>I</th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead>`;
 html += `
-<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Этап рефлексии по завершении проекта ИБ. Из эталонной базы (70 угроз, см. БДУ ФСТЭК/MITRE ATT&CK/отчёты PT Security и УЦСБ) необходимо дважды разобрать один и тот же список угроз — <strong>ДО</strong> начала работ и <strong>ПОСЛЕ</strong> их завершения — и оба раза обосновать выбор соответствием текущему типу проекта (по рулетке).</p>
+<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Этап рефлексии по завершении проекта ИБ. Из расширенной эталонной базы (70 угроз, БДУ ФСТЭК/MITRE ATT&CK/отчёты PT Security и УЦСБ) необходимо дважды разобрать один и тот же список угроз — <strong>ДО</strong> начала работ и <strong>ПОСЛЕ</strong> их завершения — обосновывая выбор соответствием текущему типу проекта (по рулетке); а по угрозам, отмеченным как актуальные, дополнительно провести балльную оценку риска мини-методом Дельфи (см. ниже).</p>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:6px 0 6px;">Аудит ИБ заказчика — ДО исполнения проекта</div>
 <p style="margin-bottom:10px; color:#F2CB7A; font-size:13px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:8px 12px;">⚠️ В список подмешаны угрозы из <strong>ДРУГИХ</strong> типов проектов и портфелей — они здесь не актуальны. Отметьте только те угрозы, которые ваш проект (по рулетке) реально устраняет или снижает, затем нажмите «Завершить (зафиксировать) аудит ДО».</p>
@@ -3765,15 +3941,16 @@ html += `
 <tbody>${state.auditThreats.map(t => auditRow(t, 'do')).join('')}</tbody>
 </table>
 </div>
-<div class="trap-check-panel" style="flex:none; position:static; max-width:420px; margin-top:14px;">
-<div class="trap-check-title">СЧЁТЧИК — аудит ДО</div>
+<div class="trap-check-panel" style="flex:none; position:static; max-width:460px; margin-top:14px;">
+<div class="trap-check-title">СЧЁТЧИК — аудит ДО (норматив: не менее 80% правильных)</div>
 ${state.auditDoLocked && state.auditDoResult ? `
-<div class="trap-check-line ok">✅ Правильно определено: ${state.auditDoResult.correct}</div>
-<div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditDoResult.wrong}</div>
-<div class="trap-check-sub">по эталону, всего позиций: ${state.auditDoResult.total} (ошибочность ${state.auditDoResult.errorPercent.toFixed(1)}%)</div>
-<div class="trap-check-sub" style="margin-top:8px; font-style:italic;">Ошибочность в пределах 25% — аудит ДО зафиксирован автоматически; эти сведения вшиты в итоговый отчёт по проекту.</div>
+<div class="trap-check-line ok">✅ Правильно определено: ${state.auditDoResult.correct} из ${state.auditDoResult.total} (${(100 - state.auditDoResult.errorPercent).toFixed(1)}% правильных)</div>
+<div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditDoResult.wrong} из ${state.auditDoResult.total} (${state.auditDoResult.errorPercent.toFixed(1)}% неправильных)</div>
+<div style="height:8px; border-radius:4px; overflow:hidden; background:rgba(255,59,92,0.25); margin:8px 0;"><div style="height:100%; width:${(100 - state.auditDoResult.errorPercent).toFixed(1)}%; background:var(--gr-green);"></div></div>
+<div class="trap-check-sub" style="font-style:italic;">Правильных ≥ 80% — аудит ДО зафиксирован автоматически; эти сведения вшиты в итоговый отчёт по проекту.</div>
 ` : (state.auditDoResult && !state.auditDoLocked ? `
-<div class="trap-check-line bad">⚠️ Ошибочность аудита ДО: ${state.auditDoResult.errorPercent.toFixed(1)}% — выше допустимых 25%.</div>
+<div class="trap-check-line bad">⚠️ Правильных: ${(100 - state.auditDoResult.errorPercent).toFixed(1)}% — ниже норматива 80%.</div>
+<div style="height:8px; border-radius:4px; overflow:hidden; background:rgba(255,59,92,0.25); margin:8px 0;"><div style="height:100%; width:${(100 - state.auditDoResult.errorPercent).toFixed(1)}%; background:var(--gr-red);"></div></div>
 <div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditDoResult.wrong} из ${state.auditDoResult.total}</div>
 <div class="trap-check-sub">Автоматическая фиксация невозможна. Пересмотрите отметки и нажмите «Пересмотреть аудит ДО».</div>
 ` : `
@@ -3781,6 +3958,23 @@ ${state.auditDoLocked && state.auditDoResult ? `
 `)}
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockAuditDo()" ${state.auditDoLocked ? 'disabled' : ''}>${state.auditDoLocked ? '✅ Зафиксировано' : (state.auditDoResult ? '🔁 Пересмотреть аудит ДО' : '🔒 Завершить (зафиксировать) аудит ДО')}</button>
 </div>
+
+${state.auditDoLocked ? `
+<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px;">Балльная оценка риска методом Дельфи — ДО внедрения проекта</div>
+<p style="margin-bottom:8px; color:var(--gr-muted2); font-size:13px;">Мини-метод Дельфи (учебное упрощение классического варианта на 7+ анонимных экспертов): 2-3 «эксперта» — студент и один-два одногруппника — независимо друг от друга оценивают каждую отмеченную выше угрозу по вероятности (P, 1-5) и тяжести ущерба (I, 1-5). Если разброс оценок по P или I составляет 2 балла и более, строка помечается «раунд 2»: эксперты обсуждают расхождение и вписывают согласованное значение вручную (поле «Согл. P/I»), иначе согласованная оценка берётся как среднее автоматически. Балл риска угрозы = P × I; считается только по угрозам, отмеченным актуальными в аудите ДО.</p>
+${delphiExpertsBlock}
+<div style="overflow-x:auto;">
+<table style="min-width:920px;">
+${delphiTableHead}
+<tbody>${delphiScored.length ? delphiScored.map((t, i) => delphiRow(t, 'Do', i + 1)).join('') : '<tr><td colspan="15" style="text-align:center; color:var(--gr-dim);">Нет угроз, отмеченных как актуальные в аудите ДО</td></tr>'}</tbody>
+<tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="14">Суммарный балл риска ДО (по всем отмеченным угрозам)</td><td style="text-align:center;">${delphiDoTotal.toFixed(1)}</td></tr></tfoot>
+</table>
+</div>
+<p style="margin:8px 0 20px; color:var(--gr-dim); font-size:12.5px;">Источник методики — лист «Оценка_риска_Дельфи», threat_db_защищено.xlsx. Классический метод Дельфи предполагает 7+ анонимных экспертов и несколько туров через фасилитатора; версия с 2-3 очными экспертами — учебное упрощение для аудиторной работы.</p>
+` : `
+<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px; opacity:.45;">Балльная оценка риска методом Дельфи — ДО внедрения проекта</div>
+<p style="margin-bottom:10px; color:var(--gr-dim); font-size:13px; font-style:italic;">Доступно после фиксации аудита ДО (см. выше).</p>
+`}
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:26px 0 6px; ${!state.auditDoLocked ? 'opacity:.45;' : ''}">Аудит ИБ заказчика — ПОСЛЕ исполнения проекта</div>
 ${!state.auditDoLocked ? `
@@ -3796,15 +3990,16 @@ ${!state.auditDoLocked ? `
 <tbody>${state.auditThreats.map(t => auditRow(t, 'after')).join('')}</tbody>
 </table>
 </div>
-<div class="trap-check-panel" style="flex:none; position:static; max-width:420px; margin-top:14px;">
-<div class="trap-check-title">СЧЁТЧИК — аудит ПОСЛЕ</div>
+<div class="trap-check-panel" style="flex:none; position:static; max-width:460px; margin-top:14px;">
+<div class="trap-check-title">СЧЁТЧИК — аудит ПОСЛЕ (норматив: не менее 80% правильных)</div>
 ${state.auditAfterLocked && state.auditAfterResult ? `
-<div class="trap-check-line ok">✅ Правильно определено: ${state.auditAfterResult.correct}</div>
-<div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditAfterResult.wrong}</div>
-<div class="trap-check-sub">по эталону, всего позиций: ${state.auditAfterResult.total} (ошибочность ${state.auditAfterResult.errorPercent.toFixed(1)}%)</div>
-<div class="trap-check-sub" style="margin-top:8px; font-style:italic;">Ошибочность в пределах 25% — аудит ПОСЛЕ зафиксирован автоматически; эти сведения вшиты в итоговый отчёт по проекту.</div>
+<div class="trap-check-line ok">✅ Правильно определено: ${state.auditAfterResult.correct} из ${state.auditAfterResult.total} (${(100 - state.auditAfterResult.errorPercent).toFixed(1)}% правильных)</div>
+<div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditAfterResult.wrong} из ${state.auditAfterResult.total} (${state.auditAfterResult.errorPercent.toFixed(1)}% неправильных)</div>
+<div style="height:8px; border-radius:4px; overflow:hidden; background:rgba(255,59,92,0.25); margin:8px 0;"><div style="height:100%; width:${(100 - state.auditAfterResult.errorPercent).toFixed(1)}%; background:var(--gr-green);"></div></div>
+<div class="trap-check-sub" style="font-style:italic;">Правильных ≥ 80% — аудит ПОСЛЕ зафиксирован автоматически; эти сведения вшиты в итоговый отчёт по проекту.</div>
 ` : (state.auditAfterResult && !state.auditAfterLocked ? `
-<div class="trap-check-line bad">⚠️ Ошибочность аудита ПОСЛЕ: ${state.auditAfterResult.errorPercent.toFixed(1)}% — выше допустимых 25%.</div>
+<div class="trap-check-line bad">⚠️ Правильных: ${(100 - state.auditAfterResult.errorPercent).toFixed(1)}% — ниже норматива 80%.</div>
+<div style="height:8px; border-radius:4px; overflow:hidden; background:rgba(255,59,92,0.25); margin:8px 0;"><div style="height:100%; width:${(100 - state.auditAfterResult.errorPercent).toFixed(1)}%; background:var(--gr-red);"></div></div>
 <div class="trap-check-line bad">❌ Ошибочно определено: ${state.auditAfterResult.wrong} из ${state.auditAfterResult.total}</div>
 <div class="trap-check-sub">Автоматическая фиксация невозможна. Пересмотрите отметки и нажмите «Пересмотреть аудит ПОСЛЕ».</div>
 ` : `
@@ -3812,6 +4007,27 @@ ${state.auditAfterLocked && state.auditAfterResult ? `
 `)}
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockAuditAfter()" ${state.auditAfterLocked ? 'disabled' : ''}>${state.auditAfterLocked ? '✅ Зафиксировано' : (state.auditAfterResult ? '🔁 Пересмотреть аудит ПОСЛЕ' : '🔒 Завершить (зафиксировать) аудит ПОСЛЕ')}</button>
 </div>
+
+${state.auditAfterLocked ? `
+<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px;">Балльная оценка риска методом Дельфи — ПОСЛЕ внедрения проекта</div>
+<p style="margin-bottom:8px; color:var(--gr-muted2); font-size:13px;">Тот же список угроз, что и в оценке ДО (скопирован по методике листа «Оценка_риска_Дельфи») — эксперты переоценивают в первую очередь вероятность (P), так как именно она обычно снижается после внедрения контрмер; тяжесть ущерба (I), как правило, меняется меньше. Снижение суммарного балла риска — техническое и экономическое обоснование выбранного проекта ИБ.</p>
+<div style="overflow-x:auto;">
+<table style="min-width:920px;">
+${delphiTableHead}
+<tbody>${delphiScored.length ? delphiScored.map((t, i) => delphiRow(t, 'After', i + 1)).join('') : '<tr><td colspan="15" style="text-align:center; color:var(--gr-dim);">Нет угроз, отмеченных как актуальные в аудите ДО</td></tr>'}</tbody>
+<tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="14">Суммарный балл риска ПОСЛЕ (по тому же списку угроз)</td><td style="text-align:center;">${delphiAfterTotal.toFixed(1)}</td></tr></tfoot>
+</table>
+</div>
+<div class="summary-grid" style="margin-top:14px;">
+<div class="summary-card"><label>Суммарный балл риска ДО</label><span>${delphiDoTotal.toFixed(1)}</span></div>
+<div class="summary-card"><label>Суммарный балл риска ПОСЛЕ</label><span>${delphiAfterTotal.toFixed(1)}</span></div>
+<div class="summary-card" style="background:rgba(57,255,157,0.1); border-color:var(--gr-green);"><label>Снижение риска</label><span>${delphiReduction.toFixed(1)}%</span></div>
+</div>
+<p style="margin:8px 0 4px; color:var(--gr-dim); font-size:12.5px;">Снижение суммарного балла риска (ДО → ПОСЛЕ) — это и есть технико-экономическое обоснование целесообразности внедрённого проекта ИБ, по той же логике, что рост доходозащищённости/бюджетозащищённости в исходных методических материалах курса.</p>
+` : `
+<div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px; opacity:.45;">Балльная оценка риска методом Дельфи — ПОСЛЕ внедрения проекта</div>
+<p style="margin-bottom:10px; color:var(--gr-dim); font-size:13px; font-style:italic;">Доступно после фиксации аудита ПОСЛЕ (см. выше).</p>
+`}
 `}
 `;
 break;
@@ -4017,7 +4233,7 @@ recalcAll();
 }
 // --- реквизиты сторон Договора (занятие 4) ---
 function updateContract(field, value) {
-state.contract[field] = (field === 'advancePct' || field === 'warrantyMonths') ? (parseFloat(value) || 0) : value;
+state.contract[field] = (field === 'advancePct' || field === 'warrantyMonths' || field === 'accumPct') ? (parseFloat(value) || 0) : value;
 recalcAll();
 }
 function removeRes(id) {
@@ -4115,8 +4331,10 @@ if (!!t.studentMarkDo === !!t.correctDo) correct++; else wrong++;
 });
 const errorPercent = total > 0 ? (wrong / total) * 100 : 0;
 state.auditDoResult = { correct, wrong, total, errorPercent };
-if (errorPercent > 25) {
-// ошибочность аудита ДО выше допустимого порога (25%) — автоматическая фиксация
+// Порог для аудита ИБ ужесточён до 80% правильных (т.е. допустима ошибочность не более 20%,
+// было 25%) — это отдельный, более строгий норматив именно для аудита ИБ заказчика (занятие 8).
+if (errorPercent > 20) {
+// ошибочность аудита ДО выше допустимого порога (20%) — автоматическая фиксация
 // не производится, чекбоксы остаются активными, студенту предлагается пересмотреть отбор
 state.auditDoLocked = false;
 state.auditDoReportNote = null;
@@ -4147,8 +4365,8 @@ if (!!t.studentMarkAfter === !!t.correctAfter) correct++; else wrong++;
 });
 const errorPercent = total > 0 ? (wrong / total) * 100 : 0;
 state.auditAfterResult = { correct, wrong, total, errorPercent };
-if (errorPercent > 25) {
-// ошибочность аудита ПОСЛЕ выше допустимого порога (25%) — автоматическая фиксация
+if (errorPercent > 20) {
+// ошибочность аудита ПОСЛЕ выше допустимого порога (20%) — автоматическая фиксация
 // не производится, чекбоксы остаются активными, студенту предлагается пересмотреть отбор
 state.auditAfterLocked = false;
 state.auditAfterReportNote = null;
@@ -4159,6 +4377,51 @@ state.auditAfterLocked = true;
 state.auditAfterReportNote = 'при аудите ИБ ПОСЛЕ исполнения проекта допущено ' + wrong + ' ошибочных отметок из ' + total + ' (' + errorPercent.toFixed(1) + '%).';
 }
 recalcAll();
+}
+
+// ============================================================
+// МИНИ-МЕТОД ДЕЛЬФИ — оценка риска (P x I) 2-3 «экспертами», ДО и ПОСЛЕ проекта.
+// Воспроизводит лист «Оценка_риска_Дельфи» из threat_db_защищено.xlsx: независимая оценка
+// вероятности (P) и тяжести ущерба (I) по шкале 1-5 каждым экспертом, автоматический разброс
+// (delta) между максимальной и минимальной оценкой, флаг «нужен раунд 2» при разбросе >= 2,
+// согласованная оценка (среднее, редактируемое студентами вручную поверх подсказки) и итоговый
+// балл риска = P x I. Считается только по угрозам, отмеченным студентом как актуальные (ДО).
+// ============================================================
+function updateDelphiExpertName(field, value) {
+state.delphiExperts[field] = value;
+recalcAll();
+}
+function updateDelphiScore(id, phase, expertIdx, dim, value) {
+const t = state.auditThreats.find(x => x.id === id);
+if (!t) return;
+const field = 'd' + dim + expertIdx + phase;
+const n = value === '' ? null : Math.max(1, Math.min(5, Math.round(parseFloat(value)) || 1));
+t[field] = n;
+recalcAll();
+}
+function updateDelphiAgreed(id, phase, dim, value) {
+const t = state.auditThreats.find(x => x.id === id);
+if (!t) return;
+const field = 'd' + dim + 'Agree' + phase;
+t[field] = value === '' ? null : Math.max(1, Math.min(5, parseFloat(value.replace(',', '.')) || 1));
+recalcAll();
+}
+// Расчёт по одной угрозе для фазы 'Do' или 'After': разброс экспертных оценок, флаг раунда 2,
+// автосреднее и согласованная величина (ручной ввод имеет приоритет над автосредним), балл риска.
+function delphiRowCalc(t, phase) {
+const ps = [1, 2, 3].map(i => t['dP' + i + phase]).filter(v => typeof v === 'number');
+const is = [1, 2, 3].map(i => t['dI' + i + phase]).filter(v => typeof v === 'number');
+const deltaP = ps.length >= 2 ? Math.max(...ps) - Math.min(...ps) : null;
+const deltaI = is.length >= 2 ? Math.max(...is) - Math.min(...is) : null;
+const needRound2 = (deltaP !== null && deltaP >= 2) || (deltaI !== null && deltaI >= 2);
+const avgP = ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+const avgI = is.length ? is.reduce((a, b) => a + b, 0) / is.length : null;
+const manualP = t['dPAgree' + phase];
+const manualI = t['dIAgree' + phase];
+const agreeP = typeof manualP === 'number' ? manualP : avgP;
+const agreeI = typeof manualI === 'number' ? manualI : avgI;
+const risk = (typeof agreeP === 'number' && typeof agreeI === 'number') ? agreeP * agreeI : null;
+return { ps, is, deltaP, deltaI, needRound2, avgP, avgI, agreeP, agreeI, risk };
 }
 
 // ============================================================
