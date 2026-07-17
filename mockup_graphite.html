@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Практикум УПЗИ — прототип: графит</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-page:#1b1e23;
+  --bg-side:#16181c;
+  --bg-card:#22262c;
+  --bg-card-2:#272b32;
+  --line:#2c3138;
+  --line-strong:#3a4048;
+  --accent:#2dd4bf;
+  --accent-dim:#1c8577;
+  --amber:#d9a441;
+  --red:#e0616f;
+  --text-0:#e8ebee;
+  --text-1:#9aa3ad;
+  --text-2:#636b75;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; display:flex; min-height:100vh;
+  background:var(--bg-page); color:var(--text-0);
+  font-family:'Inter',sans-serif;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+.sidebar{
+  width:236px; flex:none; background:var(--bg-side);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column; padding:18px 14px;
+}
+.side-brand{display:flex; align-items:center; gap:10px; padding:4px 6px 18px; border-bottom:1px solid var(--line); margin-bottom:14px;}
+.side-mark{
+  width:32px; height:32px; border-radius:7px; background:var(--bg-card);
+  border:1px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--accent); font-weight:700; font-size:13px;
+}
+.side-name{font-size:13px; font-weight:600;}
+.side-sub{font-size:10.5px; color:var(--text-2);}
+.side-nav{display:flex; flex-direction:column; gap:2px;}
+.side-nav a{
+  display:flex; align-items:center; gap:10px;
+  padding:9px 10px; border-radius:6px;
+  font-size:12.5px; color:var(--text-1); text-decoration:none;
+}
+.side-nav a.active{background:rgba(45,212,191,0.09); color:var(--accent); font-weight:600;}
+.side-nav a .ic{width:16px; height:16px; flex:none;}
+.side-foot{margin-top:auto; padding-top:14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--text-2);}
+.side-foot b{color:var(--text-1); font-weight:600;}
+
+.main{flex:1; min-width:0;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 30px; border-bottom:1px solid var(--line);
+}
+.topbar h1{font-size:16px; font-weight:600; margin:0;}
+.topbar p{font-size:12.5px; color:var(--text-1); margin:3px 0 0;}
+.chip{
+  font-size:11.5px; padding:5px 11px; border-radius:14px;
+  background:var(--bg-card); border:1px solid var(--line-strong);
+  color:var(--text-1);
+}
+.wrap{padding:24px 30px 50px; max-width:1180px;}
+
+.stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:26px;}
+.stat{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:8px; padding:13px 15px;
+}
+.stat-label{font-size:11px; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em;}
+.stat-value{font-size:20px; font-weight:600; margin-top:6px; font-family:'JetBrains Mono',monospace;}
+.stat-value.accent{color:var(--accent);}
+
+.section-title{
+  font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--text-1); margin:30px 0 12px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title .bar{width:3px; height:13px; background:var(--accent); border-radius:2px; display:inline-block;}
+
+.map-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px;}
+.node{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:8px;
+  padding:12px 12px 11px; min-height:88px;
+  display:flex; flex-direction:column; justify-content:space-between;
+}
+.node.done{border-left:3px solid var(--accent);}
+.node.active{border-left:3px solid var(--amber);}
+.node.locked{border-left:3px solid var(--line-strong); opacity:.55;}
+.node-num{font-size:10.5px; color:var(--text-2); font-family:'JetBrains Mono',monospace;}
+.node-name{font-size:12.5px; font-weight:500; margin-top:3px; line-height:1.3;}
+.node-status{
+  margin-top:9px; font-size:10.5px; display:flex; align-items:center; gap:6px; color:var(--text-2);
+}
+.dot{width:6px; height:6px; border-radius:50%; display:inline-block; background:var(--text-2);}
+.node.done .dot{background:var(--accent);}
+.node.done .node-status{color:var(--accent);}
+.node.active .dot{background:var(--amber);}
+.node.active .node-status{color:var(--amber);}
+
+.two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-top:8px;}
+.panel{background:var(--bg-card); border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+.panel-head{
+  padding:11px 15px; border-bottom:1px solid var(--line);
+  font-size:12.5px; font-weight:600; color:var(--text-1);
+  background:var(--bg-card-2);
+}
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+th{
+  text-align:left; padding:9px 15px; font-size:10.5px; text-transform:uppercase;
+  letter-spacing:.04em; color:var(--text-2); border-bottom:1px solid var(--line); font-weight:500;
+}
+td{padding:9px 15px; border-bottom:1px solid var(--line); color:var(--text-1);}
+td.code{font-family:'JetBrains Mono',monospace; color:var(--text-1); font-size:11.5px;}
+td.name{color:var(--text-0);}
+.badge{
+  display:inline-block; padding:2px 9px; border-radius:10px; font-size:10.5px; font-weight:600;
+}
+.badge.ok{background:rgba(45,212,191,0.12); color:var(--accent);}
+.badge.wait{background:rgba(217,164,65,0.14); color:var(--amber);}
+
+.side-block{padding:15px 16px;}
+.xp-row{margin-bottom:15px;}
+.xp-label{display:flex; justify-content:space-between; font-size:12px; color:var(--text-1); margin-bottom:6px;}
+.xp-label b{color:var(--text-0); font-weight:600;}
+.xp-bar{height:6px; border-radius:3px; background:var(--bg-page); border:1px solid var(--line); overflow:hidden;}
+.xp-fill{height:100%; background:var(--accent);}
+.xp-fill.amber{background:var(--amber);}
+
+.btn{
+  font-size:12.5px; font-weight:600; padding:8px 15px; border-radius:6px;
+  border:1px solid var(--accent-dim); background:rgba(45,212,191,0.1); color:var(--accent);
+  cursor:pointer;
+}
+.footer-note{margin-top:28px; font-size:11.5px; color:var(--text-2);}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="side-brand">
+    <div class="side-mark">УБ</div>
+    <div>
+      <div class="side-name">Безопасный Дом</div>
+      <div class="side-sub">ИБ-интегратор</div>
+    </div>
+  </div>
+  <div class="side-nav">
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6"/></svg>Персонал</a>
+    <a class="active"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Комплектующие</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Календарь</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg>Смета</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V9M11 19V4M18 19v-7"/></svg>Бюджет</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.3"/><path d="M12 8v4l3 2"/></svg>Дефицит</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 14l5-6 4 4 7-8"/></svg>Оптимизация</a>
+    <a><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 5-3.2 7.8-7 9-3.8-1.2-7-4-7-9V6z"/></svg>Аудит</a>
+  </div>
+  <div class="side-foot">Оператор: <b>Иванов А.С.</b><br>Роль: Junior PM</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1>Комплектующие проекта</h1>
+      <p>Карта портфелей — 20 типов проектов фирмы</p>
+    </div>
+    <div class="chip">Тип по рулетке: <b style="color:var(--text-0);">Гибридная ИТСО</b></div>
+  </div>
+
+  <div class="wrap">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Проектов завершено</div><div class="stat-value">2 / 3</div></div>
+      <div class="stat"><div class="stat-label">Текущий тип</div><div class="stat-value accent">Hybrid</div></div>
+      <div class="stat"><div class="stat-label">Точность решений</div><div class="stat-value">86.4%</div></div>
+      <div class="stat"><div class="stat-label">Освоенный бюджет</div><div class="stat-value">671 565 ₽</div></div>
+    </div>
+
+    <div class="section-title"><span class="bar"></span>Карта портфелей проектов</div>
+    <div class="map-grid">
+      <div class="node done"><div class="node-num">01</div><div class="node-name">СКУД</div><div class="node-status"><span class="dot"></span>Завершён</div></div>
+      <div class="node done"><div class="node-num">02</div><div class="node-name">Видеонаблюдение</div><div class="node-status"><span class="dot"></span>Завершён</div></div>
+      <div class="node locked"><div class="node-num">03</div><div class="node-name">Пожарная сигнализация</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">04</div><div class="node-name">Охранная сигнализация</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">05</div><div class="node-name">Периметр</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+
+      <div class="node active"><div class="node-num">06</div><div class="node-name">Гибридная ИТСО</div><div class="node-status"><span class="dot"></span>В работе</div></div>
+      <div class="node locked"><div class="node-num">07</div><div class="node-name">NGFW</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">08</div><div class="node-name">DLP</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">09</div><div class="node-name">IAM / MFA / SSO</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">10</div><div class="node-name">SIEM / SOC</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+
+      <div class="node locked"><div class="node-num">11</div><div class="node-name">EDR / антивирус</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">12</div><div class="node-name">VPN</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">13</div><div class="node-name">Backup / DR</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">14</div><div class="node-name">СКЗИ</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">15</div><div class="node-name">Policy / регламенты</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+
+      <div class="node locked"><div class="node-num">16</div><div class="node-name">КИИ (187-ФЗ)</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">17</div><div class="node-name">ПДн (152-ФЗ)</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">18</div><div class="node-name">Паспорт безопасности</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">19</div><div class="node-name">Аудит / пентест</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+      <div class="node locked"><div class="node-num">20</div><div class="node-name">Обучение персонала</div><div class="node-status"><span class="dot"></span>Заблокирован</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">Задачи — Hybrid, этап II-III</div>
+        <table>
+          <thead><tr><th>Код</th><th>Задача</th><th>Исполнитель</th><th>Статус</th></tr></thead>
+          <tbody>
+            <tr><td class="code">II.6</td><td class="name">Установка контроллеров / блоков питания</td><td>Монтажников С.А.</td><td><span class="badge ok">выполнено</span></td></tr>
+            <tr><td class="code">II.11</td><td class="name">Подключение кабелей (обжим, коммутация)</td><td>Монтажников С.А.</td><td><span class="badge ok">выполнено</span></td></tr>
+            <tr><td class="code">III.2</td><td class="name">Проверка качества питания на всех точках</td><td>Наладчиков Ф.И.</td><td><span class="badge wait">ожидает</span></td></tr>
+            <tr><td class="code">IV.2</td><td class="name">Измерение сопротивления заземления</td><td>Электролаборатория</td><td><span class="badge wait">ожидает</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">Счётчики точности</div>
+        <div class="side-block">
+          <div class="xp-row">
+            <div class="xp-label"><span>Примечание (выходной документ)</span><b>78%</b></div>
+            <div class="xp-bar"><div class="xp-fill" style="width:78%;"></div></div>
+          </div>
+          <div class="xp-row">
+            <div class="xp-label"><span>Вид проверочных работ</span><b>52%</b></div>
+            <div class="xp-bar"><div class="xp-fill" style="width:52%;"></div></div>
+          </div>
+          <div class="xp-row">
+            <div class="xp-label"><span>Подбор персонала</span><b>91%</b></div>
+            <div class="xp-bar"><div class="xp-fill amber" style="width:91%;"></div></div>
+          </div>
+          <button class="btn">Проверить точность</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">Прототип оформления — графитовая SOC-консоль · не финальная сборка</div>
+  </div>
+</div>
+
+</body>
+</html>
