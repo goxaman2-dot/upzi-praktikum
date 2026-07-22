@@ -2349,6 +2349,35 @@ if (t.employeeId !== null && t.employeeId !== undefined) t.employeeId = randomSt
 });
 return ensureAtLeastOneQualError(tasksArr);
 }
+// По просьбе преподавателя (2026-07-22): для Этапов 2-5 (монтаж → пусконаладка → испытания →
+// ввод в эксплуатацию) обычного «может повезти и наугад совпасть с правильным» недостаточно —
+// КАЖДАЯ задача этих этапов должна ИЗНАЧАЛЬНО получать ЯВНО непрофильного исполнителя (в
+// приоритете — из ловушек: психолог, водитель, массажист, бухгалтер-сметчик на монтаже,
+// роль из другого портфеля и т.п.), чтобы студент, вдумываясь, сам подобрал верного
+// специалиста по каждой строке — счётчик покажет 100% ошибок сразу после загрузки шаблона.
+// Этап 1 (bpTasks/shuffleTaskAssignments выше) эту логику НЕ использует — там по-прежнему
+// действует «хотя бы одна гарантированная ошибка», как и раньше.
+function sabotageAssignment(t) {
+const req = inferRequiredPosition(t);
+if (!req || !req.length) return t.employeeId;
+const wrongPool = state.employees.filter(function(e) { return req.indexOf(e.position) === -1; });
+if (!wrongPool.length) return t.employeeId;
+// Сначала пробуем НАСТОЯЩИХ «ловушечных» сотрудников (correct===false — в их qualification
+// прямо написано, почему они не подходят) — это и есть «явно не имеют права выполнять
+// данную задачу». Только если таких вдруг нет — берём любого другого неподходящего.
+const trapPool = wrongPool.filter(function(e) { return !e.correct; });
+const pool = trapPool.length ? trapPool : wrongPool;
+return pool[Math.floor(Math.random() * pool.length)].id;
+}
+function sabotageStage2to5Assignments(tasksArr) {
+tasksArr.forEach(function(t) {
+if (t.fixed) return;
+if (t.employeeId === null || t.employeeId === undefined) return;
+if (t.stage !== 'II' && t.stage !== 'III' && t.stage !== 'IV' && t.stage !== 'V') return;
+t.employeeId = sabotageAssignment(t);
+});
+return tasksArr;
+}
 function ensureAtLeastOneQualError(tasksArr) {
 const byStage = {};
 tasksArr.forEach(function(t) {
@@ -5128,7 +5157,7 @@ function loadTemplate(type) {
 // Как и раньше в Этапе 1 (bpTasksShuffled) — исполнители СЛУЧАЙНО перемешиваются
 // (shuffleTaskAssignments), а требование по квалификации (requiredPosition) остаётся
 // эталонным: студент должен сам подобрать нужного специалиста, а не увидеть готовый ответ.
-const tasks = shuffleTaskAssignments(buildRealStage2Tasks(type));
+const tasks = sabotageStage2to5Assignments(buildRealStage2Tasks(type));
 // этап 1 (подготовительные работы) сохраняется, этап 2+ заменяется реальным перечнем
 const prep = state.tasks.filter(t => t.stage === 'I');
 state.tasks = [...(prep.length ? prep : shuffleTaskAssignments(bpTasks(type))), ...tasks];
