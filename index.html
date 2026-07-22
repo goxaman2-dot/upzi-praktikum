@@ -2357,16 +2357,35 @@ return ensureAtLeastOneQualError(tasksArr);
 // специалиста по каждой строке — счётчик покажет 100% ошибок сразу после загрузки шаблона.
 // Этап 1 (bpTasks/shuffleTaskAssignments выше) эту логику НЕ использует — там по-прежнему
 // действует «хотя бы одна гарантированная ошибка», как и раньше.
+// Семейство должности по ключевому слову — нужно, чтобы отличать «просто другую» позицию
+// от «той же специальности, но не того уровня» (напр. Монтажник / Ведущий монтажник /
+// Главный монтажник — одна специальность, три уровня квалификации и допуска).
+function tierFamilyOf(position) {
+const p = (position || '').toLowerCase();
+if (/монтажник/.test(p)) return 'монтажник';
+if (/наладчик/.test(p)) return 'наладчик';
+if (/программист/.test(p)) return 'программист';
+return null;
+}
 function sabotageAssignment(t) {
 const req = inferRequiredPosition(t);
 if (!req || !req.length) return t.employeeId;
 const wrongPool = state.employees.filter(function(e) { return req.indexOf(e.position) === -1; });
 if (!wrongPool.length) return t.employeeId;
-// Сначала пробуем НАСТОЯЩИХ «ловушечных» сотрудников (correct===false — в их qualification
-// прямо написано, почему они не подходят) — это и есть «явно не имеют права выполнять
-// данную задачу». Только если таких вдруг нет — берём любого другого неподходящего.
-const trapPool = wrongPool.filter(function(e) { return !e.correct; });
-const pool = trapPool.length ? trapPool : wrongPool;
+// Ловушка бывает двух видов, и ОБЕ должны реально всплывать при загрузке шаблона:
+// (а) «явные» ловушки (correct===false — психолог, водитель, роль из другого портфеля и
+//     т.п.) — узнаются по фамилии/должности почти сразу;
+// (б) «свой же коллега не того уровня» (correct===true, но другая ступень ТОЙ ЖЕ
+//     специальности — напр. Прораб/Главный монтажник поставлен на задачу базового уровня,
+//     или наоборот Монтажников поставлен на сложный гибридный объект). Раньше эта категория
+//     никогда не выбиралась, т.к. явные ловушки почти всегда есть в пуле и имели приоритет —
+//     уровневые сотрудники так и оставались декорацией в штатном расписании, не участвуя
+//     в задачах. Теперь оба вида объединяются в один пул и выбираются с равным шансом.
+const family = tierFamilyOf(req[0]);
+const tierMismatchPool = family ? wrongPool.filter(function(e) { return e.correct && tierFamilyOf(e.position) === family; }) : [];
+const absurdPool = wrongPool.filter(function(e) { return !e.correct; });
+const combined = absurdPool.concat(tierMismatchPool);
+const pool = combined.length ? combined : wrongPool;
 return pool[Math.floor(Math.random() * pool.length)].id;
 }
 function sabotageStage2to5Assignments(tasksArr) {
