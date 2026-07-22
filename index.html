@@ -415,6 +415,10 @@ input:disabled, select:disabled { opacity: 0.45; }
 .notif-flash { animation: flash 1s ease 3; }
 @keyframes flash { 0% { background-color: rgba(255,59,92,0.08); } 50% { background-color: rgba(255,59,92,0.22); } 100% { background-color: rgba(255,59,92,0.08); } }
 .tip { border-bottom: 1px dotted currentColor; cursor: help; }
+.qual-flag { cursor: help; margin-left: 2px; font-size: 13px; }
+.stage-flag { display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; margin-left:10px; vertical-align:middle; cursor:help; }
+.stage-flag-yellow { background:rgba(232,178,74,0.12); color:var(--gr-gold); border:1px solid rgba(232,178,74,0.4); }
+.stage-flag-green { background:rgba(57,255,157,0.10); color:var(--gr-green); border:1px solid rgba(57,255,157,0.35); }
 .side-sec { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gr-muted2); font-weight: 700; margin: 2px 0 5px; }
 
 /* ============================================================
@@ -2250,19 +2254,230 @@ return [
 // «нулевых» согласований — по данным преподавателя. Для «Выставления счёта» и «Ожидания
 // поступления аванса» точных нормативов в эталонных файлах нет (проверено — там описаны только
 // доли траншей 30/40/30%, без сроков), поэтому взяты типовые оценочные сроки (пометка в названии).
-{ id: 1006, name: 'Аудит комплектующих по проекту с запасами на складе фирмы', duration: 1, stage: 'I', employeeId: storekeeper.id, predecessors: [1002], materials: [], progress: 0 },
-{ id: 1007, name: 'Дозаказ недостающих комплектующих у вендоров', duration: 3, stage: 'I', employeeId: storekeeper.id, predecessors: [1006, 1004], materials: [], progress: 0 },
-{ id: 1008, name: 'Уточнение цены проекта по трём уровням (бюджетная/средняя/дорогая) — созвон с заказчиком', duration: 0, stage: 'I', employeeId: director.id, employeeIds: [director.id, accountant.id], predecessors: [1004], materials: [], progress: 0 },
-{ id: 1009, name: 'Согласование и подписание чертежей и проекта монтажа с заказчиком', duration: 2, stage: 'I', employeeId: director.id, predecessors: [1003, 1008], materials: [], progress: 0 },
-{ id: 1010, name: 'Согласование % аванса на оплату с заказчиком', duration: 0, stage: 'I', employeeId: director.id, predecessors: [1008], materials: [], progress: 0 },
-{ id: 1011, name: 'Выставление счёта заказчику (оценка срока)', duration: 0, stage: 'I', employeeId: accountant.id, predecessors: [1009, 1010, 1007], materials: [], progress: 0 },
+{ id: 1006, name: 'Аудит комплектующих по проекту с запасами на складе фирмы', duration: 1, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1002], materials: [], progress: 0 },
+{ id: 1007, name: 'Дозаказ недостающих комплектующих у вендоров', duration: 3, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1006, 1004], materials: [], progress: 0 },
+{ id: 1008, name: 'Уточнение цены проекта по трём уровням (бюджетная/средняя/дорогая) — созвон с заказчиком', duration: 0, stage: 'I', employeeId: director.id, employeeIds: [director.id, accountant.id], requiredPosition: [director.position, accountant.position], predecessors: [1004], materials: [], progress: 0 },
+{ id: 1009, name: 'Согласование и подписание чертежей и проекта монтажа с заказчиком', duration: 2, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1003, 1008], materials: [], progress: 0 },
+{ id: 1010, name: 'Согласование % аванса на оплату с заказчиком', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1008], materials: [], progress: 0 },
+{ id: 1011, name: 'Выставление счёта заказчику (оценка срока)', duration: 0, stage: 'I', employeeId: accountant.id, requiredPosition: [accountant.position], predecessors: [1009, 1010, 1007], materials: [], progress: 0 },
 { id: 1012, name: 'Ожидание поступления аванса по Договору (оценка срока, без трудозатрат)', duration: 2, stage: 'I', employeeId: null, predecessors: [1011], materials: [], progress: 0 },
 // Завершающая задача Этапа 1 — мост к монтажным работам (полный реальный перечень которых
 // строится в buildRealStage2Tasks() из реальных данных Гантта, см. ниже). Именно от неё
 // (id 1013), а не от 1012 напрямую, стартуют все задачи этапа монтажа/внедрения.
-{ id: 1013, name: 'Инициализация проекта «' + sys + '» после зачисления авансовой суммы по Договору', duration: 0, stage: 'I', employeeId: director.id, predecessors: [1012], materials: [], progress: 0 }
+{ id: 1013, name: 'Инициализация проекта «' + sys + '» после зачисления авансовой суммы по Договору', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1012], materials: [], progress: 0 }
 ];
 }
+
+
+// ============================================================
+// ПРОВЕРКА КВАЛИФИКАЦИИ ИСПОЛНИТЕЛЯ ЗАДАЧИ (ловушка «нельзя ставить непрофессионала
+// на специальные виды работ» — стр. 7, Этапы 1-5). У задач из buildRealStage2Tasks()
+// requiredPosition вычисляется той же функцией roleEmployee(), что подбирает исполнителя
+// (см. reqPositionFor выше) — эталон и назначение никогда не расходятся. У задач, добавленных
+// студентом вручную кнопкой «➕ Добавить задачу» (см. addTask()), requiredPosition нет вовсе —
+// inferRequiredPosition() при отсутствии явного требования подбирает его по этапу и ключевым
+// словам в названии задачи, чтобы проверка работала одинаково и для шаблонных, и для ручных задач.
+// ============================================================
+function inferRequiredPosition(t) {
+if (t.requiredPosition && t.requiredPosition.length) return t.requiredPosition;
+if (t.stage !== 'II' && t.stage !== 'III' && t.stage !== 'IV' && t.stage !== 'V') return null;
+const installer = resolveBpEmployee(['Монтажников С.А.']);
+const installerHelper = resolveBpEmployee(['Помощников В.Е.']);
+const electrician = resolveBpEmployee(['Электриков Р.М.']);
+const commissioner = resolveBpEmployee(['Наладчиков Ф.И.']);
+const programmer = resolveBpEmployee(['Кодеров И.В.']);
+const director = resolveBpEmployee(['Директоров С.П.']);
+const name = (t.name || '').toLowerCase();
+if (t.stage === 'II') {
+if (/питани|электро|провод силов|автомат|узо|ибп/.test(name)) return [electrician.position];
+return [installer.position, installerHelper.position];
+}
+if (t.stage === 'III') {
+if (/\bпо\b|программн|софт/.test(name)) return [programmer.position];
+return [commissioner.position];
+}
+if (t.stage === 'IV') return [commissioner.position];
+if (/акт|документ|договор|гаранти|передач|паспорт/.test(name)) return [director.position];
+if (/обучени|инструктаж|консультац/.test(name)) return [commissioner.position];
+return [commissioner.position, director.position];
+}
+function taskQualStatus(t) {
+const req = inferRequiredPosition(t);
+if (!req || !req.length) return 'neutral';
+if (!t.employeeId) return 'bad';
+const emp = state.employees.find(e => e.id === t.employeeId);
+if (!emp) return 'bad';
+return req.indexOf(emp.position) !== -1 ? 'ok' : 'bad';
+}
+// Компактный, всегда видимый бейдж рядом с полем «Исполнитель». Зелёной ✅ у верно назначенных
+// задач намеренно НЕТ (студент не должен угадывать методом перебора) — только предупреждение.
+function taskQualBadge(t) {
+const status = taskQualStatus(t);
+if (status !== 'bad') return '';
+const req = inferRequiredPosition(t);
+const emp = state.employees.find(e => e.id === t.employeeId);
+const need = req.join(' / ');
+const have = emp ? emp.position : 'исполнитель не назначен';
+return ' <span class="qual-flag qual-bad" title="Для этой задачи требуется: ' + need + '. Сейчас назначено: ' + have + '. Специализированные виды работ нельзя поручать сотруднику без нужной квалификации.">⚠️</span>';
+}
+function countTaskQualification(stage) {
+const tasks = state.tasks.filter(t => t.stage === stage && inferRequiredPosition(t) && inferRequiredPosition(t).length);
+let correct = 0, wrong = 0;
+tasks.forEach(t => { if (taskQualStatus(t) === 'ok') correct++; else wrong++; });
+const total = tasks.length;
+return { correct, wrong, total, errorPercent: total > 0 ? (wrong / total) * 100 : 0 };
+}
+function stageQualColor(stage) {
+const r = countTaskQualification(stage);
+if (r.total === 0) return null;
+return r.wrong === 0 ? 'green' : 'yellow';
+}
+function stageHeaderBadge(stage) {
+const color = stageQualColor(stage);
+if (color === 'yellow') return ' <span class="stage-flag stage-flag-yellow" title="В этом этапе есть задачи с неверно подобранной квалификацией исполнителя — переназначьте их в столбце «Исполнитель», чтобы добиться зелёного статуса.">🟡 есть ошибка подбора персонала</span>';
+if (color === 'green') return ' <span class="stage-flag stage-flag-green" title="Все исполнители этого этапа подобраны по нужной квалификации.">🟢 подбор персонала верный</span>';
+return '';
+}
+function randomStaffAssignment() {
+if (!state.employees || !state.employees.length) return null;
+return state.employees[Math.floor(Math.random() * state.employees.length)].id;
+}
+function shuffleTaskAssignments(tasksArr) {
+tasksArr.forEach(function(t) {
+if (t.fixed) return;
+if (t.employeeId !== null && t.employeeId !== undefined) t.employeeId = randomStaffAssignment();
+});
+return ensureAtLeastOneQualError(tasksArr);
+}
+function ensureAtLeastOneQualError(tasksArr) {
+const byStage = {};
+tasksArr.forEach(function(t) {
+if (t.fixed) return;
+if (t.employeeId === null || t.employeeId === undefined) return;
+const req = inferRequiredPosition(t);
+if (!req || !req.length) return;
+(byStage[t.stage] = byStage[t.stage] || []).push(t);
+});
+Object.keys(byStage).forEach(function(stage) {
+const list = byStage[stage];
+if (!list.length) return;
+const allCorrect = list.every(function(t) {
+const emp = state.employees.find(function(e) { return e.id === t.employeeId; });
+const req = inferRequiredPosition(t);
+return emp && req.indexOf(emp.position) !== -1;
+});
+if (!allCorrect) return;
+const victim = list[Math.floor(Math.random() * list.length)];
+const req = inferRequiredPosition(victim);
+const wrongPool = state.employees.filter(function(e) { return req.indexOf(e.position) === -1; });
+if (wrongPool.length) victim.employeeId = wrongPool[Math.floor(Math.random() * wrongPool.length)].id;
+});
+return tasksArr;
+}
+function checkTaskQualification(stage) {
+if (!state.qualCheckResults) state.qualCheckResults = { I: null, II: null, III: null, IV: null, V: null };
+state.qualCheckResults[stage] = countTaskQualification(stage);
+recalcAll();
+}
+
+// Панель «Счётчик ошибок выбора квалификации» — самопроверка (не блокирует, не фиксирует).
+// Функция объявлена как function (не const внутри case) — так её можно вызывать из ЛЮБОГО
+// case switch(currentLesson) без риска ReferenceError/temporal dead zone при прямом переходе
+// на нужный case, минуя более ранние.
+function qualCheckPanel(stage, label) {
+const r = state.qualCheckResults ? state.qualCheckResults[stage] : null;
+return `
+<div class="trap-check-panel" style="flex:1 1 320px; position:static; max-width:none;">
+<div class="trap-check-title">СЧЁТЧИК — квалификация исполнителя (${label})</div>
+<div class="toolbar" style="margin-bottom:8px;">
+<button class="btn btn-outline btn-sm" onclick="checkTaskQualification('${stage}')" style="margin-right:0;">🧮 Проверить подбор квалификации</button>
+</div>
+${r ? `
+<div class="trap-check-line ${r.wrong > 0 ? 'bad' : 'ok'}">${r.wrong > 0 ? '⚠️' : '✅'} ${r.total > 0 ? `верно подобрано ${r.correct} из ${r.total}` + (r.wrong > 0 ? `, ошибок: ${r.wrong} (${r.errorPercent.toFixed(1)}%)` : '') + '.' : 'для задач этого этапа требование по квалификации не задано.'}</div>
+${r.wrong > 0 ? '<div class="trap-check-sub">Найдите задачи со значком ⚠️ рядом с полем «Исполнитель» и назначьте сотрудника нужной специализации — счётчик ничего не блокирует, но напрямую влияет на реалистичность проекта.</div>' : ''}
+` : `<div class="trap-check-pending">Нажмите «Проверить», чтобы увидеть результат по эталону.</div>`}
+</div>
+`;
+}
+
+// ============================================================
+// РЕЖИМ ПРЕПОДАВАТЕЛЯ — СЕКРЕТНАЯ ПОДСКАЗКА ПРАВИЛЬНЫХ ОТВЕТОВ
+// Действует на всех страницах практикума, где есть ловушки/чекбоксы/выпадающие списки с
+// эталоном: персонал фирмы, ресурсы фирмы, аудит ИБ ДО и ПОСЛЕ исполнения проекта,
+// «Примечание» (выходной документ задачи) и «Вид проверочных работ» (Занятие 2). Комбинация
+// проставляет ответы согласно эталону ТОЛЬКО в блоках, которые ещё не зафиксированы студентом
+// (не Locked) — фиксацию и расчёт ошибочности студент по-прежнему делает сам.
+// ============================================================
+function teacherRevealCorrectAnswers() {
+var touched = 0;
+if (state.employees && state.employees.length && !state.staffLocked) {
+state.employees.forEach(function(e) { e.studentMark = !!e.correct; });
+touched++;
+}
+if (state.firmResources && state.firmResources.length && !state.resourcesLocked) {
+state.firmResources.forEach(function(r) { if (r.auto !== 'fot') r.studentMark = !!r.correct; });
+touched++;
+}
+if (state.auditThreats && state.auditThreats.length && !state.auditDoLocked) {
+state.auditThreats.forEach(function(t) { t.studentMarkDo = !!t.correctDo; });
+touched++;
+}
+if (state.auditThreats && state.auditThreats.length && state.auditDoLocked && !state.auditAfterLocked) {
+state.auditThreats.forEach(function(t) { t.studentMarkAfter = !!t.correctAfter; });
+touched++;
+}
+if (state.tasks && state.tasks.length && !state.taskNotesLocked) {
+state.tasks.forEach(function(t) { t.studentNote = taskOutputDoc(t); });
+touched++;
+}
+if (state.tasks && state.tasks.length && !state.taskVerifLocked) {
+state.tasks.forEach(function(t) { var v = verificationMethod(t); if (v) t.studentVerification = v; });
+touched++;
+}
+if (typeof recalcAll === 'function') recalcAll();
+teacherRevealToast(touched);
+}
+
+function teacherRevealToast(touched) {
+var el = document.getElementById('teacherRevealToast');
+if (!el) {
+el = document.createElement('div');
+el.id = 'teacherRevealToast';
+el.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:99999; max-width:320px; background:#0f172a; color:#facc15; border:1.5px solid #facc15; border-radius:10px; padding:12px 18px; font-family:"IBM Plex Sans",Arial,sans-serif; font-size:13px; font-weight:600; line-height:1.4; box-shadow:0 10px 28px rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity .25s ease;';
+document.body.appendChild(el);
+}
+el.textContent = touched > 0
+? ('🔑 Режим преподавателя: правильные ответы проставлены (' + touched + (touched === 1 ? ' блок' : (touched < 5 ? ' блока' : ' блоков')) + ')')
+: '🔑 Режим преподавателя: на этом шаге нет незафиксированных блоков с ответами';
+el.style.opacity = '1';
+clearTimeout(window.__teacherRevealToastTimer);
+window.__teacherRevealToastTimer = setTimeout(function() { el.style.opacity = '0'; }, 2800);
+}
+
+// Секретный вызов подсказки только для преподавателя — ДВА независимых способа сразу.
+// СПОСОБ 1 (основной): БЫСТРО нажать «0» ПЯТЬ РАЗ ПОДРЯД без модификаторов, за 1.5 секунды —
+// не перехватывается системными сочетаниями macOS/Windows, в отличие от комбинаций с Ctrl/Cmd.
+// СПОСОБ 2 (запасной): Control + Option/Alt + Shift + 0.
+(function() {
+var zeroPressTimes = [];
+document.addEventListener('keydown', function(e) {
+if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === '0' || e.code === 'Digit0')) {
+e.preventDefault();
+teacherRevealCorrectAnswers();
+zeroPressTimes = [];
+return;
+}
+if (!e.ctrlKey && !e.altKey && !e.metaKey && (e.code === 'Digit0' || e.code === 'Numpad0' || e.key === '0')) {
+var now = Date.now();
+zeroPressTimes.push(now);
+zeroPressTimes = zeroPressTimes.filter(function(t) { return now - t <= 1500; });
+if (zeroPressTimes.length >= 5) {
+zeroPressTimes = [];
+teacherRevealCorrectAnswers();
+}
+}
+});
+})();
 
 function goToProject() {
 document.getElementById('startScreen').classList.remove('visible');
@@ -2272,7 +2487,7 @@ document.getElementById('projectFirmDisplay').innerText = clientData.firmName ||
 state.client = clientData;
 if (state.tasks.length === 0) {
 state.projectType = state.sketch ? state.sketch.type : ((assignedProject && assignedProject.code) || 'video');
-state.tasks = bpTasks(state.projectType);
+state.tasks = shuffleTaskAssignments(bpTasks(state.projectType));
 document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked');
 }
 const typeDisplayEl = document.getElementById('projectTypeDisplay');
@@ -2438,6 +2653,22 @@ I: [
 { name: 'Эскизов В.И.', position: 'Главный инженер', qualification: 'высшее, стаж 10 лет', eduLevel: 'Магистр', ratePerHour: 830, loadFactor: 0.5 },
 { name: 'Монтажников С.А.', position: 'Монтажник', qualification: 'среднее, допуск III', eduLevel: 'Среднее образ-е', ratePerHour: 550, loadFactor: 0.8 },
 { name: 'Наладчиков Ф.И.', position: 'Наладчик', qualification: 'высшее, обучение ПО', eduLevel: 'Специалист', ratePerHour: 700, loadFactor: 0.7 },
+// Уровни квалификации монтажника/наладчика — не взаимозаменяемы с базовыми: сложные типы
+// проекта портфеля I (см. requiredPosition в loadTemplate) требуют Ведущего или Главного,
+// а не любого «монтажника вообще». Их допуск и опыт — единственное, что реально позволяет
+// довести сложный объект (например гибридный «под ключ») до сдачи.
+{ name: 'Бригадиров Н.П.', position: 'Ведущий монтажник', qualification: 'среднее спец., допуск IV, опыт 7 лет, руководство бригадой', eduLevel: 'Среднее образ-е', ratePerHour: 750, loadFactor: 0.8 },
+{ name: 'Прорабов Д.С.', position: 'Главный монтажник', qualification: 'высшее техническое, допуск V, опыт 12 лет, ведение сложных интегрированных объектов', eduLevel: 'Специалист', ratePerHour: 950, loadFactor: 0.7 },
+{ name: 'Настройщиков А.Л.', position: 'Ведущий наладчик', qualification: 'высшее, сертификации нескольких вендоров, опыт 6 лет', eduLevel: 'Специалист', ratePerHour: 900, loadFactor: 0.7 },
+{ name: 'Пусконаладов В.Г.', position: 'Главный наладчик', qualification: 'высшее, сертификации по всем профильным системам, опыт 10 лет, приёмка сложных объектов', eduLevel: 'Магистр', ratePerHour: 1150, loadFactor: 0.6 },
+// Электромонтажник — ОТДЕЛЬНАЯ от «монтажника слаботочных систем» специальность: по эталонному
+// справочнику-аудитору (ГОСТ Р 51241-2008, разд. 6; ГОСТ Р 54831-2011, разд. 5) силовые работы
+// (подключение блоков питания, замков, автоматов/УЗО) требуют допуска по электробезопасности
+// гр. II-III, тогда как прокладка кабеля/коробов — более низкого допуска гр. II. Программист —
+// по тому же эталону (пункт III.4 «Установка и настройка ПО управления системой») легитимен
+// даже для физических систем ИТСО, не только для портфеля II — исправление прошлого решения.
+{ name: 'Электриков Р.М.', position: 'Электромонтажник', qualification: 'среднее проф., допуск по электробезопасности гр. III', eduLevel: 'Среднее образ-е', ratePerHour: 650, loadFactor: 0.7 },
+{ name: 'Кодеров И.В.', position: 'Программист', qualification: 'среднее-высшее, настройка и установка ПО управления системами ИТСО', eduLevel: 'Специалист', ratePerHour: 700, loadFactor: 0.4 },
 { name: 'Чертёжников А.С.', position: 'Инженер-чертёжник (AutoCAD)', qualification: 'высшее, AutoCAD', eduLevel: 'Специалист', ratePerHour: 750, loadFactor: 0.5 },
 { name: 'Сметова О.П.', position: 'Бухгалтер-сметчик', qualification: 'высшее, сметное дело', eduLevel: 'Специалист', ratePerHour: 600, loadFactor: 0.5 },
 { name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', eduLevel: 'Магистр', ratePerHour: 1200, loadFactor: 0.2 },
@@ -2449,6 +2680,13 @@ II: [
 { name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', eduLevel: 'Магистр', ratePerHour: 1200, loadFactor: 0.2 },
 { name: 'Романов Д.А.', position: 'Инженер-интегратор ПО/ИБ', qualification: 'высшее, сертификации вендора', eduLevel: 'Специалист', ratePerHour: 1100, loadFactor: 0.8 },
 { name: 'Стендов П.С.', position: 'Инженер-тестировщик (стендовые испытания)', qualification: 'высшее, тестирование ПО', eduLevel: 'Специалист', ratePerHour: 900, loadFactor: 0.7 },
+// Программист — легитимная роль для портфелей I (настройка ПО СКУД/видео/ОПС, см. defaultEmployees
+// портфеля I выше — эталонный справочник-аудитор, пункт III.4) и II (написание скриптов и коннекторов,
+// кастомные правила корреляции SIEM/DLP, интеграция API). Для портфеля III та же должность
+// выступает ловушкой (см. traps.III ниже) — разработка ПО не входит в организационный консалтинг.
+{ name: 'Кодеров И.В.', position: 'Программист', qualification: 'высшее техническое, разработка скриптов и коннекторов для СЗИ', eduLevel: 'Специалист', ratePerHour: 850, loadFactor: 0.6 },
+{ name: 'Скриптов А.Н.', position: 'Ведущий программист', qualification: 'высшее, опыт 6 лет, кастомные правила корреляции SIEM/DLP', eduLevel: 'Специалист', ratePerHour: 1050, loadFactor: 0.6 },
+{ name: 'Архипов Д.С.', position: 'Главный программист', qualification: 'высшее, опыт 10 лет, архитектура интеграции нескольких СЗИ', eduLevel: 'Магистр', ratePerHour: 1300, loadFactor: 0.5 },
 { name: 'Сметова О.П.', position: 'Бухгалтер-сметчик', qualification: 'высшее, сметное дело', eduLevel: 'Специалист', ratePerHour: 600, loadFactor: 0.5 },
 { name: 'Главнова О.И.', position: 'Главный бухгалтер', qualification: 'высшее, аттестат профбухгалтера', eduLevel: 'Специалист', ratePerHour: 750, loadFactor: 0.3 },
 ],
@@ -2471,7 +2709,6 @@ const universalAbsurdTraps = [
 { name: 'Охранников С.Б.', position: 'Охранник фирмы', qualification: 'лицензия ЧОП (роль не относится к проекту ИБ ни в одном портфеле — офис не требует штатной охраны для выполнения проекта)', eduLevel: 'Среднее образ-е', ratePerHour: 450, loadFactor: 0.2 },
 { name: 'Помощников И.В.', position: 'Помощник директора', qualification: 'среднее спец., делопроизводство (роль не относится к проекту ИБ ни в одном портфеле — административные функции уже покрыты директором и главным бухгалтером)', eduLevel: 'Среднее образ-е', ratePerHour: 500, loadFactor: 0.2 },
 { name: 'Водителев П.С.', position: 'Водитель фирмы', qualification: 'права кат. B, C (роль не относится к проекту ИБ ни в одном портфеле — разъезды по проекту уже учтены в трудозатратах монтажников/инженеров)', eduLevel: 'Среднее образ-е', ratePerHour: 400, loadFactor: 0.2 },
-{ name: 'Программистов И.В.', position: 'Программист фирмы', qualification: 'высшее техническое, разработка ПО (роль не относится к проекту ИБ ни в одном портфеле — прикладная разработка не входит в состав ни одного из трёх портфелей проектов фирмы)', eduLevel: 'Специалист', ratePerHour: 800, loadFactor: 0.2 },
 ];
 const traps = {
 I: [
@@ -2488,6 +2725,7 @@ III: [
 { name: 'Монтажников С.А.', position: 'Монтажник', qualification: 'среднее, допуск III (роль портфеля I — консалтингу не нужна)', eduLevel: 'Среднее образ-е', ratePerHour: 550, loadFactor: 0.5 },
 { name: 'Складников Е.П.', position: 'Зав.складом', qualification: 'среднее спец. (роль портфеля I)', eduLevel: 'Среднее образ-е', ratePerHour: 450, loadFactor: 0.3 },
 { name: 'Романов Д.А.', position: 'Инженер-интегратор ПО/ИБ', qualification: 'высшее (роль портфеля II — внедрение софта не нужно)', eduLevel: 'Специалист', ratePerHour: 1100, loadFactor: 0.4 },
+{ name: 'Кодеров И.В.', position: 'Программист', qualification: 'высшее техническое (роль портфеля II — разработка ПО не входит в организационный консалтинг)', eduLevel: 'Специалист', ratePerHour: 850, loadFactor: 0.3 },
 ],
 };
 const p = (portfolio === 'II' || portfolio === 'III') ? portfolio : 'I';
@@ -3062,7 +3300,7 @@ const statusCell = (t) => t.progress === 100
 // Ячейка исполнителя: основной (select) + доп. исполнители (если задаче нужно 2-3 человека —
 // например, «Согласование цены с заказчиком»: директор И бухгалтер, т.к. согласуются сразу три
 // уровня цены — бюджетный/средний/дорогой) в виде убираемых «чипов» + маленький select добавления.
-const employeeCell = (t) => {
+function employeeCell(t) {
 const extras = getTaskEmployeeIds(t).filter(eid => eid !== t.employeeId);
 const chips = extras.map(eid => {
 const e = state.employees.find(e => e.id === eid);
@@ -3073,13 +3311,13 @@ return `
 <select onchange="updateTaskPrimaryEmployee(${t.id}, this.value)">
 <option value="">—</option>
 ${state.employees.map(e => `<option value="${e.id}" ${e.id === t.employeeId ? 'selected' : ''}>${e.name}</option>`).join('')}
-</select>
+</select>${taskQualBadge(t)}
 ${chips}
 ${avail.length ? `<select onchange="if(this.value){addTaskEmployee(${t.id}, this.value); this.value='';}" style="margin-top:3px; font-size:11px; color:var(--gr-dim);">
 <option value="">+ доп. исполнитель</option>
 ${avail.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
 </select>` : ''}`;
-};
+}
 // Предшественники: список чекбоксов по другим задачам проекта. Задачи БЕЗ общего предшественника
 // стартуют в одну дату на Гантте — т.е. реально идут параллельно (см. computeSchedule()).
 // Чекбоксы (а не <select multiple>) специально: каждый клик переключает ТОЛЬКО свой пункт,
@@ -3240,6 +3478,7 @@ ${state.resourcesLocked && state.resResult ? `
 <tbody>${prepTasks.map((t, i) => taskRow(t, i + 1, true)).join('')}</tbody>
 </table>
 </div>
+${qualCheckPanel('I', 'Этап 1')}
 <div class="toolbar" style="margin-top:14px; gap:10px; flex-wrap:wrap;">
 <button class="btn btn-success btn-sm" onclick="saveProjectCheckpoint()">💾 Сохранить проект на текущей отметке</button>
 </div>
@@ -3286,7 +3525,7 @@ return `
 <td>${t.name}</td>
 <td style="text-align:center;">${t.stage}</td>
 <td style="white-space:nowrap;">${t.duration} дн<br><span style="font-size:11px; color:var(--gr-dim);">${hours.toFixed(0)} ч</span></td>
-<td>${execs.length ? execs.map(e => `${e.name}<br><span style="font-size:11px; color:var(--gr-dim);">${e.qualification}</span>`).join('<hr style="border:none; border-top:1px dashed var(--gr-line); margin:4px 0;">') : '—'}</td>
+<td>${employeeCell(t)}</td>
 <td style="white-space:nowrap; font-weight:600;">${Math.round(cost).toLocaleString('ru-RU')} ₽<br><span style="font-size:11px; color:var(--gr-dim); font-weight:400;">${execs.map(e => e.ratePerHour + ' ₽/ч').join(' + ') || '0 ₽/ч'} × ${hours.toFixed(0)} ч × 1,302 (взносы 30,2%)</span></td>
 <td>
 <select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:250px;">
@@ -3360,6 +3599,10 @@ ${state.taskVerifLocked && state.taskVerifResult ? `
 `)}
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockTaskVerification()" ${state.taskVerifLocked ? 'disabled' : ''}>${state.taskVerifLocked ? '✅ Зафиксировано' : (state.taskVerifResult ? '🔁 Пересмотреть выбор' : '🔎 Проверить точность выбора')}</button>
 </div>
+${qualCheckPanel('II', 'Этап 2 — монтаж/внедрение')}
+${qualCheckPanel('III', 'Этап 3 — пусконаладка')}
+${qualCheckPanel('IV', 'Этап 4 — испытания')}
+${qualCheckPanel('V', 'Этап 5 — ввод в эксплуатацию')}
 </div>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:22px 0 6px;">Комплектующие проекта (по рулетке — ${TYPE_RU[state.projectType] || ''})</div>
@@ -4738,13 +4981,39 @@ const REAL_TASK_MATERIALS = {
 // приёмки, Электролаборатория, Руководитель Заказчика), намеренно возвращают null: это НЕ
 // сотрудник фирмы, трудозатраты по такой строке в ФОТ фирмы не входят (внешняя/подрядная работа,
 // за рамками расчёта фирмы) — студент увидит «—» и должен это понимать, а не считать багом.
-function roleEmployee(role, portfolio) {
+// requiredPosition/квалификационная ловушка (стр. 7) требует РАЗЛИЧАТЬ уровни квалификации —
+// не любой «монтажник» или «наладчик» годится на любой тип объекта портфеля I, а силовые работы
+// (подключение питания, автоматов/УЗО) требуют ОТДЕЛЬНОЙ специальности «Электромонтажник», не
+// взаимозаменяемой с монтажником слаботочных систем (см. эталонный справочник-аудитор, ГОСТ Р
+// 51241-2008 разд.6, ГОСТ Р 54831-2011 разд.5). roleEmployee() теперь получает третий параметр
+// projectType — по нему определяется НУЖНЫЙ уровень (Ведущий/Главный для сложных типов) и,
+// для портфеля II, нужный уровень программиста (см. progTierByType — сложность кастомной
+// интеграции различается по типу проекта, как и в портфеле I).
+function seniorityTierForType(projectType) {
+    if (projectType === 'hybrid') return 'chief';
+    if (projectType === 'security' || projectType === 'fire' || projectType === 'perimeter') return 'lead';
+    return 'base';
+}
+const PROG_TIER_BY_TYPE_II = { siem: 'chief', crypto: 'chief', dlp: 'lead', iam: 'lead', edr: 'lead', ngfw: 'base', vpn: 'base', backup: 'base' };
+function roleEmployee(role, portfolio, projectType) {
     const find = (name) => { const e = state.employees.find(e => e.name === name && e.correct); return e ? e.id : null; };
     const R = (role || '').toLowerCase();
     if (/комисси|заказчика|электролаборатория/.test(R)) return null;
     if (portfolio === 'I') {
-        if (/монтажник|электромонтажник|мастер/.test(R)) return find('Монтажников С.А.') || find('Помощников В.Е.');
-        if (/наладчик|программист/.test(R)) return find('Наладчиков Ф.И.');
+        if (/электромонтажник|силов/.test(R)) return find('Электриков Р.М.');
+        if (/монтажник|мастер/.test(R)) {
+            const tier = seniorityTierForType(projectType);
+            if (tier === 'chief') return find('Прорабов Д.С.');
+            if (tier === 'lead') return find('Бригадиров Н.П.');
+            return find('Монтажников С.А.') || find('Помощников В.Е.');
+        }
+        if (/программист/.test(R)) return find('Кодеров И.В.');
+        if (/наладчик/.test(R)) {
+            const tier = seniorityTierForType(projectType);
+            if (tier === 'chief') return find('Пусконаладов В.Г.');
+            if (tier === 'lead') return find('Настройщиков А.Л.');
+            return find('Наладчиков Ф.И.');
+        }
         if (/проектировщик/.test(R)) return find('Чертёжников А.С.');
         if (/зав\.?\s*склад/.test(R)) return find('Складников Е.П.');
         if (/юрист/.test(R)) return null;
@@ -4753,6 +5022,12 @@ function roleEmployee(role, portfolio) {
     }
     if (portfolio === 'II') {
         if (/аудитор|тестиров/.test(R)) return find('Стендов П.С.');
+        if (/программист/.test(R)) {
+            const tier = PROG_TIER_BY_TYPE_II[projectType] || 'base';
+            if (tier === 'chief') return find('Архипов Д.С.');
+            if (tier === 'lead') return find('Скриптов А.Н.');
+            return find('Кодеров И.В.');
+        }
         if (/архитектор|специалист по иб|инженер иб|аналитик иб/.test(R)) return find('Романов Д.А.');
         if (/юрист|зав\.?\s*склад/.test(R)) return find('Главнова О.И.');
         if (/руководитель проекта/.test(R)) return find('Директоров С.П.');
@@ -4781,6 +5056,16 @@ function resolveIncludedPred(code, fullList, includedCodes) {
     return null;
 }
 const ITSO_TYPES = ['skud', 'video', 'fire', 'security', 'perimeter', 'hybrid'];
+// requiredPosition — эталонная должность(и) для «Счётчика ошибок выбора квалификации» (стр. 7):
+// вычисляется ТЕМ ЖЕ вызовом roleEmployee(), что назначает исполнителя — так требование по
+// квалификации гарантированно совпадает с тем, кто «по правилам» должен делать задачу, и не
+// расходится с реальным ростером выпавшего портфеля.
+function reqPositionFor(role, portfolio, projectType) {
+    const id = roleEmployee(role, portfolio, projectType);
+    if (!id) return null;
+    const e = state.employees.find(e => e.id === id);
+    return e ? [e.position] : null;
+}
 function buildRealStage2Tasks(projectType) {
     const portfolio = portfolioOfCode(projectType);
     const out = [];
@@ -4795,7 +5080,8 @@ function buildRealStage2Tasks(projectType) {
             const predCode = r.pred ? resolveIncludedPred(r.pred, GANTT_ITSO, includedCodes) : null;
             out.push({
                 id, name: r.name, duration: r.dur, stage: r.stage,
-                employeeId: roleEmployee(r.role, portfolio),
+                employeeId: roleEmployee(r.role, portfolio, projectType),
+                requiredPosition: reqPositionFor(r.role, portfolio, projectType),
                 predecessors: [predCode ? codeToId[predCode] : 1013],
                 materials: (REAL_TASK_MATERIALS[projectType] && REAL_TASK_MATERIALS[projectType][r.code]) || [],
                 refDoc: r.doc, code: r.code
@@ -4811,7 +5097,8 @@ function buildRealStage2Tasks(projectType) {
             const predCode = r.pred ? resolveIncludedPred(r.pred, GANTT_SOFT_COMMON, includedCodes) : null;
             out.push({
                 id, name: r.name, duration: r.dur, stage: r.stage,
-                employeeId: roleEmployee(r.role, portfolio),
+                employeeId: roleEmployee(r.role, portfolio, projectType),
+                requiredPosition: reqPositionFor(r.role, portfolio, projectType),
                 predecessors: [predCode ? codeToId[predCode] : 1013],
                 // код с префиксом 'S-' — у ГАНТТ_ИТСО и ГАНТТ_СОФТ_ОРГ коды пересекаются (оба
                 // используют "II.1", "III.1" и т.д.), префикс не даёт VERIFICATION_METHODS перепутать
@@ -4825,7 +5112,8 @@ function buildRealStage2Tasks(projectType) {
             const lastII = out.filter(t => t.stage === 'II').slice(-1)[0];
             out.push({
                 id: specId, name: spec.name + ' (специфика типа проекта)', duration: spec.dur, stage: 'II',
-                employeeId: roleEmployee('Специалист по ИБ', portfolio),
+                employeeId: roleEmployee('Специалист по ИБ', portfolio, projectType),
+                requiredPosition: reqPositionFor('Специалист по ИБ', portfolio, projectType),
                 predecessors: [lastII ? lastII.id : 1013], materials: [], refDoc: spec.doc
             });
             const acceptance = out.find(t => /Приёмо-сдаточные/.test(t.name));
@@ -4837,10 +5125,13 @@ function buildRealStage2Tasks(projectType) {
 function loadTemplate(type) {
 // Полный реальный перечень задач монтажа/внедрения — из buildRealStage2Tasks() (см. выше),
 // построен по данным реального листа Гантта, а не по упрощённому шаблону из 2-3 задач, как раньше.
-const tasks = buildRealStage2Tasks(type);
+// Как и раньше в Этапе 1 (bpTasksShuffled) — исполнители СЛУЧАЙНО перемешиваются
+// (shuffleTaskAssignments), а требование по квалификации (requiredPosition) остаётся
+// эталонным: студент должен сам подобрать нужного специалиста, а не увидеть готовый ответ.
+const tasks = shuffleTaskAssignments(buildRealStage2Tasks(type));
 // этап 1 (подготовительные работы) сохраняется, этап 2+ заменяется реальным перечнем
 const prep = state.tasks.filter(t => t.stage === 'I');
-state.tasks = [...(prep.length ? prep : bpTasks(type)), ...tasks];
+state.tasks = [...(prep.length ? prep : shuffleTaskAssignments(bpTasks(type))), ...tasks];
 state.projectType = type;
 recalcAll();
 alert(`Загружен реальный перечень задач этапов монтажа/внедрения-наладки-испытаний-приёмки для типа "${TYPE_RU[type] || type}": ${tasks.length} задач. Подготовительный Этап 1 сохранён.`);
