@@ -2307,7 +2307,11 @@ if (!req || !req.length) return 'neutral';
 if (!t.employeeId) return 'bad';
 const emp = state.employees.find(e => e.id === t.employeeId);
 if (!emp) return 'bad';
-return req.indexOf(emp.position) !== -1 ? 'ok' : 'bad';
+if (req.indexOf(emp.position) === -1) return 'bad';
+// Должность может СОВПАДАТЬ по названию, но принадлежать самозванцу (ловушка «Менеджер
+// проекта» — см. defaultEmployees: должность в штатном верная, ФИО — нет). Поэтому помимо
+// названия должности сверяем и сам флаг correct — иначе такую ловушку счётчик бы не заметил.
+return emp.correct ? 'ok' : 'bad';
 }
 // Компактный, всегда видимый бейдж рядом с полем «Исполнитель». Зелёной ✅ у верно назначенных
 // задач намеренно НЕТ (студент не должен угадывать методом перебора) — только предупреждение.
@@ -2317,7 +2321,7 @@ if (status !== 'bad') return '';
 const req = inferRequiredPosition(t);
 const emp = state.employees.find(e => e.id === t.employeeId);
 const need = req.join(' / ');
-const have = emp ? emp.position : 'исполнитель не назначен';
+const have = emp ? (emp.correct ? emp.position : emp.name + ' — ' + emp.position + ' (не тот человек: см. квалификацию в штатном расписании)') : 'исполнитель не назначен';
 return ' <span class="qual-flag qual-bad" title="Для этой задачи требуется: ' + need + '. Сейчас назначено: ' + have + '. Специализированные виды работ нельзя поручать сотруднику без нужной квалификации.">⚠️</span>';
 }
 function countTaskQualification(stage) {
@@ -2723,9 +2727,14 @@ I: [
 { name: 'Главнова О.И.', position: 'Главный бухгалтер', qualification: 'высшее, аттестат профбухгалтера', eduLevel: 'Специалист', ratePerHour: 750, loadFactor: 0.3 },
 { name: 'Помощников В.Е.', position: 'Специалист-монтажник', qualification: 'среднее спец., допуск II', eduLevel: 'Среднее образ-е', ratePerHour: 500, loadFactor: 0.8 },
 { name: 'Складников Е.П.', position: 'Зав.складом', qualification: 'среднее спец., 1С:Склад', eduLevel: 'Среднее образ-е', ratePerHour: 450, loadFactor: 0.3 },
+// Менеджер проекта — САМОСТОЯТЕЛЬНАЯ должность, не дублирующая директора и не совпадающая
+// с главным инженером: ведёт согласования с Заказчиком, приёмку этапов, передачу документации
+// (роль «Руководитель проекта» в GANTT-таблицах всех трёх портфелей — см. roleEmployee ниже).
+{ name: 'Менеджеров С.А.', position: 'Менеджер проекта', qualification: 'высшее, сертификация PMI/PMP, опыт управления проектами ИБ от 5 лет', eduLevel: 'Магистр', ratePerHour: 950, loadFactor: 0.6 },
 ],
 II: [
 { name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', eduLevel: 'Магистр', ratePerHour: 1200, loadFactor: 0.2 },
+{ name: 'Менеджеров С.А.', position: 'Менеджер проекта', qualification: 'высшее, сертификация PMI/PMP, опыт управления проектами ИБ от 5 лет', eduLevel: 'Магистр', ratePerHour: 950, loadFactor: 0.6 },
 { name: 'Романов Д.А.', position: 'Инженер-интегратор ПО/ИБ', qualification: 'высшее, сертификации вендора', eduLevel: 'Специалист', ratePerHour: 1100, loadFactor: 0.8 },
 { name: 'Стендов П.С.', position: 'Инженер-тестировщик (стендовые испытания)', qualification: 'высшее, тестирование ПО', eduLevel: 'Специалист', ratePerHour: 900, loadFactor: 0.7 },
 // Программист — легитимная роль для портфелей I (настройка ПО СКУД/видео/ОПС, см. defaultEmployees
@@ -2740,6 +2749,7 @@ II: [
 ],
 III: [
 { name: 'Директоров С.П.', position: 'Генеральный директор', qualification: 'высшее, MBA', eduLevel: 'Магистр', ratePerHour: 1200, loadFactor: 0.2 },
+{ name: 'Менеджеров С.А.', position: 'Менеджер проекта', qualification: 'высшее, сертификация PMI/PMP, опыт управления проектами ИБ от 5 лет', eduLevel: 'Магистр', ratePerHour: 950, loadFactor: 0.6 },
 { name: 'Правова Н.С.', position: 'Юрист-договорник', qualification: 'высшее юридическое', eduLevel: 'Специалист', ratePerHour: 900, loadFactor: 0.5 },
 { name: 'Разумовский К.В.', position: 'ИБ-аналитик/аудитор', qualification: 'высшее, CISA/сертификация ФСТЭК', eduLevel: 'Магистр', ratePerHour: 1300, loadFactor: 0.7 },
 { name: 'Учителева М.И.', position: 'Специалист по обучению', qualification: 'высшее, педагогическая переподготовка', eduLevel: 'Специалист', ratePerHour: 700, loadFactor: 0.4 },
@@ -2758,6 +2768,19 @@ const universalAbsurdTraps = [
 { name: 'Помощников И.В.', position: 'Помощник директора', qualification: 'среднее спец., делопроизводство (роль не относится к проекту ИБ ни в одном портфеле — административные функции уже покрыты директором и главным бухгалтером)', eduLevel: 'Среднее образ-е', ratePerHour: 500, loadFactor: 0.2 },
 { name: 'Водителев П.С.', position: 'Водитель фирмы', qualification: 'права кат. B, C (роль не относится к проекту ИБ ни в одном портфеле — разъезды по проекту уже учтены в трудозатратах монтажников/инженеров)', eduLevel: 'Среднее образ-е', ratePerHour: 400, loadFactor: 0.2 },
 ];
+// Ловушка ОСОБОГО рода для «самой важной должности» (по просьбе преподавателя, 2026-07-22):
+// в отличие от прочих ловушек, где неверна СРАЗУ и должность, и человек, здесь должность
+// в штатном расписании называется ПРАВИЛЬНО — «Менеджер проекта» — но ФИО за ней стоит
+// НЕ настоящее (не Менеджеров С.А.), а одного из «самозванцев» ниже, случайно выбранного
+// при каждой генерации штата. Студент должен заметить, что должность верная, а конкретный
+// человек за ней — не тот, кто реально ведёт проекты (см. qualification — там прямо указано,
+// почему кандидат не годится), и в задачах ему нужен именно Менеджеров С.А.
+const projectManagerImpostorPool = [
+{ name: 'Сроков П.Н.', position: 'Менеджер проекта', qualification: 'должность присвоена по стажу без аттестации по управлению проектами — фактически ведёт только документооборот и переписку с Заказчиком', eduLevel: 'Среднее образ-е', ratePerHour: 600, loadFactor: 0.4 },
+{ name: 'Отчётов В.И.', position: 'Менеджер проекта', qualification: 'назначен исполняющим обязанности после ухода предыдущего менеджера, опыта ведения проектов ИБ и сертификации PMI/PMP нет', eduLevel: 'Специалист', ratePerHour: 650, loadFactor: 0.4 },
+{ name: 'Совещанцев Д.А.', position: 'Менеджер проекта', qualification: 'должность значится в штатном расписании «для отчётности», фактически исполняет обязанности координатора склада, переведён без переаттестации', eduLevel: 'Среднее образ-е', ratePerHour: 550, loadFactor: 0.3 },
+];
+const projectManagerImpostor = projectManagerImpostorPool[Math.floor(Math.random() * projectManagerImpostorPool.length)];
 const traps = {
 I: [
 { name: 'Разумовский К.В.', position: 'ИБ-аналитик/аудитор', qualification: 'высшее, CISA (роль портфеля III — не нужна на монтаже ИТСО)', eduLevel: 'Магистр', ratePerHour: 1300, loadFactor: 0.4 },
@@ -2780,7 +2803,7 @@ const p = (portfolio === 'II' || portfolio === 'III') ? portfolio : 'I';
 let nextId = 1;
 const list = [];
 const coreQueue = core[p].map(e => Object.assign({ correct: true, studentMark: null }, e));
-const trapQueue = traps[p].concat(universalAbsurdTraps).map(e => Object.assign({ correct: false, studentMark: null }, e));
+const trapQueue = traps[p].concat(universalAbsurdTraps).concat([projectManagerImpostor]).map(e => Object.assign({ correct: false, studentMark: null }, e));
 // Ловушки НЕ собраны в конце списка одним блоком — вперемешку с нормальными должностями (round-robin),
 // чтобы студент не мог опознать их просто по позиции в таблице.
 const maxLen = Math.max(coreQueue.length, trapQueue.length);
@@ -5065,7 +5088,10 @@ function roleEmployee(role, portfolio, projectType) {
         if (/проектировщик/.test(R)) return find('Чертёжников А.С.');
         if (/зав\.?\s*склад/.test(R)) return find('Складников Е.П.');
         if (/юрист/.test(R)) return null;
-        if (/руководитель проекта|инженер проекта|^инженер$/.test(R)) return find('Эскизов В.И.');
+        // «Руководитель проекта» — самостоятельная должность (Менеджеров С.А.), НЕ путать с
+        // «инженером проекта»/просто «инженером» (это по-прежнему Эскизов В.И., главный инженер).
+        if (/руководитель проекта/.test(R)) return find('Менеджеров С.А.');
+        if (/инженер проекта|^инженер$/.test(R)) return find('Эскизов В.И.');
         return find('Директоров С.П.');
     }
     if (portfolio === 'II') {
@@ -5078,14 +5104,15 @@ function roleEmployee(role, portfolio, projectType) {
         }
         if (/архитектор|специалист по иб|инженер иб|аналитик иб/.test(R)) return find('Романов Д.А.');
         if (/юрист|зав\.?\s*склад/.test(R)) return find('Главнова О.И.');
-        if (/руководитель проекта/.test(R)) return find('Директоров С.П.');
+        if (/руководитель проекта/.test(R)) return find('Менеджеров С.А.');
         return find('Романов Д.А.');
     }
     // portfolio III
     if (/юрист/.test(R)) return find('Правова Н.С.');
     if (/аудитор|аналитик иб|специалист по иб|инженер иб|архитектор/.test(R)) return find('Разумовский К.В.');
     if (/обучени/.test(R)) return find('Учителева М.И.');
-    if (/руководитель проекта|зав\.?\s*склад/.test(R)) return find('Директоров С.П.') || find('Главнова О.И.');
+    if (/руководитель проекта/.test(R)) return find('Менеджеров С.А.');
+    if (/зав\.?\s*склад/.test(R)) return find('Директоров С.П.') || find('Главнова О.И.');
     return find('Директоров С.П.');
 }
 // Предшественник задачи мог быть ИСКЛЮЧЁН фильтром применимости для конкретного типа проекта
