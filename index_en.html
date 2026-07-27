@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Учебник: Управление проектами ИБ (9 занятий)</title>
+<title>Textbook: Information Security Project Management (9 Sessions)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap&subset=cyrillic" rel="stylesheet">
@@ -753,11 +753,11 @@ input:disabled, select:disabled { opacity: 0.45; }
 
     <main class="sp-hero" id="splash">
         <div class="sp-eyebrow">Электронный практикум &middot; дисциплина УПЗИ и ЭЗИ</div>
-        <h1>Управление проектами<br>по защите информации и экономика защиты информации</h1>
-        <p class="sp-sub">Перед каждым проектом — Старт 0: подбор персонала и ресурсов фирмы.
-        Далее девять занятий — от паспорта проекта до аудита и оценки эффективности.
-        Всего в практикуме — три портфеля (ИТСО, программно-аппаратный, организационно-административный)
-        и 20 проектов ИБ.</p>
+        <h1>Information Security Project Management<br>and the Economics of Information Protection</h1>
+        <p class="sp-sub">Before every project comes Start 0: selecting the firm's staff and resources.
+        Nine sessions follow — from the project charter to the audit and efficiency assessment.
+        The practicum covers three project portfolios (physical/technical security, software-and-hardware,
+        organizational-administrative) and 20 information security project types.</p>
 
         <div class="pipeline" id="pipeline">
             <div class="pipe-track"></div>
@@ -1262,7 +1262,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 <p>На объект выезжает главный инженер <strong>Эскизов В.И.</strong>: исследует объект и готовит эскиз проекта — тип системы, расстановка оборудования, кабельные трассы.</p>
 <label>Тип проектируемой системы *</label>
 <select id="sketchType">
-<optgroup label="Портфель проектов I — ИТСО">
+<optgroup label="Portfolio I — Physical/Technical Security">
 <option value="video" selected>Видеонаблюдение (СОТ)</option>
 <option value="skud">СКУД (контроль доступа)</option>
 <option value="fire">Пожарная сигнализация</option>
@@ -1270,7 +1270,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 <option value="perimeter">Периметральное ограждение и турникеты</option>
 <option value="hybrid">Комплексный проект ИТСО «под ключ»</option>
 </optgroup>
-<optgroup label="Портфель проектов II — программно-аппаратный проект">
+<optgroup label="Portfolio II — Software-and-Hardware Project">
 <option value="ngfw">Межсетевой экран / NGFW</option>
 <option value="dlp">DLP-система</option>
 <option value="iam">IAM / MFA / SSO</option>
@@ -1280,7 +1280,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 <option value="backup">Резервное копирование (Backup/DR)</option>
 <option value="crypto">Криптографическая защита (СКЗИ)</option>
 </optgroup>
-<optgroup label="Портфель проектов III — организационно-административный проект">
+<optgroup label="Portfolio III — Organizational-Administrative Project">
 <option value="policy">Политика и регламенты ИБ</option>
 <option value="kii">Категорирование объекта КИИ</option>
 <option value="pdn">Соответствие 152-ФЗ (ПДн)</option>
@@ -1536,7 +1536,7 @@ setTimeout(animateProgress, 400);
 // 0-Б. РУЛЕТКА ВЫБОРА ТИПА ПРОЕКТА ИБ (20 типов, 3 портфеля проектов)
 // ============================================================
 const ROULETTE_CHESTS = [
-    { id: 'itso', title: 'Портфель проектов I — ИТСО (инженерно-технические средства охраны)', items: [
+    { id: 'itso', title: 'Portfolio I — Physical/Technical Security Systems', items: [
         { code: 'skud', name: 'СКУД (система контроля и управления доступом)' },
         { code: 'video', name: 'СОТ (система видеонаблюдения)' },
         { code: 'security', name: 'Охранная сигнализация' },
@@ -1544,7 +1544,7 @@ const ROULETTE_CHESTS = [
         { code: 'perimeter', name: 'Периметральное ограждение и турникеты' },
         { code: 'hybrid', name: 'Комплексный проект ИТСО «под ключ»' },
     ]},
-    { id: 'softhard', title: 'Портфель проектов II — программно-аппаратный проект ИБ', items: [
+    { id: 'softhard', title: 'Portfolio II — Software-and-Hardware IS Project', items: [
         { code: 'ngfw', name: 'Межсетевой экран / NGFW' },
         { code: 'dlp', name: 'DLP-система' },
         { code: 'iam', name: 'IAM / MFA / SSO' },
@@ -1554,7 +1554,7 @@ const ROULETTE_CHESTS = [
         { code: 'backup', name: 'Резервное копирование и восстановление (Backup/DR)' },
         { code: 'crypto', name: 'Криптографическая защита каналов и данных (СКЗИ)' },
     ]},
-    { id: 'org', title: 'Портфель проектов III — организационно-административный проект', items: [
+    { id: 'org', title: 'Portfolio III — Organizational-Administrative Project', items: [
         { code: 'policy', name: 'Разработка политики и регламентов ИБ' },
         { code: 'kii', name: 'Категорирование объекта КИИ (187-ФЗ)' },
         { code: 'pdn', name: 'Приведение обработки ПДн в соответствие 152-ФЗ' },
@@ -2238,29 +2238,29 @@ const TYPE_RU = {
 // ============================================================
 const ETALON_20 = {
     skud: {
-        survey: 'Количество точек доступа (дверей/турникетов), тип идентификатора (карта/биометрия), нужен ли учёт рабочего времени',
-        tz: 'Схема точек доступа на плане, тип замков (магнитные/электромеханические), количество карт/пропусков на старте',
-        key: 'Монтаж контроллеров и считывателей (этап II Гантт_ИТСО), ответственный — Монтажник'
+        survey: 'Number of access points (doors/turnstiles), identifier type (card/biometric), whether time-and-attendance tracking is needed',
+        tz: 'Access-point layout on the floor plan, lock type (magnetic/electromechanical), number of cards/passes at launch',
+        key: 'Installing controllers and readers (Stage II of the Physical Security Gantt), responsible role — Installer'
     },
     video: {
-        survey: 'Количество и зоны съёмки камер, нужна ли аналитика (детектор движения, распознавание лиц), срок хранения архива',
-        tz: 'Схема расстановки камер и зон обзора, тип камер (уличные/внутренние), ёмкость архива NVR',
-        key: 'Монтаж видеокамер и видеорегистратора (этап II Гантт_ИТСО)'
+        survey: 'Number and coverage zones of cameras, whether analytics are needed (motion detection, face recognition), archive retention period',
+        tz: 'Camera placement diagram and field-of-view zones, camera type (outdoor/indoor), NVR archive capacity',
+        key: 'Installing cameras and the video recorder (Stage II of the Physical Security Gantt)'
     },
     fire: {
-        survey: 'Категория помещений по пожарной опасности, наличие системы оповещения (СОУЭ), тип извещателей (дымовые/тепловые)',
-        tz: 'Схема размещения извещателей по нормам плотности, тип ППКП, зона передачи сигнала на пульт МЧС',
-        key: 'Монтаж извещателей и ППКП, проверка передачи на ПЦН/в МЧС (IV.11 Сводного чек-листа)'
+        survey: 'Fire-hazard category of the premises, presence of a warning system (evacuation alarm), detector type (smoke/heat)',
+        tz: 'Detector layout per density norms, fire control panel type, zone for transmitting the signal to the emergency response center',
+        key: 'Installing detectors and the fire control panel, verifying transmission to the monitoring station/emergency services (IV.11 of the Consolidated Checklist)'
     },
     security: {
-        survey: 'Периметр объекта (окна, двери), нужна ли тревожная кнопка, требуется ли вывод на пульт охраны',
-        tz: 'Схема шлейфов и зон охраны, тип извещателей (объёмные/магнитоконтактные)',
-        key: 'Монтаж извещателей и ПКП, проверка автономной работы от АКБ (IV.12 Сводного чек-листа)'
+        survey: 'Facility perimeter (windows, doors), whether a panic button is needed, whether output to a security monitoring station is required',
+        tz: 'Loop and zone diagram, detector type (volumetric/magnetic contact)',
+        key: 'Installing detectors and the control panel, verifying autonomous battery-backup operation (IV.12 of the Consolidated Checklist)'
     },
     perimeter: {
-        survey: 'Протяжённость периметра, рельеф местности, требуемая степень защиты (класс устойчивости к взлому)',
-        tz: 'Схема расстановки барьеров/турникетов по периметру, тип ограждения',
-        key: 'Монтаж барьеров и турникетов, интеграция с видеоаналитикой периметра'
+        survey: 'Perimeter length, terrain, required protection class (break-in resistance class)',
+        tz: 'Barrier/turnstile layout diagram along the perimeter, fencing type',
+        key: 'Installing barriers and turnstiles, integrating with perimeter video analytics'
     },
     hybrid: {
         survey: 'Все пункты по каждой из интегрируемых подсистем + требование к единой платформе мониторинга (PSIM)',
@@ -4269,7 +4269,7 @@ container.innerHTML = html;
 // ============================================================
 // 4. РЕНДЕРИНГ КОНТЕНТА ПО ЗАНЯТИЯМ
 // ============================================================
-const LESSON_TITLES = {1:'Ресурсы фирмы', 2:'Вид работ по проекту и комплектующие', 3:'Календарь работ по Ганту', 4:'Смета и Договор на проект', 5:'Бюджет проекта для фирмы', 6:'Дефицит', 7:'Оптимизация', 8:'Аудит ИБ заказчика', 9:'Эффективность бюджета фирмы и проекта ИБ'};
+const LESSON_TITLES = {1:'Firm Resources', 2:'Scope of Work and Components', 3:'Gantt Work Schedule', 4:'Project Estimate and Contract', 5:"Firm's Project Budget", 6:'Resource Shortfall', 7:'Optimization', 8:"Client's IS Audit", 9:"Efficiency of the Firm's Budget and the IS Project"};
 function renderCurrentLesson() {
 const container = document.getElementById('panelContent');
 const lockMsg = document.getElementById('lockMessage');
@@ -5516,266 +5516,266 @@ if (currentLesson === 7) renderGantt('ganttChartOpt');
 // ============================================================
 const METHOD_BLOCKS = {
 0: {
-goal: 'Основная (профессиональная) цель этапа задаётся ФГОС ВО: по направлению 10.03.01 это ОПК-12 (подготовка исходных данных для проектирования и технико-экономического обоснования проектных решений) и УК-9 (принятие обоснованных экономических решений); по специальности 10.05.01 — ОПК-5 (применение нормативных правовых актов, регламентирующих защиту информации, — именно на них опирается требование к квалификации персонала ниже); по направлению 10.04.01 — ОПК-1 (обоснование требований к создаваемой системе, в данном случае — к кадровому и ресурсному обеспечению фирмы). Частная учебная подцель конкретнее: перед стартом практикума собрать штатный персонал и ресурсы фирмы под выпавший на рулетке тип проекта, не допустив перерасхода бюджета фирмы, и определить, какая квалификация по защите информации реально требуется будущим сотрудникам в зависимости от типа проекта (из 20 возможных).',
+goal: 'The stage\'s core professional objective is set by the Russian Federal State Educational Standard (ФГОС ВО): for track 10.03.01 this is ОПК-12 (preparing baseline data for the design and feasibility study of design decisions) and УК-9 (making informed economic decisions); for specialty 10.05.01 — ОПК-5 (applying the legal and regulatory acts governing information protection, which is exactly what the staff-qualification requirement below rests on); for track 10.04.01 — ОПК-1 (substantiating requirements for the system being built — here, the firm\'s staffing and resource base). The specific instructional sub-goal is more concrete: before the practicum begins, assemble the firm\'s staff and resources for the project type drawn by the roulette without exceeding the firm\'s budget, and determine which information-security qualifications future employees actually need, depending on which of the 20 possible project types is involved.',
 tasks: [
-'Отобрать сотрудников, чья квалификация соответствует профилю ИБ выбранного типа проекта, а не любых доступных в списке.',
-'Оценить перерасход по бюджету фирмы (OPEX) для текущего состава персонала и сократить его до допустимого порога ошибочности.',
-'Отличить квалификационные требования, реально нужные объекту (СКУД/видеонаблюдение/пожарная и охранная сигнализация/гибридные системы), от требований других профилей и портфелей.',
-'Сформировать состав капитальных (CAPEX) и операционных (OPEX) ресурсов фирмы, соответствующий именно этому типу проекта, до перехода к Занятию 1.'
+'Select employees whose qualifications match the IS profile of the chosen project type — not simply any employee available on the list.',
+'Estimate the firm\'s budget (OPEX) overrun for the current staff composition and reduce it below the allowed error threshold.',
+'Distinguish the qualification requirements the facility genuinely needs (access control/video surveillance/fire and security alarms/hybrid systems) from requirements belonging to other profiles and portfolios.',
+'Assemble the firm\'s capital (CAPEX) and operating (OPEX) resources to match this specific project type before moving on to Session 1.'
 ],
 theory: `
-<p>Перерасход по бюджету фирмы на этом шаге — не следствие большого штата самого по себе, а следствие найма сотрудников, чья квалификация не требуется выбранному типу проекта: их оклад входит в ФОТ (формула (1), Занятие 1), но не окупается задачами именно этого профиля. Допустимый порог ошибочности подбора — 25% от общего числа штатных позиций; тот же норматив действует и для набора ресурсов фирмы (CAPEX/OPEX) ниже на этой же странице.</p>
-<p>Квалификационные требования к персоналу зависят от типа проекта не произвольно. Деятельность по технической защите конфиденциальной информации в РФ лицензируется, и постановление Правительства РФ №79 прямо устанавливает минимальное число и квалификацию инженерно-технических работников для разных видов работ (от 5 до 15 и более специалистов в зависимости от сложности направления), а профессиональный стандарт «Специалист по технической защите информации» (06.034) детализирует конкретные трудовые функции по уровням квалификации 6-8 (Middle-Expert). Именно поэтому у части исполнителей в таблице ниже может стоять значок ⚠️ при квалификационном несоответствии — с нормативным основанием во всплывающей подсказке.</p>`,
+<p>A budget overrun at this stage does not result from a large headcount as such, but from hiring employees whose qualifications the chosen project type does not need: their salary is included in the payroll fund (formula (1), Session 1), but is not offset by tasks belonging to this particular profile. The allowed selection-error threshold is 25% of total staff positions; the same rule applies to the firm's resource selection (CAPEX/OPEX) further down this page.</p>
+<p>Personnel qualification requirements are not arbitrary with respect to project type. Technical protection of confidential information is a licensed activity in the Russian Federation, and Government of Russia Decree No. 79 directly sets the minimum number and qualification of engineering and technical staff for different types of work (from 5 to 15 or more specialists, depending on complexity), while the professional standard "Technical Information Security Specialist" (06.034) details specific job functions across qualification levels 6-8 (Middle-Expert). This is exactly why some employees in the table below may carry a ⚠️ mark for a qualification mismatch, with the regulatory basis shown in the tooltip.</p>`,
 questions: [
-'Почему перерасход по бюджету фирмы возникает не от числа отмеченных сотрудников, а от их соответствия профилю проекта?',
-'Каким нормативным документом установлены минимальные требования к числу и квалификации персонала фирмы, оказывающей услуги по технической защите информации?',
-'Чем требования профстандарта «Специалист по технической защите информации» отличаются от требований Единого квалификационного справочника должностей (ЕКС)?',
-'Почему один и тот же сотрудник может подходить одному типу проекта из 20 и быть избыточным для другого?'
+'Why does a firm budget overrun arise not from the number of employees marked, but from whether they match the project profile?',
+'Which regulatory document sets the minimum requirements for the number and qualification of staff at a firm providing technical information-protection services?',
+'How do the requirements of the "Technical Information Security Specialist" professional standard differ from the requirements of Russia\'s Unified Qualification Reference Book of Positions (ЕКС)?',
+'Why can the same employee suit one of the 20 project types and be redundant for another?'
 ],
 sources: [
-{title: 'Постановление Правительства РФ от 03.02.2012 №79 «О лицензировании деятельности по технической защите конфиденциальной информации»', url: 'https://www.consultant.ru/document/cons_doc_LAW_125798/'},
-{title: 'Профстандарт «Специалист по технической защите информации» (06.034, приказ Минтруда России от 09.08.2022 №474н)', url: 'https://classinform.ru/profstandarty/06.034-spetcialist-po-tekhnicheskoi-zashchite-informatcii.html'},
-{title: 'Единый квалификационный справочник должностей (ЕКС)', url: 'https://profstandart.rosmintrud.ru/obshchiy-informatsionnyy-blok/spravochniki-i-klassifikatory-i-bazy-dannykh/eksd/'},
-{title: 'ГОСТ Р 54869-2011 «Проектный менеджмент. Требования к управлению проектом»', url: 'http://docs.cntd.ru/document/1200089604'},
-{title: 'ФГОС ВО 10.03.01 «Информационная безопасность» (бакалавриат, приказ Минобрнауки России от 17.11.2020 №1427)', url: 'https://fgos.ru/fgos/fgos-10-03-01-informacionnaya-bezopasnost-1427/'},
-{title: 'ФГОС ВО 10.04.01 «Информационная безопасность» (магистратура, приказ Минобрнауки России от 26.11.2020 №1455)', url: 'https://fgos.ru/fgos/fgos-10-04-01-informacionnaya-bezopasnost-1455/'},
-{title: 'ФГОС ВО 10.05.01 «Компьютерная безопасность» (специалитет, приказ Минобрнауки России от 26.11.2020 №1459)', url: 'https://fgos.ru/fgos/fgos-10-05-01-kompyuternaya-bezopasnost-1459/'}
+{title: 'Government of Russia Decree No. 79 of 03.02.2012, "On Licensing of Technical Protection of Confidential Information" (Russian Federation regulation, source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_125798/'},
+{title: 'Russian professional standard "Technical Information Security Specialist" (06.034, Ministry of Labor Order No. 474н of 09.08.2022) (source in Russian)', url: 'https://classinform.ru/profstandarty/06.034-spetcialist-po-tekhnicheskoi-zashchite-informatcii.html'},
+{title: 'Unified Qualification Reference Book of Positions (ЕКС) — Russian personnel classification reference (source in Russian)', url: 'https://profstandart.rosmintrud.ru/obshchiy-informatsionnyy-blok/spravochniki-i-klassifikatory-i-bazy-dannykh/eksd/'},
+{title: 'GOST R 54869-2011, "Project Management. Requirements for Project Management" (Russian national standard, source in Russian)', url: 'http://docs.cntd.ru/document/1200089604'},
+{title: 'Russian Federal State Educational Standard 10.03.01 "Information Security" (Bachelor\'s level, Ministry of Science and Higher Education Order No. 1427 of 17.11.2020) (source in Russian)', url: 'https://fgos.ru/fgos/fgos-10-03-01-informacionnaya-bezopasnost-1427/'},
+{title: 'Russian Federal State Educational Standard 10.04.01 "Information Security" (Master\'s level, Order No. 1455 of 26.11.2020) (source in Russian)', url: 'https://fgos.ru/fgos/fgos-10-04-01-informacionnaya-bezopasnost-1455/'},
+{title: 'Russian Federal State Educational Standard 10.05.01 "Computer Security" (Specialist level, Order No. 1459 of 26.11.2020) (source in Russian)', url: 'https://fgos.ru/fgos/fgos-10-05-01-kompyuternaya-bezopasnost-1459/'}
 ]
 },
 1: {
-goal: 'Компетентностная рамка занятия та же, что и на Старте 0 — ОПК-12 и УК-9 по направлению 10.03.01 (технико-экономическое обоснование и обоснованные экономические решения), — но здесь она дополнена УК-2 специальности 10.05.01 («способен управлять проектом на всех этапах его жизненного цикла»): разделение CAPEX/OPEX и запуск первого этапа задач относятся именно к самому первому из этих этапов. Штатный персонал фирмы уже отобран и зафиксирован на Старте 0 (порог ошибочности подбора — не более 25%) и здесь заново не пересматривается. Прикладная задача занятия: обосновать состав ресурсов фирмы (CAPEX/OPEX), реально необходимых для выполнения проекта выпавшего типа, и приступить к подготовительному этапу — распределить уже отобранный персонал по первым задачам проекта.',
+goal: 'The competency framework is the same as at Start 0 — ОПК-12 and УК-9 for track 10.03.01 (feasibility analysis and informed economic decisions) — but here it is supplemented by УК-2 of specialty 10.05.01 ("able to manage a project across every stage of its life cycle"): splitting CAPEX/OPEX and launching the first stage of tasks belong precisely to the very first of those stages. The firm staff was already selected and locked in at Start 0 (selection-error threshold no more than 25%) and is not revisited here. The applied task of the session: justify the firm resources (CAPEX/OPEX) genuinely required to carry out the drawn project type, and begin the preparatory stage — assign the already-selected staff to the project first tasks.',
 tasks: [
-'Разделить потребности фирмы на капитальные (CAPEX) и операционные (OPEX) затраты и обосновать это разделение.',
-'Отличить ресурсы, действительно нужные текущему типу проекта, от заведомо избыточных или относящихся к другим портфелям.',
-'Назначить исполнителей (из уже зафиксированного на Старте 0 состава) на задачи подготовительного этапа I и рассчитать стоимость труда по каждой задаче.',
-'Определить предшественников задач подготовительного этапа, чтобы корректно построить дальнейший календарный план (занятие 3).'
+'Split the firm needs into capital (CAPEX) and operating (OPEX) costs and justify that split.',
+'Distinguish resources genuinely needed by the current project type from ones that are clearly excess or belong to other portfolios.',
+'Assign performers (from the roster already locked in at Start 0) to preparatory-stage I tasks and calculate the labor cost of each task.',
+'Identify predecessors for the preparatory-stage tasks so the calendar plan can be built correctly later on (Session 3).'
 ],
 theory: `
-<p>Фонд оплаты труда (ФОТ) сотрудника, отмеченного для проекта, считается по формуле (1).</p>
-<div class="m-formula"><span>ФОТ = <i>C</i><sub>ч</sub> × 160 × <i>k</i></span><span class="m-num">(1)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>C</i><sub>ч</sub> — часовая ставка сотрудника, ₽/ч; 160 — учебная норма часов в месяц (полная ставка); <i>k</i> — коэффициент загрузки сотрудника на проекте, доля от полной ставки (0-1).</p>
-<p>Деление ресурсов фирмы на CAPEX и OPEX — не бухгалтерская формальность, а основа последующей аналитики затрат: капитальные вложения (компьютеры, оборудование, транспорт) ставятся на баланс и окупаются серией проектов через амортизацию (учебная норма — 36 месяцев полезного использования), тогда как операционные расходы (аренда, связь, договоры ГПХ) должны покрываться выручкой каждого конкретного проекта. Ошибка в эту сторону — частая причина расхождения плановой и фактической себестоимости, которое станет заметно уже на занятии 5 «Бюджет проекта для фирмы».</p>`,
+<p>The payroll fund (ФОТ) of an employee assigned to the project is calculated using formula (1).</p>
+<div class="m-formula"><span>Payroll = <i>C</i><sub>hr</sub> × 160 × <i>k</i></span><span class="m-num">(1)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>C</i><sub>hr</sub> is the employee hourly rate, RUB/h; 160 is the instructional monthly-hour norm (full-time rate); <i>k</i> is the employee project workload coefficient, a share of the full rate (0-1).</p>
+<p>Splitting firm resources into CAPEX and OPEX is not an accounting formality — it is the basis for all downstream cost analysis: capital investment (computers, equipment, vehicles) is booked on the balance sheet and pays for itself across a series of projects through depreciation (instructional norm — 36 months of useful life), whereas operating expenses (rent, communications, contractor agreements) must be covered by the revenue of each individual project. A mistake in this split is a common cause of the gap between planned and actual cost, which will already be visible by Session 5, "Firm Project Budget."</p>`,
 questions: [
-'Из каких трёх множителей складывается ФОТ сотрудника на проекте и что показывает каждый из них?',
-'Чем капитальные вложения (CAPEX) отличаются от операционных расходов (OPEX) по способу окупаемости?',
-'Почему порог ошибочности подбора персонала и ресурсов установлен именно в 25%, а не в 0%?',
-'Что произойдёт с плановой себестоимостью проекта, если в состав ресурсов ошибочно попадёт лишнее основное средство (например, изношенный автомобиль)?'
+'What three factors make up an employee payroll fund on the project, and what does each one show?',
+'How do capital investments (CAPEX) differ from operating expenses (OPEX) in the way they are recovered?',
+'Why is the allowed selection-error threshold for staff and resources set at 25%, rather than 0%?',
+'What happens to the planned project cost if an unnecessary fixed asset (say, a worn-out vehicle) is mistakenly included among the resources?'
 ],
 sources: [
-{title: 'НК РФ, ст. 425 «Тарифы страховых взносов»', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/a3f603ffd57b1431ed51e1693ba710093347235d/'},
-{title: 'ФСБУ 6/2020 «Основные средства» (Приказ Минфина России от 17.09.2020 №204н)', url: 'https://www.consultant.ru/document/cons_doc_LAW_365338/76123180f1200d66eb1102dd61173d0f8d64d569/'},
-{title: 'Единый квалификационный справочник должностей (ЕКС)', url: 'https://profstandart.rosmintrud.ru/obshchiy-informatsionnyy-blok/spravochniki-i-klassifikatory-i-bazy-dannykh/eksd/'},
-{title: 'ГОСТ Р 54869-2011 «Проектный менеджмент. Требования к управлению проектом»', url: 'http://docs.cntd.ru/document/1200089604'}
+{title: 'Russian Tax Code, Art. 425, "Insurance Contribution Rates" (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/a3f603ffd57b1431ed51e1693ba710093347235d/'},
+{title: 'Russian Federal Accounting Standard FSBU 6/2020, "Fixed Assets" (Ministry of Finance Order No. 204н of 17.09.2020) (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_365338/76123180f1200d66eb1102dd61173d0f8d64d569/'},
+{title: 'Unified Qualification Reference Book of Positions (ЕКС) (source in Russian)', url: 'https://profstandart.rosmintrud.ru/obshchiy-informatsionnyy-blok/spravochniki-i-klassifikatory-i-bazy-dannykh/eksd/'},
+{title: 'GOST R 54869-2011, "Project Management. Requirements for Project Management" (source in Russian)', url: 'http://docs.cntd.ru/document/1200089604'}
 ]
 },
 2: {
-goal: 'На этом занятии в первую очередь формируется ОПК-2.1 профиля «Организация и технологии защиты информации» направления 10.03.01 — способность анализировать функциональный процесс объекта защиты и выявлять источники информационных угроз; сама процедура декомпозиции проекта на задачи опирается на УК-2 того же направления («определять круг задач в рамках поставленной цели»). Ради этой компетенции отрабатывается частная задача: собрать полную структуру задач проекта с привязкой к выходным документам и методам технического контроля, и подобрать комплектующие по реальным рыночным ценам для трёх ценовых уровней.',
+goal: 'This session primarily builds ОПК-2.1 of the "Organization and Technology of Information Protection" profile of track 10.03.01 — the ability to analyze the protected facility functional process and identify sources of information threats; the task-decomposition procedure itself rests on УК-2 of the same track ("define the scope of tasks within a set goal"). In service of this competency, the applied task is: assemble the full task structure of the project, mapped to output documents and technical-control methods, and select components at real market prices across three price tiers.',
 tasks: [
-'Сопоставить каждой задаче её фактический выходной документ, отличив его от правдоподобных документов других задач.',
-'Определить корректный метод технического контроля (верификации) для задач монтажа, наладки, испытаний и приёмки.',
-'Рассчитать стоимость труда по задаче с учётом обязательных страховых взносов работодателя.',
-'Подобрать комплектующие проекта по одному из трёх уровней цены и связать эту сумму со сметой (занятие 4).'
+'Match each task to its actual output document, distinguishing it from the plausible-looking documents of other tasks.',
+'Identify the correct technical-control (verification) method for installation, commissioning, testing and acceptance tasks.',
+'Calculate the labor cost of a task, including the employer\'s mandatory insurance contributions.',
+'Select the project components at one of three price tiers and link that sum to the cost estimate (Session 4).'
 ],
 theory: `
-<p>Стоимость труда по задаче — не произведение ставки на часы, а более полная величина, учитывающая обязательные страховые взносы работодателя. Формула (2).</p>
-<div class="m-formula"><span><i>C</i><sub>з</sub> = <i>C</i><sub>ч</sub> × <i>H</i> × 1,302</span><span class="m-num">(2)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>C</i><sub>з</sub> — стоимость труда по задаче, ₽; <i>C</i><sub>ч</sub> — часовая ставка исполнителя (сумма ставок, если исполнителей несколько), ₽/ч; <i>H</i> — трудоёмкость задачи, ч; 1,302 — коэффициент, учитывающий единый тариф страховых взносов 30% (НК РФ, ст. 425) и взносы на травматизм ≈0,2% (ФЗ №125-ФЗ от 24.07.1998).</p>
-<p>Управление проектом здесь проверяется не по факту «работа выполнена», а по наличию конкретного документа на выходе задачи — общий принцип процессного подхода, где каждый процесс должен иметь измеримый результат. Метод технического контроля тоже не универсален: у каждой операции есть корректный способ проверки (например, сопротивление изоляции проверяется иначе, чем сопротивление контура заземления), и подмена метода — типичная ошибка неопытного исполнителя, а не мелкая формальность.</p>`,
+<p>The labor cost of a task is not simply rate multiplied by hours — it is a fuller figure that includes the employer\'s mandatory insurance contributions. Formula (2).</p>
+<div class="m-formula"><span><i>C</i><sub>task</sub> = <i>C</i><sub>hr</sub> × <i>H</i> × 1.302</span><span class="m-num">(2)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>C</i><sub>task</sub> is the labor cost of the task, RUB; <i>C</i><sub>hr</sub> is the performer hourly rate (sum of rates if there are several performers), RUB/h; <i>H</i> is the task labor intensity, h; 1.302 is a coefficient covering the flat 30% insurance-contribution rate (Russian Tax Code, Art. 425) and the ≈0.2% injury-insurance contribution (Federal Law No. 125-FZ of 24.07.1998).</p>
+<p>Here, project management is verified not by the fact that "work was done," but by the presence of a specific document at the task output — the general principle of the process approach, where every process must have a measurable result. The technical-control method is likewise not universal: every operation has its own correct verification method (for example, insulation resistance is checked differently from grounding-loop resistance), and substituting the method is a typical mistake of an inexperienced performer, not a minor formality.</p>`,
 questions: [
-'Почему стоимость труда по задаче умножается на коэффициент 1,302, а не считается просто «ставка × часы»?',
-'Чем «Примечание» (выходной документ) отличается от простого статуса «задача выполнена»?',
-'Приведите пример пары похожих, но разных методов технического контроля, которые нельзя путать между собой.',
-'Как выбранный уровень цены комплектующих (Бюджет/Мидл/VIP) связан со сметой проекта на занятии 4?'
+'Why is the labor cost of a task multiplied by the 1.302 coefficient rather than simply computed as "rate × hours"?',
+'How does the "Note" (output document) differ from a plain "task completed" status?',
+'Give an example of a pair of technical-control methods that look similar but must not be confused with each other.',
+'How is the chosen component price tier (Budget/Mid/VIP) linked to the project cost estimate in Session 4?'
 ],
 sources: [
-{title: 'ФЗ №125-ФЗ от 24.07.1998 «Об обязательном социальном страховании от несчастных случаев на производстве»', url: 'https://base.garant.ru/12112505/'},
-{title: 'ГОСТ Р ИСО 21500-2014 «Руководство по проектному менеджменту»', url: 'http://docs.cntd.ru/document/1200118020'},
-{title: 'СП 76.13330.2016 «Электротехнические устройства» (испытания, пусконаладочные работы)', url: 'http://docs.cntd.ru/document/456050591'},
-{title: 'Википедия — «Пусконаладочные работы»', url: 'https://ru.wikipedia.org/wiki/Пусконаладочные_работы'}
+{title: 'Federal Law No. 125-FZ of 24.07.1998, "On Mandatory Social Insurance Against Industrial Accidents" (source in Russian)', url: 'https://base.garant.ru/12112505/'},
+{title: 'GOST R ISO 21500-2014, "Guidance on Project Management" (source in Russian)', url: 'http://docs.cntd.ru/document/1200118020'},
+{title: 'SP 76.13330.2016, "Electrical Devices" (testing, commissioning) (source in Russian)', url: 'http://docs.cntd.ru/document/456050591'},
+{title: 'Wikipedia (Russian) — "Commissioning Works"', url: 'https://ru.wikipedia.org/wiki/Пусконаладочные_работы'}
 ]
 },
 3: {
-goal: 'Формируемая компетенция здесь звучит в двух старших уровнях подготовки почти дословно одинаково — УК-2 и по 10.04.01, и по 10.05.01: «способен управлять проектом на всех этапах его жизненного цикла», а построение календарного графика и есть тот этап жизненного цикла, на котором эта способность проверяется предметно, а не декларативно. Конкретная задача занятия: построить календарный график проекта методом диаграммы Ганта и объяснить, почему учёт занятости персонала может увеличивать реалистичный срок относительно идеального критического пути.',
+goal: 'The competency formed here reads almost verbatim the same at both higher levels of training — УК-2 for both 10.04.01 and 10.05.01: "able to manage a project across every stage of its life cycle," and building the calendar schedule is precisely the life-cycle stage where this ability is tested concretely rather than declaratively. The session specific task: build the project calendar schedule using the Gantt chart method, and explain why accounting for staff workload can push the realistic duration beyond the ideal critical path.',
 tasks: [
-'Построить диаграмму Ганта с учётом предшественников задач и определить идеальный критический путь.',
-'Сравнить идеальный критический путь с реалистичным сроком, учитывающим невозможность одного сотрудника выполнять две задачи одновременно.',
-'Применить параллелизацию задач (передачу задачи свободному коллеге той же специальности) для сокращения узкого места.',
-'Оценить экономический эффект оптимизации — снижение накладных расходов против роста трудозатрат.'
+'Build a Gantt chart accounting for task predecessors and determine the ideal critical path.',
+'Compare the ideal critical path with the realistic duration that accounts for the fact that one employee cannot perform two tasks at the same time.',
+'Apply task parallelization (handing a task to a free colleague of the same specialty) to relieve a bottleneck.',
+'Assess the economic effect of optimization — the reduction in overhead against the increase in labor cost.'
 ],
 theory: `
-<p>Задачи без общего предшественника стартуют на диаграмме Ганта в одну дату — то есть реально идут параллельно, а календарный срок проекта определяется не суммой длительностей всех задач подряд, а критическим путём — самой длинной цепочкой взаимозависимых задач. Но критический путь, посчитанный только по предшественникам, — идеализация: он предполагает, что у каждой специальности неограниченный резерв сотрудников. На практике один и тот же исполнитель не может делать две свои задачи одновременно, и это может сдвинуть реалистичный срок относительно идеального. Разница между ними считается по формуле (3).</p>
-<div class="m-formula"><span>Δ<i>T</i><sub>потери</sub> = <i>T</i><sub>реал</sub> − <i>T</i><sub>кп</sub></span><span class="m-num">(3)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где Δ<i>T</i><sub>потери</sub> — потери времени из-за занятости одного и того же исполнителя, дн.; <i>T</i><sub>реал</sub> — реалистичный срок с учётом фактической загрузки персонала (оценка жадным алгоритмом); <i>T</i><sub>кп</sub> — идеальный критический путь без учёта ресурсных ограничений.</p>
-<p>Кнопка «Распараллелить задачи» устраняет именно эту разницу: задачу, стоящую в очереди из-за занятости своего исполнителя, можно передать свободному коллеге той же специальности — тогда обе задачи идут параллельно. Обязательное условие — такой коллега должен быть заранее отмечен в штатном расписании (Старт 0); без этого разрывать очередь физически некем.</p>`,
+<p>Tasks with no shared predecessor start on the same date in the Gantt chart — that is, they genuinely run in parallel, and the project calendar duration is not the sum of every task duration in sequence but the critical path — the longest chain of interdependent tasks. But a critical path computed from predecessors alone is an idealization: it assumes every specialty has an unlimited pool of staff. In practice the same performer cannot do two of their own tasks at once, and this can push the realistic duration past the ideal one. The difference between the two is computed with formula (3).</p>
+<div class="m-formula"><span>Δ<i>T</i><sub>loss</sub> = <i>T</i><sub>real</sub> − <i>T</i><sub>cp</sub></span><span class="m-num">(3)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where Δ<i>T</i><sub>loss</sub> is the time lost to a single performer being booked on several tasks, days; <i>T</i><sub>real</sub> is the realistic duration accounting for actual staff workload (estimated by a greedy algorithm); <i>T</i><sub>cp</sub> is the ideal critical path with no resource constraints.</p>
+<p>The "Parallelize Tasks" button removes exactly this gap: a task sitting in a queue because its performer is busy can be handed to a free colleague of the same specialty, so both tasks then run in parallel. The mandatory condition is that such a colleague must already be marked in the staff roster (Start 0); without that, there is physically no one to break the queue.</p>`,
 questions: [
-'Почему задачи без общего предшественника показываются на диаграмме Ганта стартующими в одну дату?',
-'Чем идеальный критический путь отличается от реалистичного срока с учётом занятости персонала?',
-'При каком условии кнопка «Распараллелить задачи» способна сократить реалистичный срок?',
-'За счёт чего сокращение срока проекта снижает накладные расходы, даже если трудозатраты по переназначенным задачам растут?'
+'Why do tasks with no shared predecessor appear on the Gantt chart starting on the same date?',
+'How does the ideal critical path differ from the realistic duration that accounts for staff workload?',
+'Under what condition can the "Parallelize Tasks" button actually shorten the realistic duration?',
+'How does shortening the project duration reduce overhead, even when the labor cost of the reassigned tasks goes up?'
 ],
 sources: [
-{title: 'Википедия — «Диаграмма Ганта»', url: 'https://ru.wikipedia.org/wiki/Диаграмма_Ганта'},
-{title: 'Википедия — «Метод критического пути»', url: 'https://ru.wikipedia.org/wiki/Метод_критического_пути'},
-{title: 'elma365.com — «Диаграмма Ганта для проекта: что это, как сделать, примеры»', url: 'https://elma365.com/ru/baza-znaniy/diagramma-ganta/'},
-{title: 'ГОСТ Р 54869-2011 «Проектный менеджмент. Требования к управлению проектом»', url: 'http://docs.cntd.ru/document/1200089604'}
+{title: 'Wikipedia (Russian) — "Gantt Chart"', url: 'https://ru.wikipedia.org/wiki/Диаграмма_Ганта'},
+{title: 'Wikipedia (Russian) — "Critical Path Method"', url: 'https://ru.wikipedia.org/wiki/Метод_критического_пути'},
+{title: 'elma365.com — "Project Gantt Chart: What It Is, How to Build One, Examples" (source in Russian)', url: 'https://elma365.com/ru/baza-znaniy/diagramma-ganta/'},
+{title: 'GOST R 54869-2011, "Project Management. Requirements for Project Management" (source in Russian)', url: 'http://docs.cntd.ru/document/1200089604'}
 ]
 },
 4: {
-goal: 'Договор — организационно-распорядительный документ в чистом виде, поэтому на этом занятии впервые в практикуме на первый план выходит ОПК-3 магистратуры по направлению 10.04.01 («способен разрабатывать проекты организационно-распорядительных документов по обеспечению информационной безопасности»); расчёт цены остаётся тем же ОПК-12 бакалавриата 10.03.01, что и раньше. Подцель занятия: рассчитать плановую себестоимость проекта и оформить условия Договора с заказчиком, включая НДС и порядок оплаты, на основе уже собранных данных о задачах, комплектующих и персонале.',
+goal: 'A contract is an organizational-administrative document in its purest form, so this session is the first in the practicum where ОПК-3 of the Master\'s track 10.04.01 ("able to develop draft organizational-administrative documents for information security") moves to the foreground; the price calculation remains the same ОПК-12 of the Bachelor\'s track 10.03.01 as before. The sub-goal of the session: calculate the planned project cost and draft the terms of the Contract with the client, including VAT and the payment schedule, based on the task, component and staffing data already gathered.',
 tasks: [
-'Рассчитать плановую себестоимость проекта как сумму материалов, оплаты труда и реальных накладных расходов офиса.',
-'Установить условия оплаты по Договору — размер аванса и порядок окончательного расчёта.',
-'Определить цену Договора с учётом НДС и сопоставить её с суммой из сметы.',
-'Обосновать долю плановых накоплений фирмы как процент от прибыли, а не от всей цены Договора.'
+'Calculate the planned project cost as the sum of materials, labor cost and the office real overhead.',
+'Set the Contract payment terms — the advance amount and the final-settlement procedure.',
+'Determine the Contract price including VAT and reconcile it with the cost-estimate total.',
+'Justify the firm planned retained-earnings share as a percentage of profit, not of the full Contract price.'
 ],
 theory: `
-<p>Цена Договора складывается из плановой себестоимости и заложенной маржи фирмы, с начислением налога на добавленную стоимость. Формула (4).</p>
-<div class="m-formula"><span><i>Ц</i> = (<i>C</i><sub>себ</sub> + <i>M</i>) × (1 + <i>C</i><sub>ндс</sub>)</span><span class="m-num">(4)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>Ц</i> — цена Договора с заказчиком, ₽; <i>C</i><sub>себ</sub> — плановая себестоимость проекта (материалы + труд по занятию 2 + реальные накладные расходы офиса); <i>M</i> — плановая маржа (прибыль) фирмы, ₽; <i>C</i><sub>ндс</sub> — ставка НДС по ст. 164 НК РФ (с 1 января 2026 года — 22%, ранее было 20%).</p>
-<p>Ключевая методическая правка практикума: накладные расходы в смете — не условная плоская ставка (например, «10% от прямых затрат»), а реальная сумма расходов офиса из ресурсов занятия 1, а основные средства (CAPEX) входят в себестоимость не полной стоимостью покупки, а только долей амортизации за срок именно этого проекта — иначе один короткий проект «принимал бы на себя» стоимость автомобиля или компьютеров целиком. Договор подряда как правовая форма таких отношений регулируется главой 37 ГК РФ.</p>`,
+<p>The Contract price is made up of the planned cost and the firm built-in margin, with value-added tax applied on top. Formula (4).</p>
+<div class="m-formula"><span><i>P</i> = (<i>C</i><sub>cost</sub> + <i>M</i>) × (1 + <i>C</i><sub>vat</sub>)</span><span class="m-num">(4)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>P</i> is the Contract price with the client, RUB; <i>C</i><sub>cost</sub> is the planned project cost (materials + labor from Session 2 + real office overhead); <i>M</i> is the firm planned margin (profit), RUB; <i>C</i><sub>vat</sub> is the VAT rate under Art. 164 of the Russian Tax Code (22% as of January 1, 2026, previously 20%).</p>
+<p>A key methodological choice in this practicum: overhead in the cost estimate is not an arbitrary flat rate (say, "10% of direct costs"), but the real sum of office expenses drawn from the Session 1 resources, and fixed assets (CAPEX) enter the cost not at their full purchase price but only as the depreciation share attributable to this project duration — otherwise one short project would "absorb" the full cost of a vehicle or a set of computers. The construction-contract legal form for such relationships is governed by Chapter 37 of the Russian Civil Code.</p>`,
 questions: [
-'Почему накладные расходы в смете должны быть реальной суммой, а не условной процентной ставкой от прямых затрат?',
-'Чем доля амортизации основных средств за срок проекта отличается от полной стоимости их покупки?',
-'От какой величины считаются плановые накопления фирмы — от цены Договора или от прибыли — и почему это принципиально?',
-'Что должно совпасть между строкой «Оплата труда исполнителей» в смете и итогом занятия 2?'
+'Why must overhead in the cost estimate be a real sum rather than an arbitrary percentage of direct costs?',
+'How does the depreciation share of a fixed asset over the project duration differ from its full purchase price?',
+'Is the firm planned retained-earnings share calculated from the Contract price or from profit — and why does that distinction matter?',
+'What must the "Performer Labor Cost" line of the cost estimate match against the Session 2 total?'
 ],
 sources: [
-{title: 'ГК РФ, глава 37 «Подряд» (ст. 702 и далее)', url: 'https://www.consultant.ru/document/cons_doc_LAW_9027/760de322fa0e694a3018c59709b5f484a85e4a24/'},
-{title: 'НК РФ, ст. 164 «Налоговые ставки» (НДС)', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/35cc6698564adc4507baa31c9cfdbb4f2516d068/'},
-{title: 'МДС 81-35.2004 «Методика определения стоимости строительной продукции на территории РФ»', url: 'http://docs.cntd.ru/document/1200035529'},
-{title: 'ФСБУ 6/2020 «Основные средства» (амортизация в себестоимости проекта)', url: 'https://www.consultant.ru/document/cons_doc_LAW_365338/76123180f1200d66eb1102dd61173d0f8d64d569/'}
+{title: 'Russian Civil Code, Chapter 37, "Contracting" (Art. 702 et seq.) (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_9027/760de322fa0e694a3018c59709b5f484a85e4a24/'},
+{title: 'Russian Tax Code, Art. 164, "Tax Rates" (VAT) (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/35cc6698564adc4507baa31c9cfdbb4f2516d068/'},
+{title: 'MDS 81-35.2004, "Methodology for Determining the Cost of Construction Output in the Russian Federation" (source in Russian)', url: 'http://docs.cntd.ru/document/1200035529'},
+{title: 'Russian Federal Accounting Standard FSBU 6/2020, "Fixed Assets" (depreciation in project cost) (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_365338/76123180f1200d66eb1102dd61173d0f8d64d569/'}
 ]
 },
 5: {
-goal: 'Бюджет фирмы — тот же расчёт себестоимости, доведённый до движения денег во времени, поэтому компетентностная рамка не меняется: УК-9 и ОПК-12 по направлению 10.03.01 (экономические решения и технико-экономическое обоснование), дополненные тем же УК-2 специальности 10.05.01 и направления 10.04.01 («управление проектом на всех этапах жизненного цикла») — бюджетирование остаётся частью этого цикла, а не отдельной от него процедурой. Задача занятия: собрать плановый бюджет фирмы-исполнителя по текущему проекту, корректно пропорционировав накладные расходы офиса по фактическому сроку, и оценить маржинальность относительно цены Договора.',
+goal: 'The firm budget is the same cost calculation carried through to money moving over time, so the competency framework does not change: УК-9 and ОПК-12 of track 10.03.01 (economic decisions and feasibility analysis), supplemented by the same УК-2 of specialty 10.05.01 and track 10.04.01 ("managing a project across every stage of its life cycle") — budgeting remains part of that cycle, not a procedure separate from it. The task of the session: assemble the performing firm planned budget for the current project, correctly prorating office overhead over the actual duration, and assess margin relative to the Contract price.',
 tasks: [
-'Собрать плановый бюджет фирмы по проекту: комплектующие, труд по этапам, накладные расходы офиса.',
-'Пропорционировать месячные накладные расходы фирмы по фактическому сроку проекта, а не засчитывать их полным месяцем.',
-'Сопоставить плановую себестоимость с ценой Договора и рассчитать маржинальность проекта.',
-'Сверить реальные накладные расходы с ориентиром для выбранного уровня цены и объяснить отклонение.'
+'Assemble the firm planned project budget: components, labor by stage, office overhead.',
+'Prorate the firm monthly overhead over the project actual duration, instead of counting it as a full month.',
+'Reconcile the planned cost against the Contract price and calculate the project margin.',
+'Compare the real overhead against the benchmark for the chosen price tier and explain any deviation.'
 ],
 theory: `
-<p>Регулярные (месячные) статьи накладных расходов фирмы — аренда, связь, содержание офиса — нельзя засчитывать проекту полной месячной суммой, если сам проект короче месяца: иначе короткий проект «принимал бы на себя» расходы целого месяца офиса. Доля накладных, приходящаяся на проект, считается по формуле (5).</p>
-<div class="m-formula"><span><i>Н</i><sub>пр</sub> = <i>Н</i><sub>мес</sub> × (<i>T</i><sub>пр</sub> / 30)</span><span class="m-num">(5)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>Н</i><sub>пр</sub> — доля месячных накладных расходов офиса, приходящаяся на проект, ₽; <i>Н</i><sub>мес</sub> — суммарные месячные накладные расходы фирмы (аренда, связь, амортизация ОС и т.п.), ₽/мес; <i>T</i><sub>пр</sub> — фактический срок проекта по календарному графику, дн.; 30 — учебная база дней в месяце.</p>
-<p>Капитальные вложения (CAPEX — автомобили, компьютеры) в накладные расходы проекта входят иначе: не месячной суммой, а долей амортизации за срок именно этого проекта (учебная норма — 36 месяцев полезного использования), пропорционально тому же сроку <i>T</i><sub>пр</sub>. Маржинальность проекта — разница между ценой Договора и плановой себестоимостью, отнесённая к цене Договора; отклонение реальных накладных от ориентира для выбранного уровня цены обычно означает, что в занятии 1 отмечены лишние или уже сильно изношенные основные средства.</p>`,
+<p>Regular (monthly) firm overhead items — rent, communications, office upkeep — cannot be charged to a project at the full monthly amount if the project itself runs shorter than a month: otherwise a short project would "absorb" a whole month of office expenses. The overhead share attributable to a project is computed with formula (5).</p>
+<div class="m-formula"><span><i>H</i><sub>prj</sub> = <i>H</i><sub>mo</sub> × (<i>T</i><sub>prj</sub> / 30)</span><span class="m-num">(5)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>H</i><sub>prj</sub> is the share of monthly office overhead attributable to the project, RUB; <i>H</i><sub>mo</sub> is the firm total monthly overhead (rent, communications, fixed-asset depreciation, etc.), RUB/month; <i>T</i><sub>prj</sub> is the project actual duration under the calendar schedule, days; 30 is the instructional day-count base per month.</p>
+<p>Capital investment (CAPEX — vehicles, computers) enters the project overhead differently: not as a monthly sum, but as the depreciation share for this project specific duration (instructional norm — 36 months of useful life), prorated over the same duration <i>T</i><sub>prj</sub>. Project margin is the difference between the Contract price and the planned cost, expressed relative to the Contract price; a deviation of the real overhead from the benchmark for the chosen price tier usually means that Session 1 marked unnecessary or already heavily worn fixed assets.</p>`,
 questions: [
-'Почему регулярные (месячные) статьи накладных расходов пересчитываются пропорционально сроку проекта, а не берутся полной месячной суммой?',
-'Чем отличается способ включения в бюджет капитальных (CAPEX) и операционных (OPEX) статей накладных расходов?',
-'От чего считаются плановые накопления фирмы на этой странице — от цены Договора или от маржи?',
-'Что означает превышение реальных накладных расходов над ориентиром для выбранного уровня цены — и куда нужно вернуться, чтобы это исправить?'
+'Why are regular (monthly) overhead items recalculated in proportion to the project duration, rather than taken as a full monthly sum?',
+'How does the way capital (CAPEX) overhead items enter the budget differ from the way operating (OPEX) items do?',
+'Is the firm planned retained-earnings share on this page calculated from the Contract price or from the margin?',
+'What does it mean when the real overhead exceeds the benchmark for the chosen price tier — and where should you go back to fix it?'
 ],
 sources: [
-{title: 'НК РФ, глава 25 «Налог на прибыль организаций»', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/043b3ec883ce309e856dd0c833f5b8b817c276e9/'},
-{title: 'ГОСТ Р ИСО 21500-2014 «Руководство по проектному менеджменту» (процессы управления стоимостью)', url: 'http://docs.cntd.ru/document/1200118020'},
-{title: 'Bitrix24 — «Маржинальность: формула, расчёт и «хороший» процент»', url: 'https://www.bitrix24.ru/journal/marzinalnost/'},
-{title: 'Нескучные финансы — «Маржа и прибыль: в чём разница, как посчитать, формулы»', url: 'https://noboring-finance.ru/gazeta/chem-marzha-otlichaetsya-ot-pribyli/'}
+{title: 'Russian Tax Code, Chapter 25, "Corporate Profit Tax" (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_28165/043b3ec883ce309e856dd0c833f5b8b817c276e9/'},
+{title: 'GOST R ISO 21500-2014, "Guidance on Project Management" (cost-management processes) (source in Russian)', url: 'http://docs.cntd.ru/document/1200118020'},
+{title: 'Bitrix24 — "Margin: Formula, Calculation and a \'Good\' Percentage" (source in Russian)', url: 'https://www.bitrix24.ru/journal/marzinalnost/'},
+{title: 'Neskuchnye Finansy — "Margin vs. Profit: the Difference, How to Calculate, Formulas" (source in Russian)', url: 'https://noboring-finance.ru/gazeta/chem-marzha-otlichaetsya-ot-pribyli/'}
 ]
 },
 6: {
-goal: 'Управление дефицитом ресурса — в равной мере организационная и командная работа, поэтому здесь впервые в практикуме на первый план выходит не экономическая, а управленческая компетенция: УК-3 и по 10.04.01, и по 10.05.01 («способен организовывать и руководить работой команды»), а её зеркало на уровне бакалавриата 10.03.01 — ОПК-10 («...организовывать и поддерживать выполнение комплекса мер по обеспечению информационной безопасности, управлять процессом их реализации на объекте защиты»): назначение дублёра перегруженному сотруднику именно об этом. Освоить различие между дефицитом ресурса (человеко-часов конкретного исполнителя в сутки) и дефицитом срока проекта, и научиться распознавать перегрузку персонала по количественному показателю, а не «на глаз».',
+goal: 'Managing a resource shortfall is organizational and team work in equal measure, so this is the first session in the practicum where a managerial rather than economic competency comes to the foreground: УК-3 for both 10.04.01 and 10.05.01 ("able to organize and lead a team\'s work"), mirrored at the 10.03.01 Bachelor\'s level by ОПК-10 ("...organize and sustain the execution of an information-security measure set, manage the process of implementing it at the protected facility") — assigning a backup to an overloaded employee is precisely what that means in practice. Learn to tell a resource shortfall (a specific performer person-hours per day) apart from a project-duration shortfall, and learn to recognize staff overload from a quantitative indicator rather than "by eye."',
 tasks: [
-'Рассчитать среднюю нагрузку каждого назначенного исполнителя за период его фактической занятости на проекте, а не за весь календарный срок.',
-'Отличить перегрузку, вызванную ошибкой подбора исполнителя (задача не по его квалификации — занятие 3), от перегрузки по объёму работ его же специальности.',
-'Обосновать назначение «дублёра» — резервного исполнителя, принимающего часть нагрузки перегруженного сотрудника или занятого на проекте более 100 часов.',
-'Сопоставить два управленческих ответа на дефицит ресурса — resource leveling и crashing — и выбрать применимый по ситуации.'
+'Calculate the average workload of each assigned performer over their actual period of engagement on the project, not over the full calendar duration.',
+'Distinguish overload caused by a performer-selection mistake (a task outside their qualification — Session 3) from overload caused by the sheer volume of work in their own specialty.',
+'Justify assigning a "backup" — a reserve performer who takes on part of an overloaded employee workload, or one engaged on the project for more than 100 hours.',
+'Compare the two classic management responses to a resource shortfall — resource leveling and crashing — and choose the one that fits the situation.'
 ],
 theory: `
-<p>Дефицит в проектном менеджменте — это не абстрактная нехватка времени, а конкретная нехватка ресурса: человек физически не может отработать больше нормы. Трудовой кодекс РФ фиксирует эту норму прямо: нормальная продолжительность рабочего времени не превышает 40 часов в неделю (ст. 91), то есть в среднем 8 часов в день при пятидневной неделе — именно поэтому в таблице загрузки красным помечается нагрузка выше 8 ч/день. Средняя нагрузка сотрудника считается по формуле (6).</p>
+<p>A shortfall in project management is not an abstract lack of time, but a concrete lack of a resource: a person physically cannot work beyond the norm. The Russian Labor Code sets that norm directly: normal working time may not exceed 40 hours per week (Art. 91) — that is, an average of 8 hours per day on a five-day week — which is exactly why the workload table flags anything above 8 h/day in red. Average employee workload is computed with formula (6).</p>
 <div class="m-formula"><span><i>L</i> = <i>H</i> / <i>T</i></span><span class="m-num">(6)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>L</i> — средняя нагрузка сотрудника, ч/день; <i>H</i> — суммарные часы сотрудника по всем его задачам проекта; <i>T</i> — период его фактической занятости, дн. (от старта первой задачи до финиша последней по календарному графику, а не весь срок проекта).</p>
-<p>Два классических ответа на выявленный дефицит расходятся по цене: resource leveling сдвигает задачи по времени под реальную мощность исполнителя без изменения состава персонала, но часто ценой увеличения общего срока; crashing подключает дополнительного исполнителя — «дублёра» — ценой роста расходов на оплату труда. Выбор между ними фиксируется в таблице ниже и войдёт в итоговый отчёт по проекту.</p>`,
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>L</i> is the employee average workload, h/day; <i>H</i> is the employee total hours across all their project tasks; <i>T</i> is their period of actual engagement, days (from the start of their first task to the finish of their last one under the calendar schedule, not the full project duration).</p>
+<p>The two classic responses to an identified shortfall diverge in cost: resource leveling shifts tasks in time to match the performer real capacity without changing the staff composition, but often at the cost of a longer overall duration; crashing brings in an additional performer — a "backup" — at the cost of higher labor spending. The choice between them is recorded in the table below and carries through into the final project report.</p>`,
 questions: [
-'Чем дефицит ресурса отличается от дефицита срока проекта?',
-'Почему среднюю нагрузку сотрудника нельзя корректно считать делением его часов на весь календарный срок проекта?',
-'В чём разница между resource leveling и crashing — и какой ценой достигается каждый из них?',
-'Может ли перегруженный сотрудник получить дублёра, если на его должности в штате нет второго специалиста? Почему?'
+'How does a resource shortfall differ from a project-duration shortfall?',
+'Why can an employee average workload not be correctly calculated by dividing their hours by the full calendar duration of the project?',
+'What is the difference between resource leveling and crashing — and at what cost is each one achieved?',
+'Can an overloaded employee receive a backup if the staff roster has no second specialist in their position? Why or why not?'
 ],
 sources: [
-{title: 'ГОСТ Р 54869-2011 «Проектный менеджмент. Требования к управлению проектом»', url: 'http://docs.cntd.ru/document/1200089604'},
-{title: 'Трудовой кодекс РФ, ст. 91 «Нормальная продолжительность рабочего времени»', url: 'https://www.consultant.ru/document/cons_doc_LAW_34683/bd14cccf0a1f074ef104e82522f7e2dea04d651f/'},
-{title: 'pmpractice.ru — «Выравнивание ресурсов (Resource Leveling)»', url: 'https://pmpractice.ru/knowledgebase/gloss/detail/524.php'},
-{title: 'elma365.com — «Управление ресурсами проекта: виды, процессы, пример плана»', url: 'https://elma365.com/ru/articles/resource-management/'}
+{title: 'GOST R 54869-2011, "Project Management. Requirements for Project Management" (source in Russian)', url: 'http://docs.cntd.ru/document/1200089604'},
+{title: 'Russian Labor Code, Art. 91, "Normal Duration of Working Time" (source in Russian)', url: 'https://www.consultant.ru/document/cons_doc_LAW_34683/bd14cccf0a1f074ef104e82522f7e2dea04d651f/'},
+{title: 'pmpractice.ru — "Resource Leveling" (source in Russian)', url: 'https://pmpractice.ru/knowledgebase/gloss/detail/524.php'},
+{title: 'elma365.com — "Project Resource Management: Types, Processes, a Sample Plan" (source in Russian)', url: 'https://elma365.com/ru/articles/resource-management/'}
 ]
 },
 7: {
-goal: 'Слово «оптимизация» в названии занятия не случайно совпадает с формулировкой ОПК-2.2 профиля «Организация и технологии защиты информации» направления 10.03.01 («способен формировать предложения по оптимизации структуры и функциональных процессов объекта защиты... с целью повышения их устойчивости») — именно эта компетенция здесь и отрабатывается, вместе с УК-1, общим для 10.03.01 и 10.05.01 («критический анализ проблемных ситуаций..., выработка стратегии действий»): сжатие расписания и есть такая стратегия. Понять, почему сокращение проектного расписания возможно только за счёт работ критического пути, и научиться применять параллелизацию задач как инструмент сжатия срока без потери задач из плана.',
+goal: 'The word "optimization" in the session title is not a coincidence — it matches ОПК-2.2 of the "Organization and Technology of Information Protection" profile of track 10.03.01 ("able to formulate proposals for optimizing the structure and functional processes of the protected facility... in order to raise their resilience"); that is exactly the competency built here, together with УК-1, shared by 10.03.01 and 10.05.01 ("critical analysis of problem situations..., devising a strategy for action"): schedule compression is precisely such a strategy. Understand why compressing a project schedule is only possible through critical-path work, and learn to apply task parallelization as a compression tool without dropping any task from the plan.',
 tasks: [
-'Определить критический путь проекта и объяснить, почему задачи вне него имеют резерв времени (float), не влияющий на итоговый срок.',
-'Различить два способа сжатия расписания — fast-tracking (распараллеливание независимых задач) и crashing (добавление ресурсов на задачи критического пути).',
-'Применить кнопку «Распараллелить задачи» к перегруженному сотруднику той же специальности и оценить итоговую экономию срока.',
-'Сопоставить итоговый срок после оптимизации с исходной «наивной суммой» длительностей всех задач подряд.'
+'Determine the project critical path and explain why tasks outside it carry time slack (float) that does not affect the final duration.',
+'Distinguish between the two schedule-compression methods — fast-tracking (running independent tasks in parallel) and crashing (adding resources to critical-path tasks).',
+'Apply the "Parallelize Tasks" button to an overloaded employee of the same specialty and assess the resulting time saved.',
+'Compare the final duration after optimization with the initial "naive sum" of all task durations run one after another.'
 ],
 theory: `
-<p>Критический путь — самая длинная по суммарной длительности цепочка взаимозависимых задач от начала проекта до его завершения. Любая задержка задачи на этом пути напрямую сдвигает срок сдачи объекта, тогда как задачи вне критического пути имеют резерв (float) и могут сдвигаться без последствий для итогового срока. Выигрыш от оптимизации расписания считается по формуле (7).</p>
-<div class="m-formula"><span>Δ<i>T</i> = <i>S</i><sub>наивн.</sub> − <i>T</i><sub>кп</sub></span><span class="m-num">(7)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где Δ<i>T</i> — выигрыш во времени, дн.; <i>S</i><sub>наивн.</sub> — «наивная» сумма длительностей всех задач подряд без учёта параллельности; <i>T</i><sub>кп</sub> — фактическая длина критического пути с учётом параллельно идущих цепочек.</p>
-<p>Практикум различает два инструмента сжатия расписания: fast-tracking — задачи, не связанные отношением предшествования, запускаются одновременно (на диаграмме Ганта это видно как совпадающий старт нескольких полос); и crashing — на задачу критического пути назначается дополнительный исполнитель той же специальности, что сокращает её длительность ценой роста трудозатрат. Кнопка «Распараллелить задачи» реализует именно crashing: она передаёт часть часов перегруженного сотрудника свободному коллеге той же должности, если такой отмечен в штатном расписании (Старт 0).</p>`,
+<p>The critical path is the chain of interdependent tasks with the greatest total duration from the start of the project to its completion. Any delay on a task along this path directly pushes back the facility hand-over date, whereas tasks outside the critical path carry slack (float) and can shift without affecting the final duration. The gain from schedule optimization is computed with formula (7).</p>
+<div class="m-formula"><span>Δ<i>T</i> = <i>S</i><sub>naive</sub> − <i>T</i><sub>cp</sub></span><span class="m-num">(7)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where Δ<i>T</i> is the time gained, days; <i>S</i><sub>naive</sub> is the "naive" sum of all task durations run one after another, ignoring parallelism; <i>T</i><sub>cp</sub> is the actual critical-path length accounting for chains that run in parallel.</p>
+<p>The practicum distinguishes two schedule-compression tools: fast-tracking — tasks with no predecessor relationship between them are launched simultaneously (on the Gantt chart this shows up as several bars starting at the same point); and crashing — an additional performer of the same specialty is assigned to a critical-path task, shortening its duration at the cost of higher labor spending. The "Parallelize Tasks" button implements crashing specifically: it hands part of an overloaded employee hours to a free colleague in the same position, if one is marked in the staff roster (Start 0).</p>`,
 questions: [
-'Почему изменение длительности задачи вне критического пути может не повлиять на срок сдачи проекта?',
-'Чем fast-tracking отличается от crashing по используемому ресурсу и по цене?',
-'Что показывает разница между «наивной суммой» длительностей и длиной критического пути?',
-'При каком условии кнопка «Распараллелить задачи» вообще может сработать — и почему без выполнения этого условия она бессильна?'
+'Why can changing the duration of a task outside the critical path leave the project hand-over date unaffected?',
+'How does fast-tracking differ from crashing in the resource it consumes and the cost it incurs?',
+'What does the difference between the "naive sum" of durations and the critical-path length reveal?',
+'Under what condition can the "Parallelize Tasks" button work at all — and why is it powerless without that condition?'
 ],
 sources: [
-{title: 'ГОСТ Р ИСО 21500-2014 «Руководство по проектному менеджменту»', url: 'http://docs.cntd.ru/document/1200118020'},
-{title: 'Википедия — «Метод критического пути»', url: 'https://ru.wikipedia.org/wiki/Метод_критического_пути'},
-{title: 'Asana — «Как использовать метод критического пути (CPM) в управлении проектами»', url: 'https://asana.com/ru/resources/critical-path-method'},
-{title: 'Wrike — «Метод критического пути при управлении проектами»', url: 'https://www.wrike.com/blog/critical-path-is-easy-as-123/'}
+{title: 'GOST R ISO 21500-2014, "Guidance on Project Management" (source in Russian)', url: 'http://docs.cntd.ru/document/1200118020'},
+{title: 'Wikipedia (Russian) — "Critical Path Method"', url: 'https://ru.wikipedia.org/wiki/Метод_критического_пути'},
+{title: 'Asana — "How to Use the Critical Path Method (CPM) in Project Management"', url: 'https://asana.com/ru/resources/critical-path-method'},
+{title: 'Wrike — "The Critical Path Method in Project Management"', url: 'https://www.wrike.com/blog/critical-path-is-easy-as-123/'}
 ]
 },
 8: {
-goal: 'Формулировка ОПК-2.4 профиля «Организация и технологии защиты информации» направления 10.03.01 совпадает с названием занятия почти буквально: «способен проводить аудит защищённости объекта информатизации в соответствии с нормативными документами». Магистратура по 10.04.01 добавляет исследовательскую сторону той же задачи — ОПК-5 («способен проводить научные исследования, включая экспериментальные, обрабатывать результаты исследований»): метод Дельфи — это и есть небольшое экспериментальное исследование силами нескольких экспертов. Провести аудит актуальности угроз безопасности заказчика до и после реализации проекта и оценить остаточный риск методом экспертных оценок (Дельфи), опираясь на нормативную базу защиты информации, а не на интуитивное впечатление.',
+goal: 'The wording of ОПК-2.4 of the "Organization and Technology of Information Protection" profile of track 10.03.01 matches the session title almost word for word: "able to conduct a security audit of an informatization facility in accordance with regulatory documents." The 10.04.01 Master\'s track adds the research side of the same task — ОПК-5 ("able to conduct scientific research, including experimental research, and process the results"): the Delphi method is itself a small experimental study carried out by several experts. Conduct an audit of the client threat landscape before and after the project is carried out, and assess the residual risk using expert-judgment (Delphi) scoring, grounded in the information-protection regulatory base rather than intuitive impression.',
 tasks: [
-'Отобрать из расширенной эталонной базы угроз (БДУ ФСТЭК/MITRE ATT&CK/отчёты профильных компаний) те, что реально актуальны для данного типа проекта и объекта заказчика, отделив их от угроз других портфелей.',
-'Провести балльную оценку риска (вероятность × тяжесть последствий) минимум тремя независимыми «экспертами» по методике Дельфи.',
-'Повторить оценку после завершения проекта и рассчитать снижение суммарного балла риска как технико-экономическое обоснование выполненных работ.',
-'Соотнести структуру аудита с требованиями к системе менеджмента информационной безопасности.'
+'From the extended reference threat base (FSTEC BDU / MITRE ATT&CK / industry reports), select the threats genuinely relevant to this project type and client facility, separating them from threats belonging to other portfolios.',
+'Carry out a scored risk assessment (probability × impact severity) using at least three independent "experts" under the Delphi methodology.',
+'Repeat the assessment after the project is complete and calculate the drop in the total risk score as the technical-economic justification for the work performed.',
+'Relate the audit structure to the requirements of an information security management system.'
 ],
 theory: `
-<p>Оценка риска методом Дельфи строится на независимых суждениях нескольких экспертов, сведённых к согласованному значению через обсуждение расхождений. В классическом варианте это семь и более анонимных экспертов и несколько туров через фасилитатора; здесь применено учебное упрощение — 2-3 очных эксперта, а расхождение в 2 балла и более по шкале 1-5 запускает «раунд 2», то есть повторное обсуждение и согласование. Балл риска угрозы вычисляется по формуле (8).</p>
+<p>Delphi-method risk assessment rests on the independent judgments of several experts, reconciled into an agreed value by discussing disagreements. In the classical version this means seven or more anonymous experts and several rounds run through a facilitator; here an instructional simplification is used — 2-3 experts meeting face to face, and a disagreement of 2 points or more on the 1-5 scale triggers "round 2," meaning renewed discussion and reconciliation. The risk score of a threat is computed with formula (8).</p>
 <div class="m-formula"><span><i>R</i> = <i>P</i> × <i>I</i></span><span class="m-num">(8)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>R</i> — балл риска угрозы (шкала 1-25); <i>P</i> (Probability) — согласованная оценка вероятности реализации угрозы, 1-5; <i>I</i> (Impact) — согласованная оценка тяжести последствий для заказчика, 1-5.</p>
-<p>Разделение угроз на актуальные и неактуальные для конкретного проекта опирается не на интуицию, а на требования ГОСТ Р ИСО/МЭК 27001-2021 к системе менеджмента информационной безопасности и приказа ФСТЭК России №117 к защите информации в информационных системах — оба документа требуют, чтобы состав мер защиты определялся моделью угроз конкретного объекта, а не универсальным списком «на все случаи». С 1 марта 2026 г. приказ №117 от 11.04.2025 заменил собой прежний приказ №17 от 11.02.2013 (действовавший более 12 лет): аттестаты, полученные до этой даты, остаются в силе, но при любой модернизации информационной системы состав защитных мер нужно приводить в соответствие уже новому приказу, а не старому.</p>`,
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>R</i> is the threat risk score (scale 1-25); <i>P</i> (Probability) is the agreed likelihood-of-occurrence rating, 1-5; <i>I</i> (Impact) is the agreed rating of the severity of consequences for the client, 1-5.</p>
+<p>Splitting threats into relevant and not relevant for a specific project rests not on intuition but on the requirements of GOST R ISO/IEC 27001-2021 for an information security management system and of Russian FSTEC Order No. 117 for protecting information in information systems — both documents require that the set of protective measures be determined by the threat model of the specific facility, not by a universal "one list fits all" catalog. As of March 1, 2026, Order No. 117 of 11.04.2025 replaced the former Order No. 17 of 11.02.2013 (in force for more than 12 years): certifications obtained before that date remain valid, but any modernization of an information system must bring the set of protective measures into line with the new order, not the old one.</p>`,
 questions: [
-'Чем классический метод Дельфи (7+ экспертов, фасилитатор, туры) отличается от учебного упрощения, применённого в этом занятии?',
-'Что запускает «раунд 2» при оценке одной и той же угрозы разными экспертами?',
-'Почему индексы P и I нельзя путать — приведите пример угрозы, вероятной, но малозначимой, и наоборот, значимой, но маловероятной.',
-'Что именно доказывает снижение суммарного балла риска между аудитом ДО и ПОСЛЕ?'
+'How does the classical Delphi method (7+ experts, a facilitator, multiple rounds) differ from the instructional simplification used in this session?',
+'What triggers "round 2" when different experts score the same threat?',
+'Why must the P and I indices not be confused with each other — give an example of a threat that is likely but low-impact, and one that is high-impact but unlikely.',
+'What exactly does a drop in the total risk score between the BEFORE and AFTER audits prove?'
 ],
 sources: [
-{title: 'ГОСТ Р ИСО/МЭК 27001-2021 «Системы менеджмента информационной безопасности. Требования»', url: 'https://base.garant.ru/403510768/'},
-{title: 'Приказ ФСТЭК России от 11.04.2025 №117 (действует с 01.03.2026, заменил приказ №17 от 11.02.2013)', url: 'https://fstec.ru/dokumenty/vse-dokumenty/spetsialnye-normativnye-dokumenty/trebovaniya-utverzhdeny-prikazom-fstek-rossii-ot-11-aprelya-2025-g-n-117'},
-{title: 'БДУ ФСТЭК России — банк данных угроз безопасности информации', url: 'https://bdu.fstec.ru'},
-{title: 'Википедия — «Метод Дельфи»', url: 'https://ru.wikipedia.org/wiki/Метод_Дельфи'}
+{title: 'GOST R ISO/IEC 27001-2021, "Information Security Management Systems. Requirements" (source in Russian)', url: 'https://base.garant.ru/403510768/'},
+{title: 'Russian FSTEC Order No. 117 of 11.04.2025 (in force since 01.03.2026, replaced Order No. 17 of 11.02.2013) (source in Russian)', url: 'https://fstec.ru/dokumenty/vse-dokumenty/spetsialnye-normativnye-dokumenty/trebovaniya-utverzhdeny-prikazom-fstek-rossii-ot-11-aprelya-2025-g-n-117'},
+{title: 'FSTEC BDU — Russian Federal Data Bank of Information Security Threats (source in Russian)', url: 'https://bdu.fstec.ru'},
+{title: 'Wikipedia (Russian) — "Delphi Method"', url: 'https://ru.wikipedia.org/wiki/Метод_Дельфи'}
 ]
 },
 9: {
-goal: 'Практикум замыкает компетенция, которая прямо называет экономику: УК-9 направления 10.03.01 («способен принимать обоснованные экономические решения»); на стороне специальности 10.05.01 её зеркально дополняет ОПК-16 («способен проводить мониторинг работоспособности и анализ эффективности средств защиты информации») — слово «эффективность» в обеих формулировках не совпадение, а прямое указание на предмет занятия. Оценить экономическую целесообразность реализованного проекта ИБ через соотношение снижения риска и понесённых затрат, используя признанную методику ROSI, а не только фиксацию факта «риск снизился».',
+goal: 'The practicum closes with a competency that names economics directly: УК-9 of track 10.03.01 ("able to make informed economic decisions"); on the specialty 10.05.01 side it is mirrored and complemented by ОПК-16 ("able to monitor the operability and analyze the effectiveness of information-protection tools") — the word "effectiveness" in both formulations is no coincidence, it is a direct pointer to the subject of this session. Assess the economic soundness of the completed IS project by relating risk reduction to the costs incurred, using the recognized ROSI methodology rather than simply noting the fact that "risk went down."',
 tasks: [
-'Свести показатели снижения риска (занятие 8), плановой себестоимости и маржи проекта (занятия 4-5) в единую оценку эффективности.',
-'Рассчитать показатель ROSI и объяснить, что означает его положительное и отрицательное значение.',
-'Свести все ошибки подбора персонала, ресурсов и квалификации исполнителей, допущенные за практикум, в единую денежную оценку по статьям OPEX/CAPEX.',
-'Сформировать итоговый вывод об эффективности проекта для сдачи отчётности заказчику.'
+'Bring together the risk-reduction figures (Session 8), the planned cost and the project margin (Sessions 4-5) into a single effectiveness assessment.',
+'Calculate the ROSI indicator and explain what a positive versus a negative value means.',
+'Bring together every staff-, resource- and qualification-selection mistake made across the practicum into a single monetary estimate broken down by OPEX/CAPEX lines.',
+'Formulate a final conclusion on project effectiveness for the client-facing report.'
 ],
 theory: `
-<p>Рентабельность инвестиций в безопасность (ROSI, Return on Security Investment) — методика, предложенная Sonnenreich, Albanese и Stout (2006), которая в отличие от обычного ROI сопоставляет не прибыль, а предотвращённый ущерб с затратами на защитные меры. Показатель рассчитывается по формуле (9).</p>
-<div class="m-formula"><span>ROSI = ((<i>R</i><sub>до</sub> − <i>R</i><sub>после</sub>) − <i>C</i>) / <i>C</i> × 100%</span><span class="m-num">(9)</span></div>
-<p style="font-size:12.5px; color:var(--gr-dim);">где <i>R</i><sub>до</sub> — суммарный балл риска до реализации проекта (занятие 8, аудит ДО); <i>R</i><sub>после</sub> — суммарный балл риска после реализации проекта (занятие 8, аудит ПОСЛЕ); <i>C</i> — затраты фирмы на проект (плановая себестоимость, занятие 5).</p>
-<p>Положительное значение ROSI означает, что снижение риска, пересчитанное в сопоставимую величину, превышает затраты на его достижение; отрицательное — что проект обошёлся дороже, чем стоило предотвращённое снижение риска, и состав мер защиты требует пересмотра. Мониторинг и измеримая оценка результативности системы менеджмента информационной безопасности в этой логике описаны в ГОСТ Р ИСО/МЭК 27004-2021.</p>
-<p style="margin-top:10px;"><strong>Важное методологическое уточнение (позиция кафедры).</strong> Название ROSI — «Return on Security <em>Investment</em>» — заимствует терминологию корпоративных финансов США, где инвестиция создаёт актив, приносящий будущий доход. По МСФО (стандарт IAS 38 «Нематериальные активы») именно это — вероятный будущий приток экономических выгод, как правило дохода, — и отличает инвестицию от обычного расхода. Фирма, реализующая проект ИБ, комплектующие не производит, а закупает и монтирует; заказчик в результате реже теряет то, что уже имел, но нового источника дохода не приобретает — предприятие не начинает зарабатывать больше оттого, что установило систему видеонаблюдения. По этой логике вторая методика этого занятия, TDI/BRI, называет деньги заказчика на ИБ <strong>затратами</strong>, а не инвестициями, — по аналогии с тормозными колодками автомобиля: их покупка не увеличивает мощность двигателя, а лишь снижает вероятность аварии, и колодки при этом никто не считает инвестицией.</p>
-<p style="margin-top:10px;"><strong>История вопроса внутри самой кафедры.</strong> В более ранней прикладной статье для МСП (методика BRI) структурно та же формула называлась «ROI_IB» и трактовалась как рентабельность инвестиций, сопоставимая со стоимостью капитала. Однако более поздняя, полностью защищённая выпускная квалификационная работа той же кафедры («Индекс Парето как критерий адаптивного бюджетирования информационной безопасности» // Правовая информатика. 2026. №1. С. 16–30. DOI 10.24412/1994-1404-2026-1-00-02) прямо в заключении формулирует итоговый вывод: «расходы на ИБ носят операционный характер, что исключает применение ROSI». Это не два равноправных мнения — это уточнение позиции по мере развития исследования, и практикум следует именно итоговой, более строгой формулировке: показатель называется «Кэз», а не «ROI_IB», а классический ROSI (формула 9 ниже) сохраняется в занятии только как объект критического разбора, а не как второй правильный ответ рядом с первым. Для студента это не менее ценный урок, чем сама экономика ИБ: научная позиция кафедры по конкретному вопросу может уточняться от статьи к статье, и в отчёте заказчику нужно опираться на актуальную, а не на любую из ранее опубликованных формулировок.</p>`,
+<p>Return on Security Investment (ROSI) is a methodology proposed by Sonnenreich, Albanese and Stout (2006) that, unlike an ordinary ROI, relates not profit but avoided loss to the cost of the protective measures. The indicator is computed with formula (9).</p>
+<div class="m-formula"><span>ROSI = ((<i>R</i><sub>before</sub> − <i>R</i><sub>after</sub>) − <i>C</i>) / <i>C</i> × 100%</span><span class="m-num">(9)</span></div>
+<p style="font-size:12.5px; color:var(--gr-dim);">where <i>R</i><sub>before</sub> is the total risk score before the project (Session 8, BEFORE audit); <i>R</i><sub>after</sub> is the total risk score after the project (Session 8, AFTER audit); <i>C</i> is the firm cost of the project (planned cost, Session 5).</p>
+<p>A positive ROSI value means that the risk reduction, converted into a comparable figure, exceeds the cost of achieving it; a negative value means the project cost more than the avoided risk reduction was worth, and the set of protective measures needs to be reconsidered. Monitoring and the measurable assessment of an information security management system effectiveness, in this same logic, are described in GOST R ISO/IEC 27004-2021.</p>
+<p style="margin-top:10px;"><strong>An important methodological clarification (the department\'s position).</strong> The name ROSI — "Return on Security <em>Investment</em>" — borrows the terminology of US corporate finance, where an investment creates an asset that generates future income. Under IFRS (IAS 38, "Intangible Assets"), it is precisely this — a probable future inflow of economic benefits, typically income — that distinguishes an investment from an ordinary expense. A firm carrying out an IS project does not manufacture the components, it purchases and installs them; as a result, the client is less likely to lose what they already had, but they do not acquire a new source of income — a business does not start earning more simply because it installed a video-surveillance system. Following this logic, the session second methodology, TDI/BRI, calls the client money spent on IS an <strong>expense</strong>, not an investment — by analogy with a car brake pads: buying them does not increase engine power, it only lowers the probability of a crash, and no one treats brake pads as an investment.</p>
+<p style="margin-top:10px;"><strong>The history of this question within the department itself.</strong> An earlier applied paper aimed at small and medium enterprises (the BRI methodology) used the structurally identical formula under the name "ROI_IB" and treated it as a return on investment comparable to the cost of capital. However, a later, fully defended graduate thesis from the same department ("The Pareto Index as a Criterion for Adaptive Information-Security Budgeting," Pravovaya Informatika [Legal Informatics], 2026, No. 1, pp. 16-30, DOI 10.24412/1994-1404-2026-1-00-02) states its final conclusion directly: "information-security spending is operational in nature, which rules out applying ROSI." These are not two equally valid opinions — this is a position being refined as the research matured, and the practicum follows the later, more rigorous formulation: the indicator is called "Кэз" (Cost-Efficiency Ratio), not "ROI_IB," and the classical ROSI (formula 9 above) is kept in this session only as an object of critical comparison, not as a second correct answer sitting beside the first. For a student, this is a lesson no less valuable than the economics of IS itself: a department scholarly position on a specific question can be refined from one paper to the next, and a report to a client must rely on the current formulation, not on any earlier one that happens to be in print.</p>`,
 questions: [
-'Чем ROSI отличается от обычного ROI по экономическому смыслу?',
-'Что означает отрицательное значение ROSI и какое управленческое решение оно предполагает?',
-'Почему сумма ошибок подбора персонала и ресурсов делится на статьи OPEX и CAPEX, а не считается одной общей цифрой?',
-'Какие два показателя из занятия 8 нужны для расчёта числителя формулы ROSI?'
+'How does ROSI differ from an ordinary ROI in economic meaning?',
+'What does a negative ROSI value mean, and what management decision does it call for?',
+'Why is the sum of staff- and resource-selection mistakes split into OPEX and CAPEX lines rather than reported as one aggregate figure?',
+'Which two indicators from Session 8 are needed to compute the numerator of the ROSI formula?'
 ],
 sources: [
-{title: 'ГОСТ Р ИСО/МЭК 27004-2021 «Мониторинг, оценка защищённости, анализ и оценивание»', url: 'https://protect.gost.ru/gost/details/263f79cd-423d-425b-9dc6-a0019110f13f'},
-{title: 'Sonnenreich W., Albanese J., Stout B. — «Return On Security Investment (ROSI): A Practical Quantitative Model» (2006)', url: 'https://www.researchgate.net/publication/221399805_Return_On_Security_Investment_ROSI_A_Practical_Quantitative_Model'},
-{title: 'КиберЛенинка — «Оценка эффективности оптимального инвестирования в СМИБ организации»', url: 'https://cyberleninka.ru/article/n/otsenka-effektivnosti-optimalnogo-investirovaniya-v-sistemu-menedzhmenta-informatsionnoy-bezopasnosti-organizatsii'},
-{title: 'КиберЛенинка — «К вопросу об оценке эффективности затрат на информационную безопасность»', url: 'https://cyberleninka.ru/article/n/k-voprosu-ob-otsenke-effektivnosti-zatrat-na-informatsionnuyu-bezopasnost'}
+{title: 'GOST R ISO/IEC 27004-2021, "Monitoring, Measurement, Analysis and Evaluation" (source in Russian)', url: 'https://protect.gost.ru/gost/details/263f79cd-423d-425b-9dc6-a0019110f13f'},
+{title: 'Sonnenreich W., Albanese J., Stout B. — "Return On Security Investment (ROSI): A Practical Quantitative Model" (2006)', url: 'https://www.researchgate.net/publication/221399805_Return_On_Security_Investment_ROSI_A_Practical_Quantitative_Model'},
+{title: 'CyberLeninka — "Assessing the Effectiveness of Optimal Investment in an Organization\'s ISMS" (source in Russian)', url: 'https://cyberleninka.ru/article/n/otsenka-effektivnosti-optimalnogo-investirovaniya-v-sistemu-menedzhmenta-informatsionnoy-bezopasnosti-organizatsii'},
+{title: 'CyberLeninka — "On Assessing the Cost-Effectiveness of Information Security Spending" (source in Russian)', url: 'https://cyberleninka.ru/article/n/k-voprosu-ob-otsenke-effektivnosti-zatrat-na-informatsionnuyu-bezopasnost'}
 ]
 }
 };
@@ -5783,11 +5783,11 @@ sources: [
 function renderMethodBlock(n, bare) {
 const m = METHOD_BLOCKS[n];
 if (!m) return '';
-const inner = '<h4>Цель занятия</h4><p>' + m.goal + '</p>'
-+ '<h4>Задачи</h4><ol>' + m.tasks.map(function(t) { return '<li>' + t + '</li>'; }).join('') + '</ol>'
-+ '<h4>Теория</h4>' + m.theory
-+ '<h4>Вопросы для самоконтроля</h4><ol>' + m.questions.map(function(q) { return '<li>' + q + '</li>'; }).join('') + '</ol>'
-+ '<h4>Источники</h4><ul class="src-list">' + m.sources.map(function(s) { return '<li><a href="' + s.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + s.title + '</a></li>'; }).join('') + '</ul>';
+const inner = '<h4>Session Objective</h4><p>' + m.goal + '</p>'
++ '<h4>Tasks</h4><ol>' + m.tasks.map(function(t) { return '<li>' + t + '</li>'; }).join('') + '</ol>'
++ '<h4>Theory</h4>' + m.theory
++ '<h4>Self-Check Questions</h4><ol>' + m.questions.map(function(q) { return '<li>' + q + '</li>'; }).join('') + '</ol>'
++ '<h4>Sources</h4><ul class="src-list">' + m.sources.map(function(s) { return '<li><a href="' + s.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + s.title + '</a></li>'; }).join('') + '</ul>';
 return bare ? ('<div class="method-block-body">' + inner + '</div>') : ('<div class="method-block"><div class="method-block-body">' + inner + '</div></div>');
 }
 
