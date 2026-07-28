@@ -2696,8 +2696,8 @@ const accountant = resolveBpEmployee(['Главнова О.И.']);
 // (см. занятие 7 «Оптимизация»: критический путь короче суммы всех длительностей ровно на то,
 // что удалось выполнить параллельно).
 return [
-{ id: 1001, name: 'Выезд и обследование объекта', duration: 0.5, stage: 'I', employeeId: engineer.id, predecessors: [], materials: [], progress: 100, fixed: true },
-{ id: 1002, name: 'Исследование объекта (' + sys + ') и подготовка эскиза проекта', duration: 0.5, stage: 'I', employeeId: engineer.id, requiredPosition: [engineer.position], predecessors: [1001], materials: [], progress: 100, fixed: true },
+{ id: 1001, name: 'Site visit and inspection', duration: 0.5, stage: 'I', employeeId: engineer.id, predecessors: [], materials: [], progress: 100, fixed: true },
+{ id: 1002, name: 'Facility survey (' + sys + ') and project sketch preparation', duration: 0.5, stage: 'I', employeeId: engineer.id, requiredPosition: [engineer.position], predecessors: [1001], materials: [], progress: 100, fixed: true },
 // ЛОВУШКИ ЭТАПА 1 (по требованию преподавателя 2026-07-24): разработка ТЗ, чертёж в AutoCAD и
 // локальная смета — это РАЗНЫЕ специальности. Инженер-чертёжник не разрабатывает ТЗ и не считает
 // смету; бухгалтер-сметчик не чертит и не пишет ТЗ; и никто из них не заменяет друг друга. Раньше
