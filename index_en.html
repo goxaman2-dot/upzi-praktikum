@@ -2212,17 +2212,17 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 // --- этап эскиза и передача по бизнес-процессу ---
 const PRICE_LEVEL_RU = { budget: 'Бюджет', middle: 'Мидл', vip: 'VIP' };
 const TYPE_RU = {
-    skud: 'СКУД (контроль доступа)', video: 'видеонаблюдения', fire: 'пожарной сигнализации',
-    security: 'охранной сигнализации', hybrid: 'гибридной (интегрированной) системы ИТСО',
-    perimeter: 'периметрального ограждения и турникетов',
-    ngfw: 'межсетевого экрана (NGFW)', dlp: 'DLP-системы', iam: 'IAM/MFA/SSO',
-    siem: 'SIEM/SOC-мониторинга', edr: 'антивируса корпоративного класса (EDR)',
-    vpn: 'защищённого удалённого доступа (VPN)', backup: 'резервного копирования (Backup/DR)',
-    crypto: 'криптографической защиты каналов и данных (СКЗИ)',
-    policy: 'политики информационной безопасности', kii: 'категорирования объекта КИИ',
-    pdn: 'приведения обработки ПДн в соответствие 152-ФЗ',
-    passport: 'паспорта безопасности объекта', audit: 'аудита/пентеста информационной безопасности',
-    training: 'программы обучения персонала'
+    skud: 'access control (ACS)', video: 'video surveillance', fire: 'fire alarm',
+    security: 'security alarm', hybrid: 'hybrid (integrated) physical security system',
+    perimeter: 'perimeter fencing and turnstiles',
+    ngfw: 'next-generation firewall (NGFW)', dlp: 'DLP system', iam: 'IAM/MFA/SSO',
+    siem: 'SIEM/SOC monitoring', edr: 'enterprise-grade antivirus (EDR)',
+    vpn: 'secure remote access (VPN)', backup: 'backup (Backup/DR)',
+    crypto: 'cryptographic protection of channels and data (crypto tools)',
+    policy: 'information security policy', kii: 'critical information infrastructure (CII) categorization',
+    pdn: 'bringing personal-data processing into compliance with Federal Law No. 152-FZ',
+    passport: 'facility security passport', audit: 'information security audit/penetration test',
+    training: 'staff training program'
 };
 
 // ============================================================
@@ -2490,19 +2490,19 @@ function taskNoteCategory(t) {
 // для него заданы один раз, без привязки к state.projectType.
 // ============================================================
 const TASK_OUTPUT_DOCS = {
-    1001: 'Акт первичного обследования объекта (с фотофиксацией)',
-    1002: 'Эскизный проект — эскиз системы',
-    1005: 'Техническое задание (ТЗ) на систему',
-    1003: 'Рабочий чертёж проекта в AutoCAD',
-    1004: 'Локальная смета по чертежу',
-    1006: 'Ведомость остатков комплектующих на складе (дефицитная ведомость)',
-    1007: 'Заявка/счёт поставщику на дозаказ комплектующих',
-    1008: 'Коммерческое предложение с тремя уровнями цены (бюджетная/средняя/дорогая)',
-    1009: 'Протокол согласования проекта, подписанный заказчиком',
-    1010: 'Протокол согласования размера аванса',
-    1011: 'Счёт на оплату (авансовый счёт) заказчику',
-    1012: 'Платёжное поручение / выписка банка о поступлении аванса',
-    1013: 'Приказ/протокол об инициализации проекта (старт монтажных/внедренческих работ)'
+    1001: 'Initial facility inspection report (with photo documentation)',
+    1002: 'Preliminary design — system sketch',
+    1005: 'Terms of reference (ToR) for the system',
+    1003: 'Working drawing of the project in AutoCAD',
+    1004: 'Local cost estimate based on the drawing',
+    1006: 'Warehouse component stock statement (shortfall statement)',
+    1007: 'Purchase request/invoice to the vendor for the missing components',
+    1008: 'Commercial proposal with three price tiers (budget/mid/premium)',
+    1009: 'Project approval report, signed by the client',
+    1010: 'Advance-payment percentage approval report',
+    1011: 'Invoice (advance invoice) issued to the client',
+    1012: 'Payment order / bank statement confirming the advance payment',
+    1013: 'Order/report on project initialization (start of installation/deployment works)'
 };
 // ============================================================
 // ВИДЫ ПРОВЕРОЧНЫХ РАБОТ — примерно половина задач монтажа/наладки/испытаний проекта (и
@@ -2713,17 +2713,17 @@ return [
 // «нулевых» согласований — по данным преподавателя. Для «Выставления счёта» и «Ожидания
 // поступления аванса» точных нормативов в эталонных файлах нет (проверено — там описаны только
 // доли траншей 30/40/30%, без сроков), поэтому взяты типовые оценочные сроки (пометка в названии).
-{ id: 1006, name: 'Аудит комплектующих по проекту с запасами на складе фирмы', duration: 1, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1002], materials: [], progress: 0 },
-{ id: 1007, name: 'Дозаказ недостающих комплектующих у вендоров', duration: 3, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1006, 1004], materials: [], progress: 0 },
-{ id: 1008, name: 'Уточнение цены проекта по трём уровням (бюджетная/средняя/дорогая) — созвон с заказчиком', duration: 0, stage: 'I', employeeId: director.id, employeeIds: [director.id, accountant.id], requiredPosition: [director.position, accountant.position], predecessors: [1004], materials: [], progress: 0 },
-{ id: 1009, name: 'Согласование и подписание чертежей и проекта монтажа с заказчиком', duration: 2, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1003, 1008], materials: [], progress: 0 },
-{ id: 1010, name: 'Согласование % аванса на оплату с заказчиком', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1008], materials: [], progress: 0 },
-{ id: 1011, name: 'Выставление счёта заказчику (оценка срока)', duration: 0, stage: 'I', employeeId: accountant.id, requiredPosition: [accountant.position], predecessors: [1009, 1010, 1007], materials: [], progress: 0 },
-{ id: 1012, name: 'Ожидание поступления аванса по Договору (оценка срока, без трудозатрат)', duration: 2, stage: 'I', employeeId: null, predecessors: [1011], materials: [], progress: 0 },
+{ id: 1006, name: 'Auditing project components against the firm warehouse stock', duration: 1, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1002], materials: [], progress: 0 },
+{ id: 1007, name: 'Ordering the missing components from vendors', duration: 3, stage: 'I', employeeId: storekeeper.id, requiredPosition: [storekeeper.position], predecessors: [1006, 1004], materials: [], progress: 0 },
+{ id: 1008, name: 'Confirming the project price at the three tiers (budget/mid/premium) — call with the client', duration: 0, stage: 'I', employeeId: director.id, employeeIds: [director.id, accountant.id], requiredPosition: [director.position, accountant.position], predecessors: [1004], materials: [], progress: 0 },
+{ id: 1009, name: 'Approving and signing the drawings and installation project with the client', duration: 2, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1003, 1008], materials: [], progress: 0 },
+{ id: 1010, name: 'Agreeing the advance-payment percentage with the client', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1008], materials: [], progress: 0 },
+{ id: 1011, name: 'Issuing the invoice to the client (estimated duration)', duration: 0, stage: 'I', employeeId: accountant.id, requiredPosition: [accountant.position], predecessors: [1009, 1010, 1007], materials: [], progress: 0 },
+{ id: 1012, name: 'Waiting for the Contract advance payment to arrive (estimated duration, no labor cost)', duration: 2, stage: 'I', employeeId: null, predecessors: [1011], materials: [], progress: 0 },
 // Завершающая задача Этапа 1 — мост к монтажным работам (полный реальный перечень которых
 // строится в buildRealStage2Tasks() из реальных данных Гантта, см. ниже). Именно от неё
 // (id 1013), а не от 1012 напрямую, стартуют все задачи этапа монтажа/внедрения.
-{ id: 1013, name: 'Инициализация проекта «' + sys + '» после зачисления авансовой суммы по Договору', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1012], materials: [], progress: 0 }
+{ id: 1013, name: 'Initializing the "' + sys + '" project after the Contract advance payment is credited', duration: 0, stage: 'I', employeeId: director.id, requiredPosition: [director.position], predecessors: [1012], materials: [], progress: 0 }
 ];
 }
 
@@ -2748,16 +2748,16 @@ const programmer = resolveBpEmployee(['Кодеров И.В.']);
 const director = resolveBpEmployee(['Директоров С.П.']);
 const name = (t.name || '').toLowerCase();
 if (t.stage === 'II') {
-if (/питани|электро|провод силов|автомат|узо|ибп/.test(name)) return [electrician.position];
+if (/питани|электро|провод силов|автомат|узо|ибп|power|electric|wiring|breaker|\bups\b/.test(name)) return [electrician.position];
 return [installer.position, installerHelper.position];
 }
 if (t.stage === 'III') {
-if (/\bпо\b|программн|софт/.test(name)) return [programmer.position];
+if (/\bпо\b|программн|софт|software|\bapp\b|script|connector/.test(name)) return [programmer.position];
 return [commissioner.position];
 }
 if (t.stage === 'IV') return [commissioner.position];
-if (/акт|документ|договор|гаранти|передач|паспорт/.test(name)) return [director.position];
-if (/обучени|инструктаж|консультац/.test(name)) return [commissioner.position];
+if (/акт|документ|договор|гаранти|передач|паспорт|\bact\b|document|contract|warrant|hand-?over|passport/.test(name)) return [director.position];
+if (/обучени|инструктаж|консультац|training|briefing|consult/.test(name)) return [commissioner.position];
 return [commissioner.position, director.position];
 }
 function taskQualStatus(t) {
@@ -2805,14 +2805,14 @@ if (/аналитик|аудитор/.test(req)) return 'Приказы ФСТЭ
 // 2) По названию задачи (для задач без критичной должности — «— не критично»). «ПО» ловим ТОЛЬКО
 // в верхнем регистре (аббревиатура «программное обеспечение»), иначе предлог «по» в «смета ПО
 // чертежу» ошибочно уводил задачу в ветку программиста (баг, найден при сверке с эталоном).
-if (/питани|электро|провод силов|автомат|узо|ибп|заземл|изоляц|напряж/.test(name)) return EL;
-if (/наладк|пусконаладк|проверк работоспособн|приёмо-сдаточн|приемо-сдаточн|прозвонк/.test(name)) return NAL;
-if (/чертёж|autocad|чертеж/.test(name)) return CHERT;
-if (/смет/.test(name)) return SMETA;
-if (/разработка тз|техническое задание/.test(name)) return TZ;
-if (/\bПО\b/.test(nameOrig) || /программн|софт|скрипт|коннектор/.test(name)) return PROG;
+if (/питани|электро|провод силов|автомат|узо|ибп|заземл|изоляц|напряж|power|electric|wiring|breaker|\bups\b|ground(?:ing)?|insulation|voltage/.test(name)) return EL;
+if (/наладк|пусконаладк|проверк работоспособн|приёмо-сдаточн|приемо-сдаточн|прозвонк|commission|acceptance test|functional check|continuity test/.test(name)) return NAL;
+if (/чертёж|autocad|чертеж|drawing|blueprint/.test(name)) return CHERT;
+if (/смет|estimat|cost calc/.test(name)) return SMETA;
+if (/разработка тз|техническое задание|terms of reference|\btor\b/.test(name)) return TZ;
+if (/\bПО\b/.test(nameOrig) || /программн|софт|скрипт|коннектор|software|\bapp\b|script|connector/.test(name)) return PROG;
 // 3) По типу проекта / портфелю.
-if (type === 'fire' || /пожарн|извещател|дымов/.test(name)) return 'Лицензия МЧС России; ГОСТ Р 53325; СП 484.1311500.2020 (монтаж систем пожарной сигнализации)';
+if (type === 'fire' || /пожарн|извещател|дымов|fire|detector|smoke/.test(name)) return 'Лицензия МЧС России; ГОСТ Р 53325; СП 484.1311500.2020 (монтаж систем пожарной сигнализации)';
 if (type === 'skud') return 'ГОСТ Р 51241-2008 (средства и системы контроля и управления доступом)';
 if (type === 'video') return 'ГОСТ Р 51558-2014 (средства и системы охранные телевизионные)';
 if (type === 'security' || type === 'perimeter' || type === 'hybrid') return 'ГОСТ Р 50776 (системы тревожной сигнализации); для физического монтажа — СРО-допуск';
@@ -3488,97 +3488,97 @@ return list;
 // «База_угроз_эталон»). Поле profile — «профильный тип проекта», который закрывает
 // эту угрозу (колонка «Профильный тип проекта» в эталоне).
 const THREATS = [
-{ code: 'У-ИБ-01', cat: 'Информационно-технические (кибер)', name: 'Внедрение вредоносного программного обеспечения', profile: 'Антивирус корпоративного класса / EDR' },
-{ code: 'У-ИБ-02', cat: 'Информационно-технические (кибер)', name: 'Атака программы-вымогателя (ransomware)', profile: 'Антивирус корпоративного класса / EDR' },
-{ code: 'У-ИБ-03', cat: 'Информационно-технические (кибер)', name: 'Двойное/тройное вымогательство', profile: 'Резервное копирование и восстановление (Backup/DR)' },
-{ code: 'У-ИБ-04', cat: 'Информационно-технические (кибер)', name: 'Фишинговая рассылка', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ИБ-05', cat: 'Информационно-технические (кибер)', name: 'Целевой фишинг (spear-phishing)', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ИБ-06', cat: 'Информационно-технические (кибер)', name: 'Несанкционированный доступ через компрометацию пароля', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ИБ-07', cat: 'Информационно-технические (кибер)', name: 'Эксплуатация уязвимостей ПО (включая 0-day)', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ИБ-08', cat: 'Информационно-технические (кибер)', name: 'DDoS-атака', profile: 'Межсетевой экран / NGFW' },
-{ code: 'У-ИБ-09', cat: 'Информационно-технические (кибер)', name: 'Атака «человек посередине» (MITM)', profile: 'Криптографическая защита каналов и данных (СКЗИ)' },
-{ code: 'У-ИБ-10', cat: 'Информационно-технические (кибер)', name: 'Компрометация контейнеризированных сред', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ИБ-11', cat: 'Информационно-технические (кибер)', name: 'Угрозы систем искусственного интеллекта', profile: 'Разработка политики и регламентов ИБ' },
-{ code: 'У-ИБ-12', cat: 'Информационно-технические (кибер)', name: 'Мошенничество с использованием deepfake', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ИБ-13', cat: 'Информационно-технические (кибер)', name: 'Утечка конфиденциальной информации по незащищённым каналам', profile: 'DLP-система' },
-{ code: 'У-ИБ-14', cat: 'Информационно-технические (кибер)', name: 'Компрометация облачной инфраструктуры', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ИБ-15', cat: 'Информационно-технические (кибер)', name: 'Несанкционированный доступ к Wi-Fi сети', profile: 'Межсетевой экран / NGFW' },
-{ code: 'У-ИБ-16', cat: 'Информационно-технические (кибер)', name: 'Компрометация IoT/«умных» устройств', profile: 'Межсетевой экран / NGFW' },
-{ code: 'У-ИБ-17', cat: 'Информационно-технические (кибер)', name: 'Обход DLP через фото экрана или стеганографию', profile: 'DLP-система' },
-{ code: 'У-ИБ-18', cat: 'Информационно-технические (кибер)', name: 'Утечка через теневые ИТ и BYOD-устройства', profile: 'DLP-система' },
-{ code: 'У-ИБ-19', cat: 'Информационно-технические (кибер)', name: 'Ошибка конфигурации межсетевого экрана', profile: 'Межсетевой экран / NGFW' },
-{ code: 'У-ИБ-20', cat: 'Информационно-технические (кибер)', name: 'Обход межсетевого экрана через туннелирование', profile: 'Межсетевой экран / NGFW' },
-{ code: 'У-ИБ-21', cat: 'Информационно-технические (кибер)', name: 'Компрометация единой точки входа (SSO)', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ИБ-22', cat: 'Информационно-технические (кибер)', name: 'Фишинг второго фактора аутентификации', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ИБ-23', cat: 'Информационно-технические (кибер)', name: 'SIM-swap (замена SIM-карты)', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ИБ-24', cat: 'Информационно-технические (кибер)', name: 'Alert fatigue в SIEM/SOC', profile: 'SIEM / SOC-мониторинг' },
-{ code: 'У-ИБ-25', cat: 'Информационно-технические (кибер)', name: 'Слепые зоны логирования', profile: 'SIEM / SOC-мониторинг' },
-{ code: 'У-ИБ-26', cat: 'Информационно-технические (кибер)', name: 'Атака на резервные копии', profile: 'Резервное копирование и восстановление (Backup/DR)' },
-{ code: 'У-ИБ-27', cat: 'Информационно-технические (кибер)', name: 'Неработоспособность резервной копии при восстановлении', profile: 'Резервное копирование и восстановление (Backup/DR)' },
-{ code: 'У-ИБ-28', cat: 'Информационно-технические (кибер)', name: 'Компрометация или утрата ключей шифрования', profile: 'Криптографическая защита каналов и данных (СКЗИ)' },
-{ code: 'У-ИБ-29', cat: 'Информационно-технические (кибер)', name: 'Использование устаревших криптоалгоритмов', profile: 'Криптографическая защита каналов и данных (СКЗИ)' },
-{ code: 'У-ИБ-30', cat: 'Информационно-технические (кибер)', name: '«Harvest now, decrypt later»', profile: 'Криптографическая защита каналов и данных (СКЗИ)' },
-{ code: 'У-ЦП-01', cat: 'Цепочка поставок', name: 'Компрометация подрядчика/поставщика услуг', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ЦП-02', cat: 'Цепочка поставок', name: 'Внедрение вредоносного кода через обновление ПО вендора', profile: 'Антивирус корпоративного класса / EDR' },
-{ code: 'У-ЦП-03', cat: 'Цепочка поставок', name: 'Компрометация учётных записей сервисных инженеров/интеграторов', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ПЕРС-01', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Умышленные действия действующего сотрудника', profile: 'DLP-система' },
-{ code: 'У-ПЕРС-02', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Действия бывшего (уволенного) работника', profile: 'IAM / MFA / SSO' },
-{ code: 'У-ПЕРС-03', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Социальная инженерия', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ПЕРС-04', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Ошибка персонала (человеческий фактор)', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ПЕРС-05', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Несоблюдение пропускного и внутриобъектового режима', profile: 'СКУД (система контроля и управления доступом)' },
-{ code: 'У-ПЕРС-06', cat: 'Персонал (инсайдер, человеческий фактор)', name: 'Сговор персонала с внешним нарушителем', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ФИЗ-01', cat: 'Физические угрозы имуществу', name: 'Кража (хищение) имущества, оборудования, носителей', profile: 'СКУД (система контроля и управления доступом)' },
-{ code: 'У-ФИЗ-02', cat: 'Физические угрозы имуществу', name: 'Взлом дверей, окон, ограждения периметра', profile: 'Охранная сигнализация' },
-{ code: 'У-ФИЗ-03', cat: 'Физические угрозы имуществу', name: 'Проникновение через технологические/слабозащищённые проёмы', profile: 'Охранная сигнализация' },
-{ code: 'У-ФИЗ-04', cat: 'Физические угрозы имуществу', name: 'Вандализм, умышленная порча имущества', profile: 'СОТ (система видеонаблюдения)' },
-{ code: 'У-ФИЗ-05', cat: 'Физические угрозы имуществу', name: 'Умышленный поджог', profile: 'Пожарная сигнализация' },
-{ code: 'У-ФИЗ-06', cat: 'Физические угрозы имуществу', name: 'Повреждение или хищение кабельных линий связи/электропитания', profile: 'Комплексный проект ИТСО «под ключ»' },
-{ code: 'У-ТЕР-01', cat: 'Угрозы жизни, здоровью, террористические', name: 'Вооружённое нападение на объект', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ТЕР-02', cat: 'Угрозы жизни, здоровью, террористические', name: 'Угроза размещения взрывного устройства', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ТЕР-03', cat: 'Угрозы жизни, здоровью, террористические', name: 'Захват заложников', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ТЕР-04', cat: 'Угрозы жизни, здоровью, террористические', name: 'Пронос токсичных, отравляющих, биологических агентов', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ТЕР-05', cat: 'Угрозы жизни, здоровью, террористические', name: 'Массовые беспорядки на прилегающей территории', profile: 'СКУД (система контроля и управления доступом)' },
-{ code: 'У-ТЕР-06', cat: 'Угрозы жизни, здоровью, террористические', name: 'Заведомо ложное сообщение об акте терроризма', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ПРИР-01', cat: 'Природные и техногенные угрозы', name: 'Пожар вследствие неисправности проводки/оборудования', profile: 'Пожарная сигнализация' },
-{ code: 'У-ПРИР-02', cat: 'Природные и техногенные угрозы', name: 'Затопление (протечка, прорыв водопровода/канализации)', profile: 'Комплексный проект ИТСО «под ключ»' },
-{ code: 'У-ПРИР-03', cat: 'Природные и техногенные угрозы', name: 'Аварийное отключение электроснабжения', profile: 'Резервное копирование и восстановление (Backup/DR)' },
-{ code: 'У-ПРИР-04', cat: 'Природные и техногенные угрозы', name: 'Стихийное бедствие (ураган, паводок, землетрясение)', profile: 'Комплексный проект ИТСО «под ключ»' },
-{ code: 'У-ПРИР-05', cat: 'Природные и техногенные угрозы', name: 'Утечка бытового/технического газа', profile: 'Пожарная сигнализация' },
-{ code: 'У-ПРИР-06', cat: 'Природные и техногенные угрозы', name: 'Обрушение конструктивных элементов здания', profile: 'Комплексный проект ИТСО «под ключ»' },
-{ code: 'У-АСУ-01', cat: 'Промышленные системы / КИИ', name: 'Несанкционированное вмешательство в работу ПЛК/SCADA/HMI', profile: 'Категорирование объекта КИИ (187-ФЗ)' },
-{ code: 'У-АСУ-02', cat: 'Промышленные системы / КИИ', name: 'Нарушение технологического процесса вследствие кибератаки на АСУ ТП', profile: 'Категорирование объекта КИИ (187-ФЗ)' },
-{ code: 'У-АСУ-03', cat: 'Промышленные системы / КИИ', name: 'Физическое повреждение производственного оборудования как способ атаки', profile: 'СОТ (система видеонаблюдения)' },
-{ code: 'У-АСУ-04', cat: 'Промышленные системы / КИИ', name: 'Компрометация систем удалённого мониторинга и телеметрии', profile: 'SIEM / SOC-мониторинг' },
-{ code: 'У-ОРГ-01', cat: 'Организационно-административные', name: 'Отсутствие или устаревание политики информационной безопасности', profile: 'Разработка политики и регламентов ИБ' },
-{ code: 'У-ОРГ-02', cat: 'Организационно-административные', name: 'Формальное выполнение требований без фактического контроля', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ОРГ-03', cat: 'Организационно-административные', name: 'Несвоевременное категорирование объекта КИИ или его занижение', profile: 'Категорирование объекта КИИ (187-ФЗ)' },
-{ code: 'У-ОРГ-04', cat: 'Организационно-административные', name: 'Обработка персональных данных без надлежащего правового основания', profile: 'Приведение обработки ПДн в соответствие 152-ФЗ' },
-{ code: 'У-ОРГ-05', cat: 'Организационно-административные', name: 'Отсутствие паспорта безопасности объекта или его несоответствие категории', profile: 'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)' },
-{ code: 'У-ОРГ-06', cat: 'Организационно-административные', name: 'Отсутствие обучения персонала действиям при угрозах', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ОРГ-07', cat: 'Организационно-административные', name: 'Формальное («для галочки») прохождение обучения персоналом', profile: 'Программа обучения персонала (security awareness)' },
-{ code: 'У-ОРГ-08', cat: 'Организационно-административные', name: 'Отсутствие независимого аудита, самооценка выдаётся за проверку', profile: 'Аудит / пентест информационной безопасности' },
-{ code: 'У-ОРГ-09', cat: 'Организационно-административные', name: 'Расхождение фактической конфигурации системы с документацией', profile: 'Аудит / пентест информационной безопасности' },
+{ code: 'У-ИБ-01', cat: 'Information technology (cyber)', name: 'Malware deployment', profile: 'Enterprise-grade antivirus / EDR' },
+{ code: 'У-ИБ-02', cat: 'Information technology (cyber)', name: 'Ransomware attack', profile: 'Enterprise-grade antivirus / EDR' },
+{ code: 'У-ИБ-03', cat: 'Information technology (cyber)', name: 'Double/triple extortion', profile: 'Backup and recovery (Backup/DR)' },
+{ code: 'У-ИБ-04', cat: 'Information technology (cyber)', name: 'Phishing campaign', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ИБ-05', cat: 'Information technology (cyber)', name: 'Spear-phishing', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ИБ-06', cat: 'Information technology (cyber)', name: 'Unauthorized access via password compromise', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ИБ-07', cat: 'Information technology (cyber)', name: 'Exploitation of software vulnerabilities (including 0-day)', profile: 'Information security audit / penetration test' },
+{ code: 'У-ИБ-08', cat: 'Information technology (cyber)', name: 'DDoS attack', profile: 'Firewall / NGFW' },
+{ code: 'У-ИБ-09', cat: 'Information technology (cyber)', name: 'Man-in-the-middle attack (MITM)', profile: 'Cryptographic protection of channels and data (crypto tools)' },
+{ code: 'У-ИБ-10', cat: 'Information technology (cyber)', name: 'Compromise of containerized environments', profile: 'Information security audit / penetration test' },
+{ code: 'У-ИБ-11', cat: 'Information technology (cyber)', name: 'Threats to artificial intelligence systems', profile: 'Development of IS policy and regulations' },
+{ code: 'У-ИБ-12', cat: 'Information technology (cyber)', name: 'Deepfake-based fraud', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ИБ-13', cat: 'Information technology (cyber)', name: 'Leakage of confidential information over unprotected channels', profile: 'DLP system' },
+{ code: 'У-ИБ-14', cat: 'Information technology (cyber)', name: 'Compromise of cloud infrastructure', profile: 'Information security audit / penetration test' },
+{ code: 'У-ИБ-15', cat: 'Information technology (cyber)', name: 'Unauthorized access to the Wi-Fi network', profile: 'Firewall / NGFW' },
+{ code: 'У-ИБ-16', cat: 'Information technology (cyber)', name: 'Compromise of IoT/"smart" devices', profile: 'Firewall / NGFW' },
+{ code: 'У-ИБ-17', cat: 'Information technology (cyber)', name: 'Bypassing DLP via screen photos or steganography', profile: 'DLP system' },
+{ code: 'У-ИБ-18', cat: 'Information technology (cyber)', name: 'Leakage through shadow IT and BYOD devices', profile: 'DLP system' },
+{ code: 'У-ИБ-19', cat: 'Information technology (cyber)', name: 'Firewall misconfiguration', profile: 'Firewall / NGFW' },
+{ code: 'У-ИБ-20', cat: 'Information technology (cyber)', name: 'Firewall bypass via tunneling', profile: 'Firewall / NGFW' },
+{ code: 'У-ИБ-21', cat: 'Information technology (cyber)', name: 'Compromise of the single sign-on (SSO)', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ИБ-22', cat: 'Information technology (cyber)', name: 'Phishing for the second authentication factor', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ИБ-23', cat: 'Information technology (cyber)', name: 'SIM swap', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ИБ-24', cat: 'Information technology (cyber)', name: 'Alert fatigue in SIEM/SOC', profile: 'SIEM / SOC monitoring' },
+{ code: 'У-ИБ-25', cat: 'Information technology (cyber)', name: 'Logging blind spots', profile: 'SIEM / SOC monitoring' },
+{ code: 'У-ИБ-26', cat: 'Information technology (cyber)', name: 'Attack on backups', profile: 'Backup and recovery (Backup/DR)' },
+{ code: 'У-ИБ-27', cat: 'Information technology (cyber)', name: 'Backup failure during recovery', profile: 'Backup and recovery (Backup/DR)' },
+{ code: 'У-ИБ-28', cat: 'Information technology (cyber)', name: 'Compromise or loss of encryption keys', profile: 'Cryptographic protection of channels and data (crypto tools)' },
+{ code: 'У-ИБ-29', cat: 'Information technology (cyber)', name: 'Use of outdated cryptographic algorithms', profile: 'Cryptographic protection of channels and data (crypto tools)' },
+{ code: 'У-ИБ-30', cat: 'Information technology (cyber)', name: '"Harvest now, decrypt later"', profile: 'Cryptographic protection of channels and data (crypto tools)' },
+{ code: 'У-ЦП-01', cat: 'Supply chain', name: 'Compromise of a contractor/service provider', profile: 'Information security audit / penetration test' },
+{ code: 'У-ЦП-02', cat: 'Supply chain', name: 'Malicious code injected via a vendor software update', profile: 'Enterprise-grade antivirus / EDR' },
+{ code: 'У-ЦП-03', cat: 'Supply chain', name: 'Compromise of service-engineer/integrator accounts', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ПЕРС-01', cat: 'Personnel (insider, human factor)', name: 'Deliberate actions by a current employee', profile: 'DLP system' },
+{ code: 'У-ПЕРС-02', cat: 'Personnel (insider, human factor)', name: 'Actions by a former (dismissed) employee', profile: 'IAM / MFA / SSO' },
+{ code: 'У-ПЕРС-03', cat: 'Personnel (insider, human factor)', name: 'Social engineering', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ПЕРС-04', cat: 'Personnel (insider, human factor)', name: 'Staff error (human factor)', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ПЕРС-05', cat: 'Personnel (insider, human factor)', name: 'Non-compliance with access-control and on-site procedures', profile: 'ACS (access control system)' },
+{ code: 'У-ПЕРС-06', cat: 'Personnel (insider, human factor)', name: 'Collusion between staff and an external attacker', profile: 'Information security audit / penetration test' },
+{ code: 'У-ФИЗ-01', cat: 'Physical threats to property', name: 'Theft of property, equipment, or storage media', profile: 'ACS (access control system)' },
+{ code: 'У-ФИЗ-02', cat: 'Physical threats to property', name: 'Forced entry through doors, windows, or perimeter fencing', profile: 'Security alarm' },
+{ code: 'У-ФИЗ-03', cat: 'Physical threats to property', name: 'Entry through technical/poorly protected openings', profile: 'Security alarm' },
+{ code: 'У-ФИЗ-04', cat: 'Physical threats to property', name: 'Vandalism, deliberate damage to property', profile: 'CCTV (video surveillance system)' },
+{ code: 'У-ФИЗ-05', cat: 'Physical threats to property', name: 'Deliberate arson', profile: 'Fire alarm' },
+{ code: 'У-ФИЗ-06', cat: 'Physical threats to property', name: 'Damage to or theft of communication/power cabling', profile: 'Turnkey comprehensive physical security project' },
+{ code: 'У-ТЕР-01', cat: 'Threats to life, health, and terrorism-related threats', name: 'Armed attack on the facility', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ТЕР-02', cat: 'Threats to life, health, and terrorism-related threats', name: 'Threat of planting an explosive device', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ТЕР-03', cat: 'Threats to life, health, and terrorism-related threats', name: 'Hostage-taking', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ТЕР-04', cat: 'Threats to life, health, and terrorism-related threats', name: 'Smuggling in toxic, poisonous, or biological agents', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ТЕР-05', cat: 'Threats to life, health, and terrorism-related threats', name: 'Mass unrest in the surrounding area', profile: 'ACS (access control system)' },
+{ code: 'У-ТЕР-06', cat: 'Threats to life, health, and terrorism-related threats', name: 'Knowingly false report of a terrorist act', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ПРИР-01', cat: 'Natural and man-made hazards', name: 'Fire caused by faulty wiring/equipment', profile: 'Fire alarm' },
+{ code: 'У-ПРИР-02', cat: 'Natural and man-made hazards', name: 'Flooding (leak, water-/sewer-line burst)', profile: 'Turnkey comprehensive physical security project' },
+{ code: 'У-ПРИР-03', cat: 'Natural and man-made hazards', name: 'Emergency power outage', profile: 'Backup and recovery (Backup/DR)' },
+{ code: 'У-ПРИР-04', cat: 'Natural and man-made hazards', name: 'Natural disaster (storm, flood, earthquake)', profile: 'Turnkey comprehensive physical security project' },
+{ code: 'У-ПРИР-05', cat: 'Natural and man-made hazards', name: 'Domestic/technical gas leak', profile: 'Fire alarm' },
+{ code: 'У-ПРИР-06', cat: 'Natural and man-made hazards', name: 'Collapse of structural building elements', profile: 'Turnkey comprehensive physical security project' },
+{ code: 'У-АСУ-01', cat: 'Industrial systems / CII', name: 'Unauthorized interference with PLC/SCADA/HMI operation', profile: 'CII asset categorization (Federal Law No. 187-FZ)' },
+{ code: 'У-АСУ-02', cat: 'Industrial systems / CII', name: 'Disruption of the technological process due to a cyberattack on the industrial control system', profile: 'CII asset categorization (Federal Law No. 187-FZ)' },
+{ code: 'У-АСУ-03', cat: 'Industrial systems / CII', name: 'Physical damage to production equipment as an attack method', profile: 'CCTV (video surveillance system)' },
+{ code: 'У-АСУ-04', cat: 'Industrial systems / CII', name: 'Compromise of remote monitoring and telemetry systems', profile: 'SIEM / SOC monitoring' },
+{ code: 'У-ОРГ-01', cat: 'Organizational-administrative', name: 'Absence or obsolescence of the information security policy', profile: 'Development of IS policy and regulations' },
+{ code: 'У-ОРГ-02', cat: 'Organizational-administrative', name: 'Formal compliance with requirements without actual oversight', profile: 'Information security audit / penetration test' },
+{ code: 'У-ОРГ-03', cat: 'Organizational-administrative', name: 'Late CII asset categorization or under-categorization', profile: 'CII asset categorization (Federal Law No. 187-FZ)' },
+{ code: 'У-ОРГ-04', cat: 'Organizational-administrative', name: 'Processing personal data without a proper legal basis', profile: 'Bringing personal-data processing into compliance with Federal Law No. 152-FZ' },
+{ code: 'У-ОРГ-05', cat: 'Organizational-administrative', name: 'Absence of the facility security passport or its mismatch with the category', profile: 'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)' },
+{ code: 'У-ОРГ-06', cat: 'Organizational-administrative', name: 'Lack of staff training on how to act under threats', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ОРГ-07', cat: 'Organizational-administrative', name: 'Pro-forma ("box-ticking") completion of staff training', profile: 'Staff training program (security awareness)' },
+{ code: 'У-ОРГ-08', cat: 'Organizational-administrative', name: 'Absence of an independent audit, with self-assessment passed off as a review', profile: 'Information security audit / penetration test' },
+{ code: 'У-ОРГ-09', cat: 'Organizational-administrative', name: 'Mismatch between the system actual configuration and its documentation', profile: 'Information security audit / penetration test' },
 ];
 // Профильный тип проекта (текст из эталона) -> код проекта рулетки.
 const PROFILE_TO_CODE = {
-'DLP-система': 'dlp',
+'DLP system': 'dlp',
 'IAM / MFA / SSO': 'iam',
-'SIEM / SOC-мониторинг': 'siem',
-'Антивирус корпоративного класса / EDR': 'edr',
-'Аудит / пентест информационной безопасности': 'audit',
-'Категорирование объекта КИИ (187-ФЗ)': 'kii',
-'Комплексный проект ИТСО «под ключ»': 'hybrid',
-'Криптографическая защита каналов и данных (СКЗИ)': 'crypto',
-'Межсетевой экран / NGFW': 'ngfw',
-'Охранная сигнализация': 'security',
-'Паспорт безопасности / антитеррористическая защищённость (ПП РФ № 1006)': 'passport',
-'Пожарная сигнализация': 'fire',
-'Приведение обработки ПДн в соответствие 152-ФЗ': 'pdn',
-'Программа обучения персонала (security awareness)': 'training',
-'Разработка политики и регламентов ИБ': 'policy',
-'Резервное копирование и восстановление (Backup/DR)': 'backup',
-'СКУД (система контроля и управления доступом)': 'skud',
-'СОТ (система видеонаблюдения)': 'video',
+'SIEM / SOC monitoring': 'siem',
+'Enterprise-grade antivirus / EDR': 'edr',
+'Information security audit / penetration test': 'audit',
+'CII asset categorization (Federal Law No. 187-FZ)': 'kii',
+'Turnkey comprehensive physical security project': 'hybrid',
+'Cryptographic protection of channels and data (crypto tools)': 'crypto',
+'Firewall / NGFW': 'ngfw',
+'Security alarm': 'security',
+'Security passport / anti-terrorism protection (Russian Government Decree No. 1006)': 'passport',
+'Fire alarm': 'fire',
+'Bringing personal-data processing into compliance with Federal Law No. 152-FZ': 'pdn',
+'Staff training program (security awareness)': 'training',
+'Development of IS policy and regulations': 'policy',
+'Backup and recovery (Backup/DR)': 'backup',
+'ACS (access control system)': 'skud',
+'CCTV (video surveillance system)': 'video',
 };
 function threatProjectCode(t) { return PROFILE_TO_CODE[t.profile] || null; }
 function shuffleArr(arr) {
@@ -7341,100 +7341,100 @@ alert('Все занятия разблокированы (демо-режим).
 // цепочка задач с реальными длительностями, предшественниками и документом-подтверждением.
 // ============================================================
 const GANTT_ITSO = [
-    { code:"II.1", stage:"II", name:"Разметка трасс кабельных линий и мест крепления оборудования", dur:1, pred:"I.10", role:"Монтажник", doc:"Фото разметки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.2", stage:"II", name:"Штробление стен, перекрытий, сверление отверстий", dur:3, pred:"II.1", role:"Монтажник", doc:"Акт скрытых работ", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.3", stage:"II", name:"Установка кабель-каналов, коробов, труб", dur:2, pred:"II.2", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.4", stage:"II", name:"Прокладка кабелей и проводов (силовых, сигнальных, интерфейсных)", dur:3, pred:"II.3", role:"Монтажник", doc:"Акт прокладки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.5", stage:"II", name:"Монтаж несущих конструкций, кронштейнов, стоек", dur:2, pred:"II.4", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.6", stage:"II", name:"Установка контроллеров / приёмно-контрольных приборов, блоков питания", dur:1, pred:"II.5", role:"Монтажник", doc:"Акт установки", apply:{ skud:true, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.7", stage:"II", name:"Установка считывателей / карт-ридеров, замков, кнопок выхода, турникетов", dur:2, pred:"II.6", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
-    { code:"II.8", stage:"II", name:"Установка видеокамер и кронштейнов видеонаблюдения", dur:2, pred:"II.7", role:"Монтажник", doc:"Фото, акт", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
-    { code:"II.9", stage:"II", name:"Установка извещателей (дымовых, тепловых, ИК, магнитоконтактных)", dur:2, pred:"II.8", role:"Монтажник", doc:"Фото, акт", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.10", stage:"II", name:"Подключение силового питания (автоматы, УЗО, ИБП)", dur:1, pred:"II.9", role:"Электромонтажник", doc:"Схема подключения", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.11", stage:"II", name:"Подключение кабелей к оборудованию (обжим, коммутация)", dur:2, pred:"II.10", role:"Монтажник", doc:"Фото, акт", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.12", stage:"II", name:"Укладка кабельных запасов (не менее 5 м на вводе)", dur:1, pred:"II.11", role:"Монтажник", doc:"Фото", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.13", stage:"II", name:"Маркировка кабелей и проводов", dur:1, pred:"II.12", role:"Монтажник", doc:"Фото маркировки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.14", stage:"II", name:"Заделка штроб, отверстий, восстановление отделки", dur:1, pred:"II.13", role:"Монтажник", doc:"Фото", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"II.15", stage:"II", name:"Уборка монтажного мусора", dur:1, pred:"II.14", role:"Монтажник", doc:"Акт уборки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.1", stage:"III", name:"Проверка целостности кабельных линий (прозвонка)", dur:1, pred:"II.15", role:"Наладчик", doc:"Протокол прозвонки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.2", stage:"III", name:"Проверка наличия и качества питания на всех точках", dur:1, pred:"III.1", role:"Наладчик", doc:"Акт замеров", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.3", stage:"III", name:"Настройка и программирование контроллеров, приборов", dur:2, pred:"III.2", role:"Наладчик", doc:"Конфигурационный файл", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.4", stage:"III", name:"Установка и настройка ПО управления системой", dur:1, pred:"III.3", role:"Программист", doc:"Скриншоты, лицензии", apply:{ skud:true, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
-    { code:"III.5", stage:"III", name:"Регистрация пользователей / карт доступа, раздача прав", dur:1, pred:"III.4", role:"Наладчик", doc:"База пользователей", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
-    { code:"III.6", stage:"III", name:"Проверка работоспособности каждого устройства (поштучно)", dur:2, pred:"III.5", role:"Наладчик", doc:"Акт проверки", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.7", stage:"III", name:"Проверка срабатывания датчиков, извещателей", dur:1, pred:"III.6", role:"Наладчик", doc:"Акт проверки", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.8", stage:"III", name:"Настройка сценариев реакции системы на события", dur:1, pred:"III.7", role:"Наладчик", doc:"Таблица сценариев", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"III.9", stage:"III", name:"Проверка интеграции с другими системами (только гибрид)", dur:2, pred:"III.8", role:"Наладчик", doc:"Акт интеграции", apply:{ skud:false, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
-    { code:"III.10", stage:"III", name:"Настройка резервирования и аварийного питания", dur:1, pred:"III.9", role:"Наладчик", doc:"Акт проверки ИБП", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"IV.1", stage:"IV", name:"Проверка сопротивления изоляции кабельных линий", dur:1, pred:"III.10", role:"Наладчик", doc:"Протокол измерений", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"IV.2", stage:"IV", name:"Проверка заземления и контуров защитного заземления", dur:1, pred:"IV.1", role:"Электролаборатория", doc:"Протокол", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"IV.3", stage:"IV", name:"Проверка работоспособности при пониженном/повышенном напряжении", dur:1, pred:"IV.2", role:"Наладчик", doc:"Протокол", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"IV.4", stage:"IV", name:"Проверка чувствительности датчиков и зон покрытия", dur:1, pred:"IV.3", role:"Наладчик", doc:"Протокол, схема", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"IV.5", stage:"IV", name:"Проверка уровня освещённости (для видеокамер)", dur:0.5, pred:"IV.4", role:"Наладчик", doc:"Люксметр, протокол", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
-    { code:"IV.6", stage:"IV", name:"Проверка скорости реакции системы на тревогу", dur:0.5, pred:"IV.5", role:"Наладчик", doc:"Протокол замеров", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"V.1", stage:"V", name:"Контрольные и приёмо-сдаточные испытания всей системы", dur:2, pred:"IV.6", role:"Комиссия", doc:"Протокол испытаний", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"V.2", stage:"V", name:"Составление исполнительной документации (акты, схемы)", dur:2, pred:"V.1", role:"Инженер проекта", doc:"Исполнительная документация", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"V.3", stage:"V", name:"Обучение персонала Заказчика эксплуатации системы", dur:1, pred:"V.2", role:"Наладчик", doc:"Протокол обучения", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"V.4", stage:"V", name:"Передача паролей, ключей, лицензий Заказчику", dur:1, pred:"V.3", role:"Руководитель проекта", doc:"Акт передачи", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
-    { code:"V.5", stage:"V", name:"Подписание акта ввода в эксплуатацию", dur:1, pred:"V.4", role:"Комиссия", doc:"Акт ввода в эксплуатацию", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.1", stage:"II", name:"Marking cable-route paths and equipment mounting points", dur:1, pred:"I.10", role:"Монтажник", doc:"Marking photos", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.2", stage:"II", name:"Chasing walls and floor slabs, drilling holes", dur:3, pred:"II.1", role:"Монтажник", doc:"Concealed-works acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.3", stage:"II", name:"Installing cable trunking, conduit boxes, and pipes", dur:2, pred:"II.2", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.4", stage:"II", name:"Running cables and wires (power, signal, interface)", dur:3, pred:"II.3", role:"Монтажник", doc:"Cable-run acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.5", stage:"II", name:"Installing support structures, brackets, and racks", dur:2, pred:"II.4", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.6", stage:"II", name:"Installing controllers / control panels and power supplies", dur:1, pred:"II.5", role:"Монтажник", doc:"Installation report", apply:{ skud:true, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.7", stage:"II", name:"Installing readers / card readers, locks, exit buttons, turnstiles", dur:2, pred:"II.6", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"II.8", stage:"II", name:"Installing cameras and video-surveillance brackets", dur:2, pred:"II.7", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"II.9", stage:"II", name:"Installing detectors (smoke, heat, infrared, magnetic contact)", dur:2, pred:"II.8", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.10", stage:"II", name:"Connecting power supply (breakers, RCDs, UPS)", dur:1, pred:"II.9", role:"Электромонтажник", doc:"Wiring diagram", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.11", stage:"II", name:"Connecting cables to equipment (crimping, patching)", dur:2, pred:"II.10", role:"Монтажник", doc:"Photos, acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.12", stage:"II", name:"Coiling cable slack (at least 5 m at the entry point)", dur:1, pred:"II.11", role:"Монтажник", doc:"Photo", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.13", stage:"II", name:"Labeling cables and wires", dur:1, pred:"II.12", role:"Монтажник", doc:"Labeling photo", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.14", stage:"II", name:"Filling chases and holes, restoring finishes", dur:1, pred:"II.13", role:"Монтажник", doc:"Photo", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"II.15", stage:"II", name:"Clearing installation debris", dur:1, pred:"II.14", role:"Монтажник", doc:"Cleanup report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.1", stage:"III", name:"Checking cable-line continuity (continuity test)", dur:1, pred:"II.15", role:"Наладчик", doc:"Continuity-test report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.2", stage:"III", name:"Checking power presence and quality at every point", dur:1, pred:"III.1", role:"Наладчик", doc:"Measurement report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.3", stage:"III", name:"Configuring and programming controllers and devices", dur:2, pred:"III.2", role:"Наладчик", doc:"Configuration file", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.4", stage:"III", name:"Installing and configuring the system-management software", dur:1, pred:"III.3", role:"Программист", doc:"Screenshots, licenses", apply:{ skud:true, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"III.5", stage:"III", name:"Registering users / access cards, assigning permissions", dur:1, pred:"III.4", role:"Наладчик", doc:"User database", apply:{ skud:true, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"III.6", stage:"III", name:"Verifying the operability of every device (one by one)", dur:2, pred:"III.5", role:"Наладчик", doc:"Verification report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.7", stage:"III", name:"Verifying sensor and detector triggering", dur:1, pred:"III.6", role:"Наладчик", doc:"Verification report", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.8", stage:"III", name:"Configuring the system event-response scenarios", dur:1, pred:"III.7", role:"Наладчик", doc:"Scenario table", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"III.9", stage:"III", name:"Verifying integration with other systems (hybrid only)", dur:2, pred:"III.8", role:"Наладчик", doc:"Integration report", apply:{ skud:false, video:false, fire:false, security:false, perimeter:false, hybrid:true } },
+    { code:"III.10", stage:"III", name:"Configuring redundancy and backup power", dur:1, pred:"III.9", role:"Наладчик", doc:"UPS verification report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.1", stage:"IV", name:"Checking cable-line insulation resistance", dur:1, pred:"III.10", role:"Наладчик", doc:"Measurement report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.2", stage:"IV", name:"Checking grounding and protective-earth loops", dur:1, pred:"IV.1", role:"Электролаборатория", doc:"Report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.3", stage:"IV", name:"Verifying operability under low/high voltage", dur:1, pred:"IV.2", role:"Наладчик", doc:"Report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.4", stage:"IV", name:"Checking sensor sensitivity and coverage zones", dur:1, pred:"IV.3", role:"Наладчик", doc:"Report, diagram", apply:{ skud:false, video:false, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"IV.5", stage:"IV", name:"Checking illumination level (for cameras)", dur:0.5, pred:"IV.4", role:"Наладчик", doc:"Lux-meter reading, report", apply:{ skud:false, video:true, fire:false, security:false, perimeter:true, hybrid:true } },
+    { code:"IV.6", stage:"IV", name:"Checking the system alarm response time", dur:0.5, pred:"IV.5", role:"Наладчик", doc:"Measurement report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.1", stage:"V", name:"Control and acceptance testing of the whole system", dur:2, pred:"IV.6", role:"Комиссия", doc:"Test report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.2", stage:"V", name:"Compiling as-built documentation (reports, diagrams)", dur:2, pred:"V.1", role:"Инженер проекта", doc:"As-built documentation", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.3", stage:"V", name:"Training the client's staff on system operation", dur:1, pred:"V.2", role:"Наладчик", doc:"Training report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.4", stage:"V", name:"Handing over passwords, keys, and licenses to the client", dur:1, pred:"V.3", role:"Руководитель проекта", doc:"Handover report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
+    { code:"V.5", stage:"V", name:"Signing the commissioning Acceptance report", dur:1, pred:"V.4", role:"Комиссия", doc:"Commissioning acceptance report", apply:{ skud:true, video:true, fire:true, security:true, perimeter:true, hybrid:true } },
 ];
 // doc — в исходном листе «Гантт_Софт_Орг» такой колонки нет (только «Норматив/основание») —
 // сформулирован по аналогии с колонкой «Документ/подтверждение» листа Гантт_ИТСО: что физически
 // подтверждает выполнение задачи.
 const GANTT_SOFT_COMMON = [
-    { code:"II.1", stage:"II", name:"Разработка архитектуры внедрения (схема сети, точки установки)", dur:4, pred:"I.6", role:"Архитектор ИБ", norm:"ГОСТ Р ИСО/МЭК 27002-2021", doc:"Архитектурная схема внедрения", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"II.2", stage:"II", name:"Разработка комплекта организационно-распорядительной документации (политики, регламенты, инструкции)", dur:6, pred:"II.1", role:"Специалист по ИБ", norm:"Приказ ФСТЭК №21/№117/№239 (состав мер)", doc:"Комплект организационно-распорядительной документации (ОРД)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:true, training:true } },
-    { code:"II.3", stage:"II", name:"Разработка модели угроз и модели нарушителя", dur:3, pred:"II.2", role:"Специалист по ИБ", norm:"Методика ФСТЭК (05.02.2021)", doc:"Модель угроз и модель нарушителя", apply:{ ngfw:true, dlp:false, iam:false, siem:true, edr:false, vpn:false, backup:false, crypto:true, policy:true, kii:true, pdn:true, passport:false, audit:true, training:false } },
-    { code:"II.4", stage:"II", name:"Разработка проекта паспорта безопасности / антитеррористического паспорта объекта", dur:5, pred:"II.3", role:"Комиссия Заказчика", norm:"ПП РФ №1006 (02.08.2019); ПП РФ №1421 (07.11.2019); ФЗ №35-ФЗ", doc:"Проект паспорта безопасности объекта", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:true, audit:false, training:false } },
-    { code:"II.5", stage:"II", name:"Проектирование политик доступа / правил обработки данных (ACL, DLP-политики, IAM-роли)", dur:4, pred:"II.4", role:"Инженер ИБ", norm:"Приказ ФСТЭК №21 (категория ИАФ, УПД)", doc:"Матрица политик доступа (ACL/DLP/IAM-роли)", apply:{ ngfw:true, dlp:true, iam:true, siem:false, edr:false, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"II.6", stage:"II", name:"Согласование проектных решений с Заказчиком", dur:1, pred:"II.5", role:"Руководитель проекта", norm:"Внутренний регламент проекта", doc:"Протокол согласования проектных решений", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
-    { code:"III.1", stage:"III", name:"Закупка лицензий / оборудования / сертифицированных СКЗИ", dur:7, pred:"II.6", role:"Зав. складом / юрист", norm:"Приказ ФАПСИ №152 (13.06.2001) — для СКЗИ", doc:"Накладные / лицензионные соглашения на закупку", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"III.2", stage:"III", name:"Установка и базовая настройка ПО / оборудования в тестовом контуре", dur:4, pred:"III.1", role:"Инженер ИБ", norm:"Документация производителя", doc:"Акт установки в тестовом контуре", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"III.3", stage:"III", name:"Интеграция с существующей инфраструктурой (AD/LDAP, SIEM, сеть)", dur:3, pred:"III.2", role:"Инженер ИБ", norm:"-", doc:"Акт интеграции с инфраструктурой", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"III.4", stage:"III", name:"Утверждение и подписание разработанных документов руководством Заказчика", dur:2, pred:"III.3", role:"Руководитель Заказчика", norm:"Внутренний регламент документооборота", doc:"Подписанный комплект документов Заказчика", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
-    { code:"III.5", stage:"III", name:"Включение объекта КИИ в реестр значимых объектов ФСТЭК", dur:2, pred:"III.4", role:"Комиссия Заказчика", norm:"ПП РФ №127; Приказ ФСТЭК №235", doc:"Выписка из реестра значимых объектов ФСТЭК", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:false, passport:false, audit:false, training:false } },
-    { code:"III.6", stage:"III", name:"Уведомление Роскомнадзора об обработке персональных данных", dur:1, pred:"III.5", role:"Юрист", norm:"ФЗ №152-ФЗ, ст.22", doc:"Уведомление в Роскомнадзор с отметкой о приёме", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:true, passport:false, audit:false, training:false } },
-    { code:"III.7", stage:"III", name:"Развёртывание решения в промышленном контуре (production)", dur:3, pred:"III.6", role:"Инженер ИБ", norm:"-", doc:"Акт ввода решения в промышленную эксплуатацию", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"IV.1", stage:"IV", name:"Настройка правил / политик / сценариев реагирования", dur:4, pred:"III.7", role:"Инженер ИБ", norm:"MITRE ATT&CK (справочно, вектора угроз)", doc:"Регламент/таблица правил реагирования", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"IV.2", stage:"IV", name:"Тестирование решения (пилот, нагрузочное и функциональное тестирование)", dur:3, pred:"IV.1", role:"Инженер ИБ", norm:"-", doc:"Протокол тестирования (пилот/нагрузочное)", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"IV.3", stage:"IV", name:"Тестовое восстановление из резервной копии (DRP-тест)", dur:1, pred:"IV.2", role:"Инженер ИБ", norm:"ISO/IEC 27031:2011", doc:"Протокол тестового восстановления (DRP-тест)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:true, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"IV.4", stage:"IV", name:"Проведение внутреннего аудита / gap-анализа соответствия", dur:3, pred:"IV.3", role:"Аудитор ИБ", norm:"ГОСТ Р ИСО/МЭК 27001-2021", doc:"Отчёт по gap-анализу соответствия", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:true, training:false } },
-    { code:"IV.5", stage:"IV", name:"Разработка программы обучения и проведение обучения / фишинг-симуляции персонала", dur:3, pred:"IV.4", role:"Специалист по обучению", norm:"ГОСТ Р ИСО/МЭК 27002-2021, п.6.3", doc:"Протокол обучения и результатов фишинг-симуляции", apply:{ ngfw:false, dlp:false, iam:true, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:false, training:true } },
-    { code:"IV.6", stage:"IV", name:"Ознакомление персонала с политиками под подпись", dur:1, pred:"IV.5", role:"Специалист по ИБ", norm:"Приказ ФСТЭК №21 (ИАФ)", doc:"Лист ознакомления с политиками (подписи)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:false, pdn:true, passport:false, audit:false, training:true } },
-    { code:"V.1", stage:"V", name:"Приёмо-сдаточные испытания и подписание акта ввода в эксплуатацию", dur:2, pred:"IV.6", role:"Комиссия", norm:"Внутренний регламент приёмки", doc:"Акт ввода в эксплуатацию", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
-    { code:"V.2", stage:"V", name:"Оформление итогового отчёта / акта аудита / заключения", dur:2, pred:"V.1", role:"Аудитор / руководитель проекта", norm:"ГОСТ Р ИСО/МЭК 27001-2021", doc:"Итоговый отчёт / акт аудита", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:true, passport:true, audit:true, training:false } },
-    { code:"V.3", stage:"V", name:"Передача документации, ключей доступа, лицензий Заказчику", dur:1, pred:"V.2", role:"Руководитель проекта", norm:"Внутренний регламент проекта", doc:"Акт передачи документации и ключей доступа", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
-    { code:"V.4", stage:"V", name:"Постановка на сопровождение (SLA) и плановый пересмотр/аудит", dur:1, pred:"V.3", role:"Руководитель проекта", norm:"ГОСТ Р ИСО/МЭК 27001-2021 (PDCA)", doc:"Договор (регламент) SLA на сопровождение", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"II.1", stage:"II", name:"Designing the implementation architecture (network diagram, installation points)", dur:4, pred:"I.6", role:"Архитектор ИБ", norm:"GOST R ISO/IEC 27002-2021", doc:"Implementation architecture diagram", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"II.2", stage:"II", name:"Drafting the set of organizational-administrative documents (policies, regulations, instructions)", dur:6, pred:"II.1", role:"Специалист по ИБ", norm:"FSTEC Order No. 21/No. 117/No. 239 (measure set)", doc:"Set of organizational-administrative documents", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:true, training:true } },
+    { code:"II.3", stage:"II", name:"Developing the threat model and the intruder model", dur:3, pred:"II.2", role:"Специалист по ИБ", norm:"FSTEC Methodology (05.02.2021)", doc:"Threat model and intruder model", apply:{ ngfw:true, dlp:false, iam:false, siem:true, edr:false, vpn:false, backup:false, crypto:true, policy:true, kii:true, pdn:true, passport:false, audit:true, training:false } },
+    { code:"II.4", stage:"II", name:"Drafting the facility security passport / anti-terrorism passport", dur:5, pred:"II.3", role:"Комиссия Заказчика", norm:"Russian Government Decree No. 1006 (02.08.2019); Decree No. 1421 (07.11.2019); Federal Law No. 35-FZ", doc:"Draft facility security passport", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:true, audit:false, training:false } },
+    { code:"II.5", stage:"II", name:"Designing access policies / data-handling rules (ACLs, DLP policies, IAM roles)", dur:4, pred:"II.4", role:"Инженер ИБ", norm:"FSTEC Order No. 21 (identification/authentication and access-control measures)", doc:"Access-policy matrix (ACL/DLP/IAM roles)", apply:{ ngfw:true, dlp:true, iam:true, siem:false, edr:false, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"II.6", stage:"II", name:"Approving the design decisions with the client", dur:1, pred:"II.5", role:"Руководитель проекта", norm:"Internal project regulations", doc:"Design-decision approval report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"III.1", stage:"III", name:"Purchasing licenses / equipment / certified cryptographic protection tools", dur:7, pred:"II.6", role:"Зав. складом / юрист", norm:"FAPSI Order No. 152 (13.06.2001) — for cryptographic protection tools", doc:"Invoices / license agreements for the purchase", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.2", stage:"III", name:"Installing and base-configuring the software / equipment in the test environment", dur:4, pred:"III.1", role:"Инженер ИБ", norm:"Vendor documentation", doc:"Test-environment installation report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.3", stage:"III", name:"Integrating with the existing infrastructure (AD/LDAP, SIEM, network)", dur:3, pred:"III.2", role:"Инженер ИБ", norm:"-", doc:"Infrastructure integration report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.4", stage:"III", name:"Approving and signing the drafted documents with client management", dur:2, pred:"III.3", role:"Руководитель Заказчика", norm:"Internal document-management regulations", doc:"Signed set of client documents", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"III.5", stage:"III", name:"Entering the CII asset into the FSTEC register of significant assets", dur:2, pred:"III.4", role:"Комиссия Заказчика", norm:"Russian Government Decree No. 127; FSTEC Order No. 235", doc:"Extract from the FSTEC register of significant assets", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:false, passport:false, audit:false, training:false } },
+    { code:"III.6", stage:"III", name:"Notifying Roskomnadzor of personal-data processing", dur:1, pred:"III.5", role:"Юрист", norm:"Federal Law No. 152-FZ, Art. 22", doc:"Notice to Roskomnadzor with the receipt stamp", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:true, passport:false, audit:false, training:false } },
+    { code:"III.7", stage:"III", name:"Deploying the solution to the production environment", dur:3, pred:"III.6", role:"Инженер ИБ", norm:"-", doc:"Production go-live report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.1", stage:"IV", name:"Configuring the response rules / policies / scenarios", dur:4, pred:"III.7", role:"Инженер ИБ", norm:"MITRE ATT&CK (reference, threat vectors)", doc:"Response-rules regulation/table", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.2", stage:"IV", name:"Testing the solution (pilot, load and functional testing)", dur:3, pred:"IV.1", role:"Инженер ИБ", norm:"-", doc:"Testing report (pilot/load)", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.3", stage:"IV", name:"Test restore from backup (DRP test)", dur:1, pred:"IV.2", role:"Инженер ИБ", norm:"ISO/IEC 27031:2011", doc:"Test-restore report (DRP test)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:true, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"IV.4", stage:"IV", name:"Conducting an internal audit / compliance gap analysis", dur:3, pred:"IV.3", role:"Аудитор ИБ", norm:"GOST R ISO/IEC 27001-2021", doc:"Compliance gap-analysis report", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:false, pdn:false, passport:false, audit:true, training:false } },
+    { code:"IV.5", stage:"IV", name:"Developing and running the staff training program / phishing simulation", dur:3, pred:"IV.4", role:"Специалист по обучению", norm:"GOST R ISO/IEC 27002-2021, cl. 6.3", doc:"Training report and phishing-simulation results", apply:{ ngfw:false, dlp:false, iam:true, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:true, pdn:true, passport:false, audit:false, training:true } },
+    { code:"IV.6", stage:"IV", name:"Having staff sign off on the policies", dur:1, pred:"IV.5", role:"Специалист по ИБ", norm:"FSTEC Order No. 21 (identification/authentication)", doc:"Policy sign-off sheet (signatures)", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:true, kii:false, pdn:true, passport:false, audit:false, training:true } },
+    { code:"V.1", stage:"V", name:"Acceptance testing and signing the commissioning report", dur:2, pred:"IV.6", role:"Комиссия", norm:"Internal acceptance regulations", doc:"Commissioning acceptance report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:false, kii:false, pdn:false, passport:false, audit:false, training:false } },
+    { code:"V.2", stage:"V", name:"Preparing the final report / audit report / conclusion", dur:2, pred:"V.1", role:"Аудитор / руководитель проекта", norm:"GOST R ISO/IEC 27001-2021", doc:"Final report / audit report", apply:{ ngfw:false, dlp:false, iam:false, siem:false, edr:false, vpn:false, backup:false, crypto:false, policy:false, kii:true, pdn:true, passport:true, audit:true, training:false } },
+    { code:"V.3", stage:"V", name:"Handing over documentation, access keys, and licenses to the client", dur:1, pred:"V.2", role:"Руководитель проекта", norm:"Internal project regulations", doc:"Documentation and access-key handover report", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
+    { code:"V.4", stage:"V", name:"Setting up support (SLA) and the scheduled review/audit", dur:1, pred:"V.3", role:"Руководитель проекта", norm:"GOST R ISO/IEC 27001-2021 (PDCA)", doc:"Support SLA agreement", apply:{ ngfw:true, dlp:true, iam:true, siem:true, edr:true, vpn:true, backup:true, crypto:true, policy:true, kii:true, pdn:true, passport:true, audit:true, training:true } },
 ];
 // по одной уникальной задаче на каждый из 14 типов, дополняющей общую стадийность выше
 const GANTT_SOFT_SPECIFIC = {
-    ngfw: { name:"Разработка и внедрение правил межсетевого экранирования (ACL, NAT, приложения)", dur:3, doc:"Акт внедрения правил межсетевого экранирования" },
-    dlp: { name:"Настройка политик контроля каналов утечки (почта, USB, печать, облако)", dur:4, doc:"Утверждённая политика контроля каналов утечки" },
-    iam: { name:"Интеграция с LDAP/AD, настройка ролевой модели доступа (RBAC)", dur:4, doc:"Акт внедрения ролевой модели доступа (RBAC)" },
-    siem: { name:"Подключение источников логов (log sources) и разработка корреляционных правил", dur:5, doc:"Перечень источников логов и корреляционных правил" },
-    edr: { name:"Развёртывание агентов на конечных точках, настройка политик реагирования", dur:3, doc:"Акт развёртывания агентов EDR" },
-    vpn: { name:"Настройка туннелей (IPsec/SSL/ГОСТ VPN), выдача сертификатов и ключей", dur:3, doc:"Акт настройки каналов, реестр сертификатов/ключей" },
-    backup: { name:"Настройка расписания РК, проверка RPO/RTO, тестовое восстановление", dur:3, doc:"Акт проверки RPO/RTO и тестового восстановления" },
-    crypto: { name:"Установка сертифицированных СКЗИ, генерация и учёт ключей", dur:4, doc:"Акт установки СКЗИ, журнал учёта ключей" },
-    policy: { name:"Разработка комплекта ОРД: политика ИБ, регламенты, инструкции пользователя/администратора", dur:6, doc:"Утверждённый комплект ОРД по ИБ" },
-    kii: { name:"Категорирование объекта, разработка модели угроз, включение в реестр ФСТЭК", dur:8, doc:"Акт категорирования и включения в реестр ФСТЭК" },
-    pdn: { name:"Классификация ИСПДн, разработка модели угроз, уведомление в Роскомнадзор", dur:5, doc:"Модель угроз ПДн и уведомление в Роскомнадзор" },
-    passport: { name:"Разработка паспорта безопасности / антитеррористического паспорта, согласование с органами", dur:5, doc:"Согласованный паспорт безопасности объекта" },
-    audit: { name:"Проведение внутреннего аудита, gap-анализ по ГОСТ Р ИСО/МЭК 27001, отчёт с рекомендациями", dur:5, doc:"Отчёт по итогам аудита с рекомендациями" },
-    training: { name:"Разработка программы обучения, проведение тренинга и фишинг-симуляции, оценка результатов", dur:3, doc:"Протокол обучения и оценки результатов" },
+    ngfw: { name:"Developing and deploying the firewall rule set (ACL, NAT, applications)", dur:3, doc:"Firewall rule-deployment report" },
+    dlp: { name:"Configuring leak-channel control policies (email, USB, printing, cloud)", dur:4, doc:"Approved leak-channel control policy" },
+    iam: { name:"Integrating with LDAP/AD, configuring the role-based access model (RBAC)", dur:4, doc:"RBAC deployment report" },
+    siem: { name:"Connecting log sources and developing correlation rules", dur:5, doc:"List of log sources and correlation rules" },
+    edr: { name:"Deploying agents to endpoints, configuring response policies", dur:3, doc:"EDR agent deployment report" },
+    vpn: { name:"Configuring tunnels (IPsec/SSL/GOST VPN), issuing certificates and keys", dur:3, doc:"Channel configuration report, certificate/key registry" },
+    backup: { name:"Configuring the backup schedule, verifying RPO/RTO, test restore", dur:3, doc:"RPO/RTO verification and test-restore report" },
+    crypto: { name:"Installing certified cryptographic protection tools, generating and logging keys", dur:4, doc:"Installation report, key log" },
+    policy: { name:"Drafting the document set: IS policy, regulations, user/administrator instructions", dur:6, doc:"Approved IS document set" },
+    kii: { name:"Categorizing the facility, developing the threat model, entering it in the FSTEC register", dur:8, doc:"Categorization report and FSTEC register entry" },
+    pdn: { name:"Classifying the personal-data information system, developing the threat model, notifying Roskomnadzor", dur:5, doc:"Personal-data threat model and Roskomnadzor notice" },
+    passport: { name:"Drafting the security / anti-terrorism passport, approval with the authorities", dur:5, doc:"Approved facility security passport" },
+    audit: { name:"Conducting the internal audit, GOST R ISO/IEC 27001 gap analysis, report with recommendations", dur:5, doc:"Audit report with recommendations" },
+    training: { name:"Developing the training program, running the training session and phishing simulation, assessing results", dur:3, doc:"Training and results-assessment report" },
 };
 // материалы (компоненты с ценами по 3 уровням) — привязаны к конкретным задачам монтажа,
 // проверены агентом по реальным рыночным ценам (см. работу по Комплектующие_20типов); сохранены
 // при переходе на реальный перечень задач Гантта (раньше жёстко лежали в шаблонах id 2001-2003).
 const REAL_TASK_MATERIALS = {
     skud: {
-        'II.6': [{ name: 'Контроллер СКУД', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }],
-        'II.7': [{ name: 'Считыватель/замок', qty: 4, priceBudget: 2500, priceMiddle: 5000, priceVip: 12000 }],
-        'III.4': [{ name: 'Лицензия ПО СКУД', qty: 1, priceBudget: 5000, priceMiddle: 10000, priceVip: 25000 }]
+        'II.6': [{ name: 'Access control controller', qty: 2, priceBudget: 8000, priceMiddle: 15000, priceVip: 30000 }],
+        'II.7': [{ name: 'Reader/lock', qty: 4, priceBudget: 2500, priceMiddle: 5000, priceVip: 12000 }],
+        'III.4': [{ name: 'Access control software license', qty: 1, priceBudget: 5000, priceMiddle: 10000, priceVip: 25000 }]
     },
     video: {
-        'II.8': [{ name: 'Видеокамера', qty: 8, priceBudget: 5000, priceMiddle: 9000, priceVip: 18000 }],
-        'III.4': [{ name: 'Видеорегистратор (NVR) + ПО', qty: 1, priceBudget: 15000, priceMiddle: 30000, priceVip: 50000 }]
+        'II.8': [{ name: 'Video camera', qty: 8, priceBudget: 5000, priceMiddle: 9000, priceVip: 18000 }],
+        'III.4': [{ name: 'Video recorder (NVR) + software', qty: 1, priceBudget: 15000, priceMiddle: 30000, priceVip: 50000 }]
     }
 };
 // Сопоставление роли из реального листа Гантта с сотрудником фирмы (только среди «эталонных»,
@@ -7582,7 +7582,7 @@ function buildRealStage2Tasks(projectType) {
                 requiredPosition: reqPositionFor('Специалист по ИБ', portfolio, projectType),
                 predecessors: [lastII ? lastII.id : 1013], materials: [], refDoc: spec.doc
             });
-            const acceptance = out.find(t => /Приёмо-сдаточные/.test(t.name));
+            const acceptance = out.find(t => /Приёмо-сдаточные|Acceptance/.test(t.name));
             if (acceptance && !acceptance.predecessors.includes(specId)) acceptance.predecessors.push(specId);
         }
     }
