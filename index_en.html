@@ -1404,9 +1404,9 @@ const pipeNodes = document.querySelectorAll('#pipeline .pnode');
 let progress = 0;
 let currentStep = 0;
 const loadingSteps = [
-    { text: 'Загрузка справочника аудитора…', target: 25 },
-    { text: 'Подготовка реестров проекта…', target: 55 },
-    { text: 'Инициализация канбан-оболочек…', target: 85 },
+    { text: 'Loading the auditor handbook…', target: 25 },
+    { text: 'Preparing project registers…', target: 55 },
+    { text: 'Initializing kanban shells…', target: 85 },
     { text: '', target: 100 }
 ];
 
@@ -1576,31 +1576,31 @@ const ALL_ROULETTE_ITEMS = ROULETTE_CHESTS.flatMap(c => c.items.map(it => Object
 // ============================================================
 const CHEST_SEGMENT_QUESTIONS = [
     { // портфель I — ИТСО
-        question: 'На каких объектах ваша фирма специализируется?',
+        question: 'What kinds of sites does your firm specialize in?',
         options: [
-            { label: 'Периметр и протяжённые ограждения (склады, промзоны, посёлки)', codes: ['perimeter', 'hybrid'] },
-            { label: 'Объекты с массовым пребыванием людей (ТЦ, школы, стадионы)', codes: ['video', 'fire', 'security'] },
-            { label: 'Отдельно стоящие охраняемые объекты (склад, завод, частный дом, гараж, дача)', codes: ['skud', 'security', 'hybrid'] },
-            { label: 'Универсальный профиль — принимаем любые заявки', codes: null }
+            { label: 'Perimeter and long-run fencing (warehouses, industrial zones, settlements)', codes: ['perimeter', 'hybrid'] },
+            { label: 'Sites with mass occupancy (malls, schools, stadiums)', codes: ['video', 'fire', 'security'] },
+            { label: 'Standalone secured sites (warehouse, plant, private house, garage, dacha)', codes: ['skud', 'security', 'hybrid'] },
+            { label: 'Universal profile — we take any request', codes: null }
         ]
     },
     { // портфель II — программно-аппаратный
-        question: 'Какая проблема ИБ у клиентов вашей фирмы встречается чаще всего?',
+        question: 'Which IS problem comes up most often among your firm\'s clients?',
         options: [
-            { label: 'Внешние атаки и защита периметра сети', codes: ['ngfw', 'edr', 'vpn'] },
-            { label: 'Утечки данных и контроль доступа персонала', codes: ['dlp', 'iam'] },
-            { label: 'Мониторинг инцидентов и реагирование на атаки', codes: ['siem', 'edr'] },
-            { label: 'Непрерывность бизнеса и защита каналов связи', codes: ['backup', 'crypto', 'vpn'] },
-            { label: 'Универсальный профиль — принимаем любые заявки', codes: null }
+            { label: 'External attacks and network perimeter protection', codes: ['ngfw', 'edr', 'vpn'] },
+            { label: 'Data leaks and staff access control', codes: ['dlp', 'iam'] },
+            { label: 'Incident monitoring and attack response', codes: ['siem', 'edr'] },
+            { label: 'Business continuity and protecting communication channels', codes: ['backup', 'crypto', 'vpn'] },
+            { label: 'Universal profile — we take any request', codes: null }
         ]
     },
     { // портфель III — организационно-административный
-        question: 'Какой тип заказчика чаще обращается к вашей фирме?',
+        question: 'What type of client most often approaches your firm?',
         options: [
-            { label: 'Объекты критической информационной инфраструктуры (КИИ)', codes: ['kii', 'audit'] },
-            { label: 'Организации, обрабатывающие персональные данные', codes: ['pdn', 'policy'] },
-            { label: 'Объекты с требованиями антитеррористической защищённости', codes: ['passport', 'training'] },
-            { label: 'Универсальный профиль — принимаем любые заявки', codes: null }
+            { label: 'Critical information infrastructure (CII) facilities', codes: ['kii', 'audit'] },
+            { label: 'Organizations that process personal data', codes: ['pdn', 'policy'] },
+            { label: 'Sites with anti-terrorism protection requirements', codes: ['passport', 'training'] },
+            { label: 'Universal profile — we take any request', codes: null }
         ]
     }
 ];
@@ -2048,22 +2048,22 @@ function submitProjectReport() {
     // если состав персонала был зафиксирован (в т.ч. автоматически при ошибочности <=25%),
     // сведения об ошибках подбора персонала «вшиваются» в текст сдачи отчётности по проекту
     const staffNote = state.staffLocked && state.staffReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.staffReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.staffReportNote)
         : '';
     const resNote = state.resourcesLocked && state.resourcesReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.resourcesReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.resourcesReportNote)
         : '';
     const auditDoNote = state.auditDoLocked && state.auditDoReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.auditDoReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.auditDoReportNote)
         : '';
     const auditAfterNote = state.auditAfterLocked && state.auditAfterReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.auditAfterReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.auditAfterReportNote)
         : '';
     const taskNotesNote = state.taskNotesLocked && state.taskNotesReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.taskNotesReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.taskNotesReportNote)
         : '';
     const taskVerifNote = state.taskVerifLocked && state.taskVerifReportNote
-        ? ('\n\n📋 В отчёт по проекту вшито: ' + state.taskVerifReportNote)
+        ? ('\n\n📋 Recorded in the project report: ' + state.taskVerifReportNote)
         : '';
     if (nextIdx <= 2) {
         // ИЗМЕНЕНО (2026-07-26): раньше здесь сразу вызывался startProjectRun(nextIdx) — проект №2/3
@@ -2119,13 +2119,13 @@ function applyAssignedProjectToFunnel() {
     const badge = document.getElementById('assignedProjectBadge');
     if (badge) badge.textContent = '🎲 Project type (roulette selection): ' + p.name;
     const callP = document.getElementById('clientCallLine');
-    const objName = p.object ? p.object.name : 'частный дом';
-    const objAddr = p.object ? p.object.addr : 'ул. Пирогова, 116';
+    const objName = p.object ? p.object.name : 'private house';
+    const objAddr = p.object ? p.object.addr : 'Pirogova St., 116';
     if (callP) callP.innerHTML = '<strong>Client:</strong> I need a service: <strong>' + label + '</strong> for a site called "' + objName + '" at the address: <strong>' + objAddr + '</strong>.';
     const addrInput = document.getElementById('clientAddress');
     if (addrInput) addrInput.value = objAddr;
     const detailsInput = document.getElementById('clientDetails');
-    if (detailsInput) detailsInput.value = 'Объект: ' + objName + '. Характеристики и особые требования уточняются на визите инженера-проектировщика.';
+    if (detailsInput) detailsInput.value = 'Site: ' + objName + '. Characteristics and special requirements are to be clarified during the design engineer\'s site visit.';
     const sel = document.getElementById('sketchType');
     if (sel) {
         const has = Array.prototype.some.call(sel.options, o => o.value === p.code);
@@ -2151,13 +2151,13 @@ let clientData = { firmName: '', name: '', phone: '', address: '', details: '', 
 function editFirmName() {
 const input = document.getElementById('firmInput');
 if (!input) return;
-input.value = 'ООО «Безопасные системы»';
+input.value = 'Secure Systems LLC';
 input.focus();
 input.select();
 }
 function setFirmName() {
 let val = document.getElementById('firmInput').value.trim();
-if (!val) { val = 'ООО «ТехноСистемы»'; document.getElementById('firmInput').value = val; }
+if (!val) { val = 'TechnoSystems LLC'; document.getElementById('firmInput').value = val; }
 clientData.firmName = val;
 document.getElementById('firmDisplay').innerText = '🏢 ' + val;
 document.getElementById('firmNamePlaceholder').innerText = val;
@@ -2468,7 +2468,7 @@ function componentsTotal(projectType, level) {
     const key = level === 'budget' ? 'budget' : (level === 'vip' ? 'vip' : 'middle');
     return items.reduce((s, it) => s + (typeof it[key] === 'number' ? it[key] : 0), 0);
 }
-const NOTE_CAT_LABEL = { survey: 'Анкета клиента', tz: 'ТЗ / эскиз', key: 'Ключевая задача внедрения' };
+const NOTE_CAT_LABEL = { survey: 'Client questionnaire', tz: 'Brief / sketch', key: 'Key implementation task' };
 // НИЖЕ — устаревшая привязка (оставлена как справочный материал, в столбце «Примечание» больше
 // не используется, см. TASK_OUTPUT_DOCS/taskOutputDoc): раньше все задачи получали ОДИН и тот же
 // набор из 3 реперных ответов на весь проект, из-за чего для складского аудита/согласований/счёта
@@ -2519,37 +2519,37 @@ const TASK_OUTPUT_DOCS = {
 // ============================================================
 const VERIFICATION_METHODS = {
     // --- физические системы ИТСО (СКУД/видео/пожарная/охранная/периметр/гибрид) ---
-    'II.6': 'Проверка надёжности крепления и полярности подключения блока питания к контроллеру',
-    'II.10': 'Проверка правильности срабатывания автоматов защиты и УЗО нажатием кнопки «Test»',
-    'II.11': 'Проверка качества обжима разъёмов (RJ-45/BNC/клеммы) — жила не выдёргивается из-под контакта',
-    'II.13': 'Визуальная проверка читаемости и сохранности маркировки кабелей после монтажа',
-    'III.1': 'Прозвонка кабельных линий мультиметром — целостность жилы, отсутствие короткого замыкания',
-    'III.2': 'Измерение напряжения питания вольтметром на каждой точке подключения оборудования',
-    'III.3': 'Проверка соответствия загруженной конфигурации контроллера проектным параметрам',
-    'III.6': 'Функциональная поштучная проверка каждого устройства подачей тестового сигнала',
-    'III.7': 'Имитация тревожного события с контролем срабатывания датчика/извещателя',
-    'III.9': 'Комплексная проверка корректности обмена сигналами между подсистемами гибрида',
-    'III.10': 'Проверка автоматического перехода на резервное питание (АКБ) при имитации пропадания сети 220В',
-    'IV.1': 'Измерение сопротивления изоляции кабельных линий (мегомметром, норма ≥0,5 МОм)',
-    'IV.2': 'Измерение сопротивления заземляющего устройства / контура защитного заземления (норма ≤4 Ом)',
-    'IV.3': 'Испытание работоспособности при пониженном (0,85·Uном) и повышенном (1,1·Uном) напряжении сети',
-    'IV.4': 'Проверка чувствительности датчиков и фактических зон обнаружения/покрытия',
-    'IV.5': 'Измерение уровня освещённости люксметром в зоне обзора видеокамеры',
-    'IV.6': 'Замер времени реакции системы от события до сигнала тревоги секундомером',
-    'V.1': 'Комплексные приёмо-сдаточные испытания всей системы в присутствии комиссии',
+    'II.6': 'Checking the power supply\'s mounting reliability and connection polarity to the controller',
+    'II.10': 'Checking correct tripping of circuit breakers and RCDs by pressing the "Test" button',
+    'II.11': 'Checking connector-crimping quality (RJ-45/BNC/terminals) — the conductor does not pull out from under the contact',
+    'II.13': 'Visual check of cable-label legibility and condition after installation',
+    'III.1': 'Continuity-testing cable lines with a multimeter — conductor integrity, no short circuit',
+    'III.2': 'Measuring supply voltage with a voltmeter at every equipment connection point',
+    'III.3': 'Checking that the loaded controller configuration matches the project parameters',
+    'III.6': 'Functional one-by-one check of every device by sending a test signal',
+    'III.7': 'Simulating an alarm event while monitoring sensor/detector triggering',
+    'III.9': 'Comprehensive check of correct signal exchange between hybrid subsystems',
+    'III.10': 'Checking automatic switchover to backup power (battery) by simulating a 220V mains outage',
+    'IV.1': 'Measuring cable-line insulation resistance (with a megohmmeter, norm >=0.5 MOhm)',
+    'IV.2': 'Measuring grounding-device resistance / protective-earth loop resistance (norm <=4 Ohm)',
+    'IV.3': 'Testing operability at reduced (0.85*Unom) and elevated (1.1*Unom) mains voltage',
+    'IV.4': 'Checking sensor sensitivity and actual detection/coverage zones',
+    'IV.5': 'Measuring illumination level with a lux meter in the camera\'s field of view',
+    'IV.6': 'Timing the system\'s response time from event to alarm signal with a stopwatch',
+    'V.1': 'Comprehensive acceptance testing of the entire system in the presence of the commission',
     // --- софт/орг-портфели (NGFW/DLP/IAM/SIEM/EDR/VPN/Backup/СКЗИ/Policy/КИИ/ПДн/Паспорт/Аудит/Обучение) ---
-    'S-II.5': 'Тестовая попытка доступа за пределами прав — контроль блокировки политикой доступа',
-    'S-III.2': 'Проверка корректности базовой настройки ПО в тестовом контуре перед переносом в прод',
-    'S-III.3': 'Проверка корректности передачи событий и логов между интегрированными системами (AD/LDAP/SIEM)',
-    'S-III.7': 'Контроль соответствия production-конфигурации утверждённому проектному решению',
-    'S-IV.1': 'Проверка срабатывания правил реагирования на тестовых индикаторах компрометации (IoC)',
-    'S-IV.2': 'Нагрузочное тестирование под пиковой нагрузкой с фиксацией метрик производительности',
-    'S-IV.3': 'Контрольное восстановление тестового набора данных из резервной копии с проверкой целостности',
-    'S-IV.4': 'Сверка фактической конфигурации системы с требованиями чек-листа ГОСТ Р ИСО/МЭК 27001',
-    'S-IV.5': 'Контрольная фишинг-рассылка с фиксацией процента перешедших по ссылке сотрудников',
-    'S-IV.6': 'Выборочный устный опрос сотрудников на знание ключевых положений политики',
-    'S-V.1': 'Комплексные приёмо-сдаточные испытания решения в присутствии комиссии Заказчика',
-    'S-V.2': 'Контрольная сверка выводов итогового отчёта с первичными протоколами тестирования'
+    'S-II.5': 'Test access attempt beyond granted rights — verifying the access policy blocks it',
+    'S-III.2': 'Checking correct baseline software configuration in the test loop before moving to production',
+    'S-III.3': 'Checking correct transfer of events and logs between integrated systems (AD/LDAP/SIEM)',
+    'S-III.7': 'Checking that the production configuration matches the approved project decision',
+    'S-IV.1': 'Checking that response rules trigger correctly on test indicators of compromise (IoC)',
+    'S-IV.2': 'Load testing under peak load while recording performance metrics',
+    'S-IV.3': 'Control restore of a test dataset from backup with an integrity check',
+    'S-IV.4': 'Reconciling the actual system configuration against the GOST R ISO/IEC 27001 checklist requirements',
+    'S-IV.5': 'Control phishing mailing that records the percentage of employees who clicked the link',
+    'S-IV.6': 'Sample oral survey of employees on their knowledge of key policy provisions',
+    'S-V.1': 'Comprehensive acceptance testing of the solution in the presence of the client\'s commission',
+    'S-V.2': 'Control reconciliation of the final report\'s conclusions against the primary test records'
 };
 function verificationMethod(t) {
     return (t.code && VERIFICATION_METHODS[t.code]) || null;
@@ -2581,9 +2581,9 @@ function verificationOptionsFor(t) {
 function taskOutputDoc(t) {
     if (t.refDoc) return t.refDoc;
     if (TASK_OUTPUT_DOCS[t.id]) return TASK_OUTPUT_DOCS[t.id];
-    if (t.stage === 'II') return 'Акт скрытых работ / акт монтажа — ' + t.name;
-    if (t.stage === 'III') return 'Акт пусконаладочных работ (ПНР) и протокол испытаний — ' + t.name;
-    return 'Акт выполненных работ по задаче — ' + t.name;
+    if (t.stage === 'II') return 'Concealed-works certificate / installation certificate — ' + t.name;
+    if (t.stage === 'III') return 'Commissioning works certificate and test protocol — ' + t.name;
+    return 'Certificate of completed work for the task — ' + t.name;
 }
 
 function openSketch() {
@@ -2667,7 +2667,7 @@ const e = state.employees.find(e => e.id === t.employeeId);
 if (!e) return;
 const c = t.duration * 8 * e.ratePerHour;
 cost += c;
-detail.push(t.duration + ' дн. × ' + e.name + ' (' + e.ratePerHour + ' ₽/ч × 8ч) = ' + c.toLocaleString('ru-RU') + ' ₽');
+detail.push(t.duration + ' d x ' + e.name + ' (' + e.ratePerHour + ' ₽/hr x 8h) = ' + c.toLocaleString('ru-RU') + ' ₽');
 });
 return { cost, detail };
 }
@@ -2679,7 +2679,7 @@ return r ? resVal(r) : 0;
 }
 // задачи бизнес-процесса: люди уже приступили или выполнили свои этапы
 function bpTasks(type) {
-const sys = TYPE_RU[type] || 'безопасности';
+const sys = TYPE_RU[type] || 'security';
 const engineer = resolveBpEmployee(['Эскизов В.И.']);
 const draftsman = resolveBpEmployee(['Чертёжников А.С.']);
 const estimator = resolveBpEmployee(['Сметова О.П.']);
@@ -2784,24 +2784,24 @@ const nameOrig = t.name || '';
 const name = nameOrig.toLowerCase();
 const type = state.projectType;
 const port = portfolioOfCode(type);
-const EL = 'Правила по охране труда при эксплуатации электроустановок (Приказ Минтруда РФ №903н от 15.12.2020), допуск по электробезопасности гр. III; ГОСТ Р 50571';
-const NAL = 'Лицензия ФСТЭК России на ТЗКИ (монтаж и наладка средств защиты информации); профстандарт 06.034 «Специалист по технической защите информации»';
-const PROG = 'Лицензия ФСТЭК России на ТЗКИ; профстандарт 06.033 «Специалист по защите информации в автоматизированных системах»';
-const CHERT = 'ГОСТ Р 21.101-2020 (СПДС, проектная документация); квалификация инженера-проектировщика';
-const SMETA = 'МДС 81-35.2004 (сметное нормирование в строительстве); квалификация инженера-сметчика';
-const TZ = 'ГОСТ 34.602-2020 (ТЗ на создание автоматизированной системы); квалификация инженера-проектировщика';
+const EL = 'Occupational Safety Rules for Operating Electrical Installations (RF Ministry of Labor Order No. 903н of 15.12.2020), electrical safety clearance group III; GOST R 50571';
+const NAL = 'FSTEC of Russia license for technical protection of confidential information (installation and commissioning of information-protection tools); professional standard 06.034 "Technical Information Security Specialist"';
+const PROG = 'FSTEC of Russia license for technical protection of confidential information; professional standard 06.033 "Information Security Specialist for Automated Systems"';
+const CHERT = 'GOST R 21.101-2020 (SPDS, design documentation); design engineer qualification';
+const SMETA = 'MDS 81-35.2004 (construction cost estimation norms); cost estimator qualification';
+const TZ = 'GOST 34.602-2020 (terms of reference for building an automated system); design engineer qualification';
 // 1) Приоритет — по требуемой ДОЛЖНОСТИ (авторитетно, не зависит от предлогов в названии задачи).
 if (/электромонтажник|электрик|electrician/.test(req)) return EL;
 if (/наладчик|commissioning engineer/.test(req)) return NAL;
 if (/программист|интегратор|programmer|integrator/.test(req)) return PROG;
 if (/чертёжник|чертежник|draft(s)?(wo)?man/.test(req)) return CHERT;
 if (/сметчик|estimator/.test(req)) return SMETA;
-if (/бухгалтер|accountant/.test(req)) return 'ФЗ №402-ФЗ «О бухгалтерском учёте»; квалификационные требования к бухгалтеру (профстандарт 08.002)';
-if (/юрист|(in-house )?counsel|lawyer/.test(req)) return 'Квалификационные требования к юрисконсульту (ЕКС); ГК РФ (заключение Договора)';
-if (/обучени|training specialist/.test(req)) return 'Профстандарт 01.004 (педагог проф. обучения); ст. 196 ТК РФ; повышение квалификации по ИБ';
-if (/склад|warehouse/.test(req)) return 'Квалификация заведующего складом (ЕКС); учёт ТМЦ (1С:Склад)';
-if (/директор|руководитель|director|manager/.test(req)) return 'Полномочия единоличного исполнительного органа (ГК РФ, устав фирмы); лицензионные требования к руководителю';
-if (/аналитик|аудитор|analyst|auditor/.test(req)) return 'Приказы ФСТЭК России; профстандарт 06.033; квалификация ИБ-аналитика/аудитора (CISA/сертификация ФСТЭК)';
+if (/бухгалтер|accountant/.test(req)) return 'Federal Law No. 402-FZ "On Accounting"; qualification requirements for an accountant (professional standard 08.002)';
+if (/юрист|(in-house )?counsel|lawyer/.test(req)) return 'Qualification requirements for in-house counsel (Unified Qualification Reference Book); RF Civil Code (concluding the Contract)';
+if (/обучени|training specialist/.test(req)) return 'Professional standard 01.004 (vocational-education instructor); Art. 196 of the RF Labor Code; IS professional development';
+if (/склад|warehouse/.test(req)) return 'Warehouse manager qualification (Unified Qualification Reference Book); inventory accounting (1C:Warehouse)';
+if (/директор|руководитель|director|manager/.test(req)) return 'Powers of the sole executive body (RF Civil Code, firm\'s charter); licensing requirements for the head of the firm';
+if (/аналитик|аудитор|analyst|auditor/.test(req)) return 'FSTEC of Russia orders; professional standard 06.033; IS analyst/auditor qualification (CISA / FSTEC certification)';
 // 2) По названию задачи (для задач без критичной должности — «— не критично»). «ПО» ловим ТОЛЬКО
 // в верхнем регистре (аббревиатура «программное обеспечение»), иначе предлог «по» в «смета ПО
 // чертежу» ошибочно уводил задачу в ветку программиста (баг, найден при сверке с эталоном).
@@ -2812,18 +2812,18 @@ if (/смет|estimat|cost calc/.test(name)) return SMETA;
 if (/разработка тз|техническое задание|terms of reference|\btor\b/.test(name)) return TZ;
 if (/\bПО\b/.test(nameOrig) || /программн|софт|скрипт|коннектор|software|\bapp\b|script|connector/.test(name)) return PROG;
 // 3) По типу проекта / портфелю.
-if (type === 'fire' || /пожарн|извещател|дымов|fire|detector|smoke/.test(name)) return 'Лицензия МЧС России; ГОСТ Р 53325; СП 484.1311500.2020 (монтаж систем пожарной сигнализации)';
-if (type === 'skud') return 'ГОСТ Р 51241-2008 (средства и системы контроля и управления доступом)';
-if (type === 'video') return 'ГОСТ Р 51558-2014 (средства и системы охранные телевизионные)';
-if (type === 'security' || type === 'perimeter' || type === 'hybrid') return 'ГОСТ Р 50776 (системы тревожной сигнализации); для физического монтажа — СРО-допуск';
-if (type === 'kii') return 'ФЗ №187-ФЗ «О безопасности КИИ»; приказы ФСТЭК России №235 и №239; ПП РФ №127 (категорирование)';
-if (type === 'pdn') return 'ФЗ №152-ФЗ «О персональных данных»; приказ ФСТЭК России №21; ПП РФ №1119; приказ ФСБ №378';
-if (type === 'passport') return 'ФЗ №35-ФЗ «О противодействии терроризму»; ПП РФ №1421 (паспорт безопасности объекта)';
-if (type === 'audit') return 'ГОСТ Р ИСО/МЭК 27001; сертификация CISA / аттестация ФСТЭК России';
-if (/не критично/.test(req)) return '— (специальная квалификация не критична; общие требования по должности / ЕКС)';
-if (port === 'II') return 'Лицензия ФСТЭК России на ТЗКИ; профстандарты 06.033/06.034; для СКЗИ — лицензия ФСБ России';
-if (port === 'III') return 'Приказы ФСТЭК России; профстандарт 06.033; квалификация ИБ-аналитика/аудитора';
-return 'Квалификационные требования по должности (профессиональный стандарт / ЕКС)';
+if (type === 'fire' || /пожарн|извещател|дымов|fire|detector|smoke/.test(name)) return 'EMERCOM of Russia license; GOST R 53325; SP 484.1311500.2020 (installation of fire alarm systems)';
+if (type === 'skud') return 'GOST R 51241-2008 (access control system equipment and systems)';
+if (type === 'video') return 'GOST R 51558-2014 (security television equipment and systems)';
+if (type === 'security' || type === 'perimeter' || type === 'hybrid') return 'GOST R 50776 (intrusion alarm systems); for physical installation — SRO membership clearance';
+if (type === 'kii') return 'Federal Law No. 187-FZ "On CII Security"; FSTEC of Russia orders No. 235 and No. 239; RF Government Decree No. 127 (categorization)';
+if (type === 'pdn') return 'Federal Law No. 152-FZ "On Personal Data"; FSTEC of Russia Order No. 21; RF Government Decree No. 1119; FSB Order No. 378';
+if (type === 'passport') return 'Federal Law No. 35-FZ "On Countering Terrorism"; RF Government Decree No. 1421 (facility security passport)';
+if (type === 'audit') return 'GOST R ISO/IEC 27001; CISA certification / FSTEC of Russia attestation';
+if (/не критично/.test(req)) return '— (no special qualification is critical; general position requirements / Unified Qualification Reference Book)';
+if (port === 'II') return 'FSTEC of Russia license for technical protection of confidential information; professional standards 06.033/06.034; for CIPF — FSB of Russia license';
+if (port === 'III') return 'FSTEC of Russia orders; professional standard 06.033; IS analyst/auditor qualification';
+return 'Qualification requirements for the position (professional standard / Unified Qualification Reference Book)';
 }
 // Компактный, всегда видимый бейдж рядом с полем «Исполнитель». Зелёной ✅ у верно назначенных
 // задач намеренно НЕТ (студент не должен угадывать методом перебора) — только предупреждение.
@@ -2833,7 +2833,7 @@ if (status !== 'bad') return '';
 const req = inferRequiredPosition(t);
 const emp = state.employees.find(e => e.id === t.employeeId);
 const need = req.join(' / ');
-const have = emp ? (emp.correct ? emp.position : emp.name + ' — ' + emp.position + ' (не тот человек: см. квалификацию в штатном расписании)') : 'исполнитель не назначен';
+const have = emp ? (emp.correct ? emp.position : emp.name + ' — ' + emp.position + ' (wrong person: see qualification in the staff roster)') : 'no assignee assigned';
 const basis = qualRegBasis(t).replace(/"/g, '&quot;');
 return ' <span class="qual-flag qual-bad" title="This task requires: ' + need + '. Currently assigned: ' + have + '. Specialized work types must not be assigned to an employee without the required qualification.&#10;&#10;Regulatory basis: ' + basis + '">⚠️</span>';
 }
@@ -3030,8 +3030,8 @@ el.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:99999; max-
 document.body.appendChild(el);
 }
 el.textContent = touched > 0
-? ('🔑 Режим преподавателя: правильные ответы проставлены (' + touched + (touched === 1 ? ' блок' : (touched < 5 ? ' блока' : ' блоков')) + ')')
-: '🔑 Режим преподавателя: на этом шаге нет незафиксированных блоков с ответами';
+? ('🔑 Teacher mode: correct answers have been filled in (' + touched + (touched === 1 ? ' block' : ' blocks') + ')')
+: '🔑 Teacher mode: this step has no unlocked blocks with answers';
 el.style.opacity = '1';
 clearTimeout(window.__teacherRevealToastTimer);
 window.__teacherRevealToastTimer = setTimeout(function() { el.style.opacity = '0'; }, 2800);
@@ -3127,7 +3127,7 @@ state.qualCheckResults[stage] = countTaskQualification(stage);
 if (typeof recalcAll === 'function') recalcAll();
 
 var pct = (typeof computeStageErrorSummary === 'function') ? computeStageErrorSummary().errorPercent : 25;
-teacherToast('🎛️ Режим преподавателя: сгенерировано ≈' + pct.toFixed(0) + '% ошибок (штат ' + res.staff + ', ресурсы ' + res.resources + ', задачи ' + res.tasks + '). Итог виден в Занятии 9 «Эффективность».', 4500);
+teacherToast('🎛️ Teacher mode: generated ≈' + pct.toFixed(0) + '% errors (staff ' + res.staff + ', resources ' + res.resources + ', tasks ' + res.tasks + '). The result is visible in Session 9 "Efficiency".', 4500);
 }
 
 // Клавиатурная активация кликабельных span/div с role="button" (стрелки навигации страниц,
@@ -3207,13 +3207,13 @@ document.querySelector('.lesson-tab[data-lesson="1"]').classList.remove('locked'
 recalcAll();
 }
 function skipWizard() {
-clientData.firmName = document.getElementById('firmInput').value.trim() || 'ООО «Тест»';
-clientData.name = 'Тестовый Клиент';
+clientData.firmName = document.getElementById('firmInput').value.trim() || 'Test LLC';
+clientData.name = 'Test Client';
 const testCode = (assignedProject && assignedProject.code) || 'video';
 const testObj = (assignedProject && assignedProject.object) || null;
-clientData.address = testObj ? testObj.addr : 'ул. Пирогова, 116';
+clientData.address = testObj ? testObj.addr : 'Pirogova St., 116';
 clientData.visitDate = '2026-07-10 10:00';
-state.sketch = { type: testCode, description: 'Тестовый эскиз (пропуск воронки): ' + (TYPE_RU[testCode] || testCode) + (testObj ? ' — объект «' + testObj.name + '»' : '') + '.' };
+state.sketch = { type: testCode, description: 'Test sketch (skipping the funnel): ' + (TYPE_RU[testCode] || testCode) + (testObj ? ' — site "' + testObj.name + '"' : '') + '.' };
 document.getElementById('firmDisplay').innerText = '🏢 ' + clientData.firmName;
 document.getElementById('projectFirmDisplay').innerText = clientData.firmName;
 goToProject();
@@ -3223,9 +3223,9 @@ goToProject();
 // 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (STORE)
 // ============================================================
 const RES_CATS = ['Fixed Assets', 'Office Rent', 'Office Upkeep', 'Hosting and Communications', 'Contract Labor (GPH)', 'Travel Allowance', 'Freight'];
-const CAPEX_DEF = '{CAPEX (Capital Expenditure) — капитальные затраты: единовременные вложения в активы длительного пользования (оборудование, техника, инструмент), которые ставятся на баланс фирмы, амортизируются и окупаются в течение нескольких лет серией проектов}';
-const OPEX_DEF = '{OPEX (Operational Expenditure) — операционные затраты: регулярные расходы на текущую деятельность (аренда, связь, подписки ПО, оплата труда, договоры ГПХ, доставка), которые списываются в себестоимость периода и должны покрываться выручкой каждого проекта}';
-const MARGIN_DEF = 'Маржа (маржинальность) проекта — разница между ценой Договора с заказчиком (с НДС) и плановой себестоимостью проекта для фирмы (комплектующие + труд и материалы этапов + накладные расходы офиса). Это валовая прибыль фирмы от проекта до налога на прибыль. Важно: капитальные вложения (CAPEX — автомобили, компьютеры, оборудование) в себестоимость входят НЕ полной ценой покупки, а только долей амортизации за срок этого проекта (учебная норма — 36 месяцев / 3 года), поэтому единичный проект не «съедает» стоимость техники целиком. Маржа в % = маржа / цена Договора × 100.';
+const CAPEX_DEF = '{CAPEX (Capital Expenditure) — capital expenditure: a one-time investment in long-use assets (equipment, vehicles, tools) that go on the firm\'s balance sheet, are depreciated, and pay off over several years across a series of projects}';
+const OPEX_DEF = '{OPEX (Operational Expenditure) — operating expenditure: regular costs of ongoing activity (rent, communications, software subscriptions, wages, contractor agreements, delivery) that are written off to the period\'s cost of sales and must be covered by each project\'s revenue}';
+const MARGIN_DEF = 'Project margin is the difference between the Contract price agreed with the client (incl. VAT) and the firm\'s planned project cost (components + stage labor and materials + office overhead). This is the firm\'s gross profit on the project before income tax. Important: capital investments (CAPEX — vehicles, computers, equipment) enter the project cost NOT at their full purchase price, but only as the depreciation share for this project\'s duration (the teaching norm is 36 months / 3 years), so a single project does not "eat" the full cost of the equipment. Margin in % = margin / Contract price x 100.';
 // «Дефицит» (занятие 6) — теоретическая подсказка (tooltip ⓘ), тот же стиль, что у CAPEX_DEF/OPEX_DEF.
 // Смысл: перегрузка сотрудника — это дефицит РЕСУРСА (человеко-часов в сутки), а не дефицит СРОКА
 // напрямую. Управленческий ответ по теории проектного менеджмента — либо resource leveling
@@ -3233,7 +3233,7 @@ const MARGIN_DEF = 'Маржа (маржинальность) проекта —
 // (добавить второго исполнителя — «дублёра» — на часть нагрузки, ценой доп. затрат/оклада). Если
 // дефицит ресурса не устранить, он конвертируется в дефицит срока: перегруженный сотрудник либо
 // не успевает к сроку, либо работает с ошибками.
-const DEFICIT_DEF = '{«Дефицит» — это нехватка РЕСУРСА (человеко-часов сотрудника в сутки), а не срока напрямую: человек физически не может отработать больше своей нормы. Два классических управленческих ответа: 1) resource leveling — сдвинуть задачи по времени под реальную мощность сотрудника, без изменения состава персонала (может увеличить срок проекта); 2) crashing — добавить второго исполнителя («дублёра»), который возьмёт часть нагрузки, ценой доп. расходов на оклад. Если дефицит ресурса не устранить, он конвертируется в дефицит срока: сотрудник либо не успевает к сроку, либо работает с браком.}';
+const DEFICIT_DEF = '{A "shortfall" is a lack of RESOURCE (an employee\'s person-hours per day), not a timeline shortage directly: a person cannot physically work more than their norm. Two classic management responses: 1) resource leveling — shift tasks in time to match the employee\'s real capacity, without changing staff composition (may extend the project timeline); 2) crashing — add a second assignee (a "backup") who takes on part of the workload, at the cost of additional payroll expense. If the resource shortfall is not resolved, it converts into a timeline shortfall: the overloaded employee either misses the deadline or produces defective work.}';
 
 // ============================================================
 // СТРАХОВЫЕ ВЗНОСЫ РАБОТОДАТЕЛЯ (НК РФ, гл. 34, единый тариф с 2023 г.): ОПС+ОМС+ВНиМ = 30% с
@@ -3658,7 +3658,7 @@ taskVerifLocked: false,
 taskVerifResult: null,
 taskVerifReportNote: null,
 tasks: [],
-drawings: [{ name: 'План этажа', url: '' }],
+drawings: [{ name: 'Floor plan', url: '' }],
 summary: { totalLabor: 0, totalMaterial: 0, overheads: 0, profit: 0, total: 0, totalWithVAT: 0 },
 budget: { payroll: 0, taxes: 0, rent: 0, transport: 0, other: 0, totalBudget: 0, margin: 0 },
 client: {},
@@ -4712,7 +4712,7 @@ const remainder = contrTotal - advance;
 // занятия 5 «Бюджет проекта для фирмы», где накопления также считаются от маржи (прибыли) проекта,
 // а не от полной цены Договора.
 const accumSum = profit * (state.contract.accumPct / 100);
-const contractNo = 'Д-' + (state.projectType || 'ИБ').toUpperCase() + '-' + contrStart.getFullYear() + '/' + String(contrStart.getMonth() + 1).padStart(2, '0');
+const contractNo = 'C-' + (state.projectType || 'IS').toUpperCase() + '-' + contrStart.getFullYear() + '/' + String(contrStart.getMonth() + 1).padStart(2, '0');
 const reqInput = (label, field, ph) => `<label style="display:block; font-size:12px; color:var(--gr-dim); margin-bottom:2px;">${label}</label><input type="text" value="${(state.contract[field] || '').replace(/"/g, '&quot;')}" placeholder="${ph}" onchange="updateContract('${field}', this.value)" style="width:100%; margin-bottom:8px; padding:6px 8px; border:1px solid var(--gr-line2); border-radius:6px; font-size:13px;" />`;
 html += `
 <p style="margin-bottom:12px; color:var(--gr-muted2);"><strong>Objective:</strong> Prepare the final estimate for the client and draft the works contract.</p>
@@ -5827,7 +5827,7 @@ const card = document.createElement('div');
 card.className = 'gate-card';
 card.id = 'gateCard';
 card.onclick = handleGateClick;
-const label = (key === 0) ? 'Старт 0 — подбор персонала и ресурсов фирмы' : ('Занятие ' + key + ': ' + (LESSON_TITLES[key] || ''));
+const label = (key === 0) ? 'Start 0 — selecting firm staff and resources' : ('Session ' + key + ': ' + (LESSON_TITLES[key] || ''));
 card.innerHTML = '<h3>📌 Before moving on — ' + label + '</h3>'
 + renderMethodBlock(key, true)
 + '<div class="gate-hint" id="gateHint">Click this window again to move on</div>';
@@ -6192,9 +6192,9 @@ function openDirectionPopup(stageKey, proceedFn) {
     // хотя бы одну компетенцию (см. COMPETENCY_TESTS[stageKey]) — иначе студент мог выбрать
     // направление с 0 вопросов и упереться в пустую карточку теста.
     const dirs = [
-        ['10.03.01', '10.03.01 — Информационная безопасность (бакалавриат)'],
-        ['10.04.01', '10.04.01 — Информационная безопасность (магистратура)'],
-        ['10.05.01', '10.05.01 — Компьютерная безопасность (специалитет)']
+        ['10.03.01', '10.03.01 — Information Security (Bachelor\'s)'],
+        ['10.04.01', '10.04.01 — Information Security (Master\'s)'],
+        ['10.05.01', '10.05.01 — Computer Security (Specialist degree)']
     ].filter(function(d) { return COMPETENCY_TESTS[stageKey] && COMPETENCY_TESTS[stageKey][d[0]] && COMPETENCY_TESTS[stageKey][d[0]].length; });
     if (!dirs.length) { proceedFn(); return; }
     card.innerHTML = '<h3>🎓 Select your field of study</h3>'
@@ -6307,7 +6307,7 @@ function gradeCompetencyTest(stageKey, direction, entries, proceedFn, forcedGrad
         pct = total ? Math.round((correctCount / total) * 100) : 0;
         grade = pct >= 90 ? 5 : pct >= 75 ? 4 : pct >= 50 ? 3 : 2;
     }
-    const gradeWord = { 5: 'отлично', 4: 'хорошо', 3: 'удовлетворительно', 2: 'неудовлетворительно' }[grade];
+    const gradeWord = { 5: 'excellent', 4: 'good', 3: 'satisfactory', 2: 'unsatisfactory' }[grade];
     if (!state.competencyTests) state.competencyTests = {};
     state.competencyTests[stageKey] = {
         direction: direction, perQuestion: perQuestion,
@@ -6326,7 +6326,7 @@ function gradeCompetencyTest(stageKey, direction, entries, proceedFn, forcedGrad
     const belowThreshold = (forcedGrade === null && pct < 75);
     if (resultArea) {
         resultArea.innerHTML = '<div class="test-result-banner grade-' + grade + '">'
-            + (forcedGrade !== null ? ('⚡ Тест зачтён по тестовому шорткату — оценка «' + gradeWord + '»') : ('Результат: ' + correctCount + ' из ' + total + ' (' + pct + '%) — оценка «' + gradeWord + '»'))
+            + (forcedGrade !== null ? ('⚡ Test credited via the test shortcut — grade "' + gradeWord + '"') : ('Result: ' + correctCount + ' of ' + total + ' (' + pct + '%) — grade "' + gradeWord + '"'))
             + (belowThreshold ? '<div style="margin-top:6px; font-size:12.5px; font-weight:400;">Result below 75% — we recommend retaking the test.</div>' : '')
             + '</div>'
             + (belowThreshold ? '<button class="test-retake-btn" id="testRetakeBtn">🔁 Retake the Test</button>' : '')
@@ -6562,7 +6562,7 @@ if (accuracy >= 40) {
 // в итоговый отчёт по проекту (см. submitProjectReport); порог ниже, чем для ресурсов/
 // персонала (75%), т.к. сопоставление задачи с её выходным документом — более неоднозначная задача
 state.taskNotesLocked = true;
-state.taskNotesReportNote = 'верность определения выходных документов по задачам проекта: ' + accuracy.toFixed(1) + '% (' + correct + ' из ' + total + ') — порог 40% достигнут.';
+state.taskNotesReportNote = 'accuracy of identifying output documents for project tasks: ' + accuracy.toFixed(1) + '% (' + correct + ' of ' + total + ') — the 40% threshold has been reached.';
 } else {
 state.taskNotesLocked = false;
 state.taskNotesReportNote = null;
@@ -6584,7 +6584,7 @@ const accuracy = total > 0 ? (correct / total) * 100 : 0;
 state.taskVerifResult = { correct, wrong, total, accuracy };
 if (accuracy >= 40) {
 state.taskVerifLocked = true;
-state.taskVerifReportNote = 'верность определения видов проверочных работ по задачам проекта: ' + accuracy.toFixed(1) + '% (' + correct + ' из ' + total + ') — порог 40% достигнут.';
+state.taskVerifReportNote = 'accuracy of identifying verification work types for project tasks: ' + accuracy.toFixed(1) + '% (' + correct + ' of ' + total + ') — the 40% threshold has been reached.';
 } else {
 state.taskVerifLocked = false;
 state.taskVerifReportNote = null;
@@ -6653,7 +6653,7 @@ state.resourcesReportNote = null;
 // приемлемый уровень ошибок — состав фиксируется автоматически, а сведения об ошибках
 // «вшиваются» в итоговый отчёт по текущему проекту (см. submitProjectReport)
 state.resourcesLocked = true;
-state.resourcesReportNote = 'при подборе ресурсов фирмы допущено ' + wrong + ' ошибочных позиций из ' + total + ' (' + errorPercent.toFixed(1) + '%).';
+state.resourcesReportNote = 'in selecting firm resources, ' + wrong + ' incorrect line items out of ' + total + ' were made (' + errorPercent.toFixed(1) + '%).';
 }
 recalcAll();
 }
@@ -6690,7 +6690,7 @@ state.staffReportNote = null;
 // приемлемый уровень ошибок — состав фиксируется автоматически, а сведения об ошибках
 // «вшиваются» в итоговый отчёт по текущему проекту (см. submitProjectReport)
 state.staffLocked = true;
-state.staffReportNote = 'при подборе персонала фирмы допущено ' + wrong + ' ошибочных штатных единиц из ' + total + ' (' + errorPercent.toFixed(1) + '%).';
+state.staffReportNote = 'in selecting firm staff, ' + wrong + ' incorrect staff positions out of ' + total + ' were made (' + errorPercent.toFixed(1) + '%).';
 }
 recalcAll();
 }
@@ -6739,7 +6739,7 @@ state.auditDoReportNote = null;
 // приемлемый уровень ошибок — аудит ДО фиксируется автоматически, а сведения об ошибках
 // «вшиваются» в итоговый отчёт по текущему проекту (см. submitProjectReport)
 state.auditDoLocked = true;
-state.auditDoReportNote = 'при аудите ИБ ДО исполнения проекта допущено ' + wrong + ' ошибочных отметок из ' + total + ' (' + errorPercent.toFixed(1) + '%).';
+state.auditDoReportNote = 'in the BEFORE-project IS audit, ' + wrong + ' incorrect marks out of ' + total + ' were made (' + errorPercent.toFixed(1) + '%).';
 }
 recalcAll();
 }
@@ -6771,7 +6771,7 @@ state.auditAfterReportNote = null;
 // приемлемый уровень ошибок — аудит ПОСЛЕ фиксируется автоматически, а сведения об ошибках
 // «вшиваются» в итоговый отчёт по текущему проекту (см. submitProjectReport)
 state.auditAfterLocked = true;
-state.auditAfterReportNote = 'при аудите ИБ ПОСЛЕ исполнения проекта допущено ' + wrong + ' ошибочных отметок из ' + total + ' (' + errorPercent.toFixed(1) + '%).';
+state.auditAfterReportNote = 'in the AFTER-project IS audit, ' + wrong + ' incorrect marks out of ' + total + ' were made (' + errorPercent.toFixed(1) + '%).';
 }
 recalcAll();
 }
@@ -6834,9 +6834,9 @@ return { ps, is, deltaP, deltaI, needRound2, avgP, avgI, agreeP, agreeI, risk };
 // Плюс сравнение с американской методикой Gordon-Loeb (правило 37%): x* <= 0.368*v*L (формула 13).
 // ============================================================
 function tdiClassOf(tdiNorm) {
-if (tdiNorm > 70) return 'Apex Predator (катастрофическая)';
-if (tdiNorm >= 20) return 'Opportunist (массовая)';
-return 'Низкая токсичность';
+if (tdiNorm > 70) return 'Apex Predator (catastrophic)';
+if (tdiNorm >= 20) return 'Opportunist (mass-scale)';
+return 'Low toxicity';
 }
 // Кольцевая диаграмма (SVG, без внешних библиотек) для показателей эффективности занятия 9.
 // pct — доля заполнения кольца (0-100, отрицательные/сверх-100 значения обрезаются визуально,
@@ -6976,7 +6976,7 @@ const rows = [];
 const staffErr = state.employees.filter(e => (!!e.studentMark) !== (!!e.correct));
 const staffFalsePos = state.employees.filter(e => e.studentMark && !e.correct);
 const staffOpex = staffFalsePos.reduce((s, e) => s + (e.ratePerHour || 0) * 160 * (e.loadFactor || 0), 0);
-rows.push({ label: 'Штатное расписание фирмы', errors: staffErr.length, total: state.employees.length, opex: staffOpex, capex: 0 });
+rows.push({ label: 'Firm staff roster', errors: staffErr.length, total: state.employees.length, opex: staffOpex, capex: 0 });
 
 // --- 2. Ресурсы фирмы: CAPEX/OPEX (Занятие 5) ---
 // Тот же принцип, что и по штату: ошибки — любое несовпадение с эталоном (как в lockResources),
@@ -6987,10 +6987,10 @@ const resFalsePos = resReal.filter(r => r.studentMark && !r.correct);
 const resTotal = resReal.length;
 const resOpex = resFalsePos.filter(r => r.costType === 'OPEX').reduce((s, r) => s + resVal(r), 0);
 const resCapex = resFalsePos.filter(r => r.costType === 'CAPEX').reduce((s, r) => s + resVal(r), 0);
-rows.push({ label: 'Ресурсы фирмы (CAPEX/OPEX)', errors: resErr.length, total: resTotal, opex: resOpex, capex: resCapex });
+rows.push({ label: 'Firm resources (CAPEX/OPEX)', errors: resErr.length, total: resTotal, opex: resOpex, capex: resCapex });
 
 // --- 3-7. Квалификация исполнителей по Этапам I-V (диаграмма Ганта, Занятия 2-6) ---
-const stageLabelsErr = { I: 'Этап I — подготовительный', II: 'Этап II — монтаж/внедрение', III: 'Этап III — пусконаладка', IV: 'Этап IV — испытания', V: 'Этап V — ввод в эксплуатацию' };
+const stageLabelsErr = { I: 'Stage I — preparatory', II: 'Stage II — installation/deployment', III: 'Stage III — commissioning', IV: 'Stage IV — testing', V: 'Stage V — commissioning into operation' };
 ['I', 'II', 'III', 'IV', 'V'].forEach(stage => {
 const tasks = state.tasks.filter(t => t.stage === stage && inferRequiredPosition(t) && inferRequiredPosition(t).length);
 const wrongTasks = tasks.filter(t => taskQualStatus(t) === 'bad');
@@ -7083,17 +7083,17 @@ ctx0.fillRect(0, 0, W0, H0);
 ctx0.fillStyle = ORG_PAL.text;
 ctx0.font = 'bold 15px Arial';
 ctx0.textAlign = 'center';
-ctx0.fillText('Организационная структура: ' + (clientData.firmName || 'фирма'), W0 / 2, 30);
+ctx0.fillText('Organizational structure: ' + (clientData.firmName || 'the firm'), W0 / 2, 30);
 ctx0.fillStyle = ORG_PAL.dim;
 ctx0.font = '13px Arial';
-ctx0.fillText('Ни один сотрудник не отмечен галочкой.', W0 / 2, 80);
-ctx0.fillText('Отметьте нужных сотрудников в таблице выше, чтобы построить оргструктуру.', W0 / 2, 104);
+ctx0.fillText('No employee is checked.', W0 / 2, 80);
+ctx0.fillText('Check the needed employees in the table above to build the org chart.', W0 / 2, 104);
 return c0;
 }
 
 // Директор определяется ТОЧНЫМ совпадением эталонной должности (а не поиском подстроки
 // «директор» — иначе, например, «Массажист директора» ошибочно принимался за директора).
-const isDirector = e => e.correct && e.position.trim() === 'Генеральный директор';
+const isDirector = e => e.correct && e.position.trim() === 'General Director';
 const dirEmp = staff.find(isDirector);
 const rest = staff.filter(e => e !== dirEmp);
 const core = rest.filter(e => e.correct);
@@ -7116,7 +7116,7 @@ const DEPT_PAD = 14, DEPT_GAP = 28, MEMBERS_PER_ROW = 2, HEAD_GAP = 16, LABEL_H 
 // кто рядовые исполнители, сколько места отделу нужно на схеме.
 const depts = ORG_DEPT_ORDER.filter(k => buckets[k] && buckets[k].length).map(k => {
 const bucket = buckets[k];
-const head = bucket.length > 1 ? bucket.find(e => /^Главн/i.test(e.position)) : null;
+const head = bucket.length > 1 ? bucket.find(e => /^Chief\b/i.test(e.position)) : null;
 const soleMember = (!head && bucket.length === 1) ? bucket[0] : null;
 const members = head ? bucket.filter(e => e !== head) : (soleMember ? [] : bucket.slice());
 const perRow = members.length ? Math.min(MEMBERS_PER_ROW, members.length) : 1;
@@ -7153,7 +7153,7 @@ ctx.fillRect(0, 0, W, H);
 ctx.fillStyle = ORG_PAL.text;
 ctx.font = 'bold 15px Arial';
 ctx.textAlign = 'center';
-ctx.fillText('Организационная структура: ' + (clientData.firmName || 'фирма'), W / 2, 24);
+ctx.fillText('Organizational structure: ' + (clientData.firmName || 'the firm'), W / 2, 24);
 
 function box(x, y, w, h, name, pos1, pos2, trap) {
 ctx.fillStyle = trap ? 'rgba(255,59,92,0.08)' : 'rgba(51,230,255,0.07)';
@@ -7206,7 +7206,7 @@ return { boxes, rows };
 let y = TITLE_H;
 const dirBox = dirEmp
 ? box(W / 2 - 100, y, 200, DIR_BOX_H, dirEmp.name, dirEmp.position, null, false)
-: box(W / 2 - 140, y, 280, DIR_BOX_H, 'Директор не выбран', '(отметьте директора в таблице)', null, true);
+: box(W / 2 - 140, y, 280, DIR_BOX_H, 'No director selected', '(check the director in the table)', null, true);
 y += DIR_BOX_H;
 
 // Отделы располагаются В РЯД, СЛЕВА НАПРАВО, на одном уровне под директором — так наглядно
@@ -7266,7 +7266,7 @@ y += maxDeptHeight;
 // подсказки. В отчёте — пунктиром, подчинены директору напрямую, подпись «лишняя ФИО», по 3 в ряд.
 if (showTraps) {
 y += DEPT_TO_TRAP_GAP;
-const items = traps.map(t => ({ name: t.name, pos1: t.position, pos2: 'лишняя ФИО', trap: true }));
+const items = traps.map(t => ({ name: t.name, pos1: t.position, pos2: 'extraneous hire', trap: true }));
 const g = grid(items, y, TRAP_PER_ROW, TRAP_W, TRAP_H, TRAP_ROWGAP);
 g.boxes.forEach(b => link(dirBox, b, true));
 }
@@ -7274,7 +7274,7 @@ g.boxes.forEach(b => link(dirBox, b, true));
 ctx.fillStyle = ORG_PAL.dim;
 ctx.font = '9px Arial';
 ctx.textAlign = 'right';
-ctx.fillText('Сформировано оболочкой практикума УПЗИ — по отмеченным галочками сотрудникам', W - 14, H - 12);
+ctx.fillText('Generated by the practicum shell — based on checked employees', W - 14, H - 12);
 
 return c;
 }
@@ -7285,7 +7285,7 @@ function renderOrgChartPreview() {
 const holder = document.getElementById('orgChartBox');
 if (!holder) return;
 const c = buildOrgChartCanvas();
-holder.innerHTML = '<img src="' + c.toDataURL('image/png') + '" alt="Оргструктура фирмы" style="max-width:100%; border:1px solid var(--gr-line); border-radius:8px;">';
+holder.innerHTML = '<img src="' + c.toDataURL('image/png') + '" alt="Firm organizational structure" style="max-width:100%; border:1px solid var(--gr-line); border-radius:8px;">';
 }
 // Экранная кнопка «Оргструктура фирмы (PNG)»: обновляет превью (renderOrgChartPreview) и сразу
 // скачивает тот же PNG-файл.
@@ -7296,7 +7296,7 @@ const img = holder ? holder.querySelector('img') : null;
 const url = img ? img.src : buildOrgChartCanvas().toDataURL('image/png');
 const a = document.createElement('a');
 a.href = url;
-a.download = 'оргструктура_фирмы.png';
+a.download = 'firm_org_structure.png';
 a.click();
 }
 function updateEmp(id, field, value) {
@@ -7318,14 +7318,14 @@ if (t && t.materials[idx]) { t.materials[idx][field] = value; recalcAll(); }
 }
 function addMat(taskId) {
 const t = state.tasks.find(t => t.id === taskId);
-if (t) { t.materials.push({ name: 'Новый компонент', qty: 1, priceBudget: 100, priceMiddle: 200, priceVip: 400 }); recalcAll(); }
+if (t) { t.materials.push({ name: 'New component', qty: 1, priceBudget: 100, priceMiddle: 200, priceVip: 400 }); recalcAll(); }
 }
 function removeMat(taskId, idx) {
 const t = state.tasks.find(t => t.id === taskId);
 if (t) { t.materials.splice(idx, 1); recalcAll(); }
 }
 function addTask(stage) {
-state.tasks.push({ id: Date.now(), name: 'Новая задача', duration: 1, stage: stage || 'II', employeeId: null, predecessors: [], materials: [] });
+state.tasks.push({ id: Date.now(), name: 'New task', duration: 1, stage: stage || 'II', employeeId: null, predecessors: [], materials: [] });
 recalcAll();
 }
 function unlockAll() {
@@ -7577,7 +7577,7 @@ function buildRealStage2Tasks(projectType) {
             const specId = nextId++;
             const lastII = out.filter(t => t.stage === 'II').slice(-1)[0];
             out.push({
-                id: specId, name: spec.name + ' (специфика типа проекта)', duration: spec.dur, stage: 'II',
+                id: specId, name: spec.name + ' (project-type specific)', duration: spec.dur, stage: 'II',
                 employeeId: roleEmployee('Специалист по ИБ', portfolio, projectType),
                 requiredPosition: reqPositionFor('Специалист по ИБ', portfolio, projectType),
                 predecessors: [lastII ? lastII.id : 1013], materials: [], refDoc: spec.doc
@@ -8069,7 +8069,7 @@ body += repP('2. Nieto-Rodriguez A. Powered by Projects: Leading Your Organizati
 body += repP('3. Project Management Institute. Pulse of the Profession® 2026: Driving Success in Complex Projects — From Navigating Tasks to Navigating Systems. — Newtown Square, PA: PMI, 2026. — URL: https://www.pmi.org/learning/thought-leadership/driving-success-in-complex-projects (accessed: 24.07.2026).', { firstLine: false });
 body += repP('4. Project Management Institute. Pulse of the Profession® 2025: Boosting Business Acumen. — Newtown Square, PA: PMI, 2025. — URL: https://www.pmi.org/learning/thought-leadership/boosting-business-acumen (accessed: 24.07.2026).', { firstLine: false });
 body += repP('5. Association for Project Management. Five AI Trends for 2026 That Project Managers Need to Consider // APM Blog. — 2026. — URL: https://www.apm.org.uk/blog/five-ai-trends-for-2026-that-project-managers-need-to-consider/ (accessed: 24.07.2026).', { firstLine: false });
-body += repP('6. European Union Agency for Cybersecurity (ENISA). ENISA Threat Landscape 2025. — Athens: ENISA, 2025 (публикация 01.10.2025, редакция v1.2 от 09.01.2026). — URL: https://www.enisa.europa.eu/publications/enisa-threat-landscape-2025 (accessed: 27.07.2026).', { firstLine: false });
+body += repP('6. European Union Agency for Cybersecurity (ENISA). ENISA Threat Landscape 2025. — Athens: ENISA, 2025 (published 01.10.2025, revision v1.2 of 09.01.2026). — URL: https://www.enisa.europa.eu/publications/enisa-threat-landscape-2025 (accessed: 27.07.2026).', { firstLine: false });
 body += repP('7. Kaspersky Lab. Top Cybersecurity Challenges of 2025-2026: Key IS Trends from Kaspersky Lab (source in Russian) // Vedomosti. Technology and Innovation. — 2025. — December 24. — URL: https://www.vedomosti.ru/technologies/special/2025/12/24/top-kibervizovov-20252026-glavnie-trendi-v-ib-ot-laboratorii-kasperskogo-erid-2VfnxxvgiQ1 (accessed: 27.07.2026).', { firstLine: false });
 body += repP('8. Gartner, Inc. Gartner Identifies the Top Cybersecurity Trends for 2026 // Gartner Newsroom. — 2026. — February 5. — URL: https://www.gartner.com/en/newsroom/press-releases/2026-02-05-gartner-identifies-the-top-cybersecurity-trends-for-2026 (accessed: 27.07.2026).', { firstLine: false });
 body += repEmpty();
