@@ -2705,9 +2705,9 @@ return [
 // абсурдные назначения (бухгалтер-чертёжник) проходили молча. Теперь у каждой задан профиль-эталон,
 // а чертёж и смета сделаны переназначаемыми (не fixed), поэтому подмешанный неверный исполнитель
 // становится ловушкой, которую студент обязан распознать, и она бьёт по перерасходу OPEX.
-{ id: 1005, name: 'Разработка ТЗ на систему ' + sys, duration: 2, stage: 'I', employeeId: engineer.id, requiredPosition: [engineer.position], predecessors: [1002], materials: [], progress: 0 },
-{ id: 1003, name: 'Чертёж проекта в AutoCAD', duration: 3, stage: 'I', employeeId: draftsman.id, requiredPosition: [draftsman.position], predecessors: [1005], materials: [], progress: 100 },
-{ id: 1004, name: 'Локальная смета по чертежу', duration: 2, stage: 'I', employeeId: estimator.id, requiredPosition: [estimator.position], predecessors: [1003], materials: [], progress: 50 },
+{ id: 1005, name: 'Drafting the terms of reference for the ' + sys + ' system', duration: 2, stage: 'I', employeeId: engineer.id, requiredPosition: [engineer.position], predecessors: [1002], materials: [], progress: 0 },
+{ id: 1003, name: 'Project drawing in AutoCAD', duration: 3, stage: 'I', employeeId: draftsman.id, requiredPosition: [draftsman.position], predecessors: [1005], materials: [], progress: 100 },
+{ id: 1004, name: 'Local cost estimate based on the drawing', duration: 2, stage: 'I', employeeId: estimator.id, requiredPosition: [estimator.position], predecessors: [1003], materials: [], progress: 50 },
 // Задачи выхода на подписание Договора (после готовности локальной сметы, до старта монтажа).
 // Длительности для «Аудита комплектующих», «Дозаказа у вендоров», «Согласования чертежей» и
 // «нулевых» согласований — по данным преподавателя. Для «Выставления счёта» и «Ожидания
