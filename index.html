@@ -4684,9 +4684,10 @@ const overheadBenchmarkPct = OVERHEAD_BENCHMARK[state.priceLevel] || 35;
 const overheadGapPts = overheadPct - overheadBenchmarkPct;
 const profit = (total + overheads) * (profitPct/100);
 // НДС — выделяется ОТДЕЛЬНОЙ строкой поверх цены без налога (прямые затраты + накладные +
-// прибыль), по стандартной ставке 20% (гл. 21 НК РФ; применимо для фирмы на ОСНО — при УСН
+// прибыль), по стандартной ставке 22% (гл. 21 НК РФ; ставка повышена с 20% до 22% Федеральным
+// законом №425-ФЗ от 28.11.2025, действует с 01.01.2026; применимо для фирмы на ОСНО — при УСН
 // «Доходы» или «Доходы минус расходы» НДС в цену не закладывается и эта строка была бы нулевой).
-const vatRate = 20;
+const vatRate = 22;
 const priceBeforeVAT = total + overheads + profit;
 const vatAmount = priceBeforeVAT * (vatRate/100);
 state.summary.overheads = overheads;
