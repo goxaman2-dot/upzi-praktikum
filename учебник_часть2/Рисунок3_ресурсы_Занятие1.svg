@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" font-family="Arial, sans-serif">
+  <rect width="900" height="500" fill="white"/>
+  <defs>
+    <marker id="arr3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Top: two parallel resource streams -->
+  <rect x="40" y="30" width="360" height="54" fill="#dce9f7" stroke="#2c5b8a" stroke-width="1.5"/>
+  <text x="220" y="52" text-anchor="middle" font-size="13.5" fill="#1a1a1a">Кадровый ресурс</text>
+  <text x="220" y="70" text-anchor="middle" font-size="12" fill="#3a3a3a">зафиксирован на Старте 0 (§1.4)</text>
+
+  <rect x="500" y="30" width="360" height="54" fill="#fdf3e3" stroke="#a67a1e" stroke-width="1.5"/>
+  <text x="680" y="52" text-anchor="middle" font-size="13.5" fill="#1a1a1a">Материально-технический резерв</text>
+  <text x="680" y="70" text-anchor="middle" font-size="12" fill="#3a3a3a">формируется на Занятии 1 (§2.3)</text>
+
+  <!-- arrows down -->
+  <line x1="220" y1="84" x2="220" y2="118" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <line x1="680" y1="84" x2="680" y2="118" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <!-- CAPEX / OPEX split -->
+  <rect x="500" y="121" width="165" height="48" fill="#f7dede" stroke="#a02c2c" stroke-width="1.5"/>
+  <text x="582" y="141" text-anchor="middle" font-size="13" fill="#1a1a1a">CAPEX</text>
+  <text x="582" y="157" text-anchor="middle" font-size="10.5" fill="#3a3a3a">основные средства</text>
+
+  <rect x="693" y="121" width="167" height="48" fill="#f7dede" stroke="#a02c2c" stroke-width="1.5"/>
+  <text x="776" y="141" text-anchor="middle" font-size="13" fill="#1a1a1a">OPEX</text>
+  <text x="776" y="157" text-anchor="middle" font-size="10.5" fill="#3a3a3a">аренда, связь, ГПХ и др.</text>
+
+  <!-- left: staff -> tasks -->
+  <rect x="60" y="121" width="320" height="52" fill="#d7ecdd" stroke="#2c7a45" stroke-width="1.5"/>
+  <text x="220" y="141" text-anchor="middle" font-size="12.5" fill="#1a1a1a">Норматив ошибочности подбора — 25%</text>
+  <text x="220" y="158" text-anchor="middle" font-size="12.5" fill="#1a1a1a">(та же формула (1.2), что и на Старте 0)</text>
+
+  <line x1="220" y1="173" x2="220" y2="205" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <rect x="40" y="208" width="360" height="70" fill="#e6dcf5" stroke="#5a2ca0" stroke-width="1.5"/>
+  <text x="220" y="230" text-anchor="middle" font-size="13.5" fill="#1a1a1a">Задачи подготовительного этапа (I)</text>
+  <text x="220" y="248" text-anchor="middle" font-size="12" fill="#3a3a3a">назначение исполнителей,</text>
+  <text x="220" y="264" text-anchor="middle" font-size="12" fill="#3a3a3a">стоимость труда по формуле (2.1)</text>
+
+  <!-- right: capex/opex -> смета/бюджет -->
+  <line x1="582" y1="169" x2="680" y2="205" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <line x1="776" y1="169" x2="680" y2="205" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <rect x="500" y="208" width="360" height="70" fill="#e6dcf5" stroke="#5a2ca0" stroke-width="1.5"/>
+  <text x="680" y="230" text-anchor="middle" font-size="13.5" fill="#1a1a1a">Смета и бюджет проекта</text>
+  <text x="680" y="248" text-anchor="middle" font-size="12" fill="#3a3a3a">Занятия 4–5 — расход CAPEX/OPEX</text>
+  <text x="680" y="264" text-anchor="middle" font-size="12" fill="#3a3a3a">учитывается по разным правилам</text>
+
+  <!-- convergence to lesson 2 -->
+  <line x1="220" y1="278" x2="220" y2="330" stroke="#333" stroke-width="1.5"/>
+  <line x1="220" y1="330" x2="450" y2="330" stroke="#333" stroke-width="1.5"/>
+  <line x1="680" y1="278" x2="680" y2="330" stroke="#333" stroke-width="1.5"/>
+  <line x1="680" y1="330" x2="450" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <line x1="450" y1="330" x2="450" y2="356" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <rect x="280" y="359" width="340" height="52" fill="#dce9f7" stroke="#2c5b8a" stroke-width="1.8"/>
+  <text x="450" y="381" text-anchor="middle" font-size="13.5" fill="#1a1a1a">Занятие 2</text>
+  <text x="450" y="398" text-anchor="middle" font-size="12" fill="#3a3a3a">Вид работ по проекту и комплектующие</text>
+
+  <!-- annotation between CAPEX/OPEX row and the next row -->
+  <text x="680" y="192" text-anchor="middle" font-size="10.5" fill="#8a2c2c">критерий разделения — срок полезного использования свыше 12 мес. (ФСБУ 6/2020)</text>
+</svg>
