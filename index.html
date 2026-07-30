@@ -6374,10 +6374,17 @@ const sched = computeSchedule();
 // на случай если конкретная сборка frappe-gantt@1.2.2 игнорирует custom_class.
 const optimizedIds = new Set(((state.lastOptimizationLog && state.lastOptimizationLog.reassignedTaskIds) || []).map(String));
 const tasks = state.tasks.map(t => {
+// ВАЖНО: frappe-gantt в 'Day'-режиме принимает даты в виде строк YYYY-MM-DD (см. toISOString().split
+// ниже) — сутки являются минимальной единицей, которую он вообще способен отобразить. Прежний код
+// пытался задавать дробную ширину бара (0.25/0.5 суток) через setDate(getDate() + N) с дробным N —
+// JS молча усекает такой аргумент до целого, а после округления даты до YYYY-MM-DD дробная часть
+// всё равно терялась бы. В результате при duration=0 (задачи 1008/1010/1011/1013) start и end
+// совпадали как строки, frappe-gantt получал нулевой ширины бар и зависал. Правильное решение —
+// округлять к целым суткам ЗАРАНЕЕ и гарантировать минимум 1 сутки ширины, а не дробные доли.
 const start = new Date(state.startDate);
-start.setDate(start.getDate() + (sched.startOf[t.id] || 0));
+start.setDate(start.getDate() + Math.round(sched.startOf[t.id] || 0));
 const end = new Date(start);
-const dur = Math.max(t.duration, 0.25); // нулевая длительность рисуется как узкая полоса-веха
+const dur = Math.max(Math.round(t.duration), 1); // минимум 1 сутки ширины бара
 end.setDate(end.getDate() + dur);
 const deps = (t.predecessors || []).join(',');
 return { id: String(t.id), name: t.name, start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], progress: t.progress || 0, dependencies: deps, employeeNames: taskEmployeeNames(t), custom_class: optimizedIds.has(String(t.id)) ? 'bar-optimized' : '' };
@@ -6386,7 +6393,7 @@ if (tasks.length === 0) { container.innerHTML = '<p style="padding:20px;text-ali
 // Автомасштаб: ширина колонки-дня подбирается так, чтобы ВЕСЬ срок проекта (даже 50-60 дней)
 // помещался в видимую ширину контейнера без горизонтальной прокрутки (раньше column_width был
 // фиксирован в 30px, и при длинных проектах диаграмма растягивалась на 1500+ px и вылезала за экран).
-const totalDays = Math.max(1, ...state.tasks.map(t => (sched.startOf[t.id] || 0) + Math.max(t.duration, 0.25)));
+const totalDays = Math.max(1, ...state.tasks.map(t => Math.round(sched.startOf[t.id] || 0) + Math.max(Math.round(t.duration), 1)));
 const availWidth = Math.max(container.clientWidth || 0, container.parentElement ? container.parentElement.clientWidth : 0, 900) - 40;
 // frappe-gantt в режиме 'Day' сам добавляет ~7 дней отступа слева и справа от диапазона задач —
 // это учтено (+14), иначе реальная ширина диаграммы всё равно выходила бы за расчётную.
@@ -7954,16 +7961,19 @@ const filtered = state.tasks.filter(function(t) { return stageList.indexOf(t.sta
 if (!filtered.length) { document.body.removeChild(holder); return null; }
 const filteredIds = {};
 filtered.forEach(function(t) { filteredIds[String(t.id)] = true; });
+// см. комментарий в renderGantt(): frappe-gantt в 'Day'-режиме понимает только целые сутки
+// (даты в формате YYYY-MM-DD), поэтому дробную ширину бара всё равно нечем показать — округляем
+// к целым суткам и гарантируем минимум 1 сутки, а не пытаемся сохранить дробную часть.
 const tasks = filtered.map(function(t) {
 const start = new Date(state.startDate);
-start.setDate(start.getDate() + (sched.startOf[t.id] || 0));
+start.setDate(start.getDate() + Math.round(sched.startOf[t.id] || 0));
 const end = new Date(start);
-const dur = Math.max(t.duration, 0.25);
+const dur = Math.max(Math.round(t.duration), 1);
 end.setDate(end.getDate() + dur);
 const deps = (t.predecessors || []).filter(function(p) { return filteredIds[String(p)]; }).join(',');
 return { id: String(t.id), name: t.name, start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], progress: t.progress || 0, dependencies: deps, employeeNames: taskEmployeeNames(t) };
 });
-const totalDays = Math.max(1, ...filtered.map(function(t) { return (sched.startOf[t.id] || 0) + Math.max(t.duration, 0.25); }));
+const totalDays = Math.max(1, ...filtered.map(function(t) { return Math.round(sched.startOf[t.id] || 0) + Math.max(Math.round(t.duration), 1); }));
 const colWidth = Math.max(6, Math.min(30, Math.floor(1360 / (totalDays + 14))));
 const barH = colWidth < 14 ? 14 : 20;
 new Gantt(inner, tasks, {
