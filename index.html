@@ -392,7 +392,7 @@ font-size: 14px; margin-top: 4px; background: var(--gr-panel2); color: var(--gr-
 .lesson-tab.locked { opacity: 0.4; cursor: not-allowed; }
 .lesson-tab.done { border-color: var(--gr-green); background: rgba(57,255,157,0.08); color: var(--gr-green); }
 .content { display: flex; padding: 24px 30px; gap: 30px; min-height: 600px; background: var(--gr-bg); color: var(--gr-text); }
-.main-panel { flex: 2; }
+.main-panel { flex: 2; min-width: 0; }
 .side-panel { flex: 0 0 240px; max-width: 240px; background: var(--gr-panel); border-radius: 12px; padding: 12px; border: 1px solid var(--gr-line); font-size: 12px; }
 .side-panel .summary-card { padding: 6px 10px; margin-bottom: 6px; }
 .side-panel .summary-card label { font-size: 9px; }
@@ -1364,7 +1364,6 @@ input:disabled, select:disabled { opacity: 0.45; }
 <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
 <h3 style="font-size:13px;">📊 Проект</h3>
 <span style="display:flex; gap:4px;">
-<button class="btn btn-sm btn-primary" onclick="exportJSON()" aria-label="Сохранить проект в JSON-файл" title="Сохранить проект в JSON-файл">💾</button>
 <button class="btn btn-sm btn-outline" onclick="document.getElementById('importInput').click()" aria-label="Загрузить проект из JSON-файла" title="Загрузить проект из JSON-файла">📂</button>
 </span>
 <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)" aria-label="Выбрать JSON-файл проекта для загрузки">
@@ -4387,7 +4386,7 @@ ${state.resourcesLocked ? `<p style="margin-bottom:8px; color:#F2CB7A; font-size
 ${state.resourcesLocked ? `<button class="btn btn-outline btn-sm" onclick="unlockResources()">🔓 Изменить состав ресурсов (снять фиксацию)</button>` : ''}
 </div>
 <div>
-<div>
+<div style="overflow-x:auto;">
 <table>
 <thead><tr><th>Подходит?</th><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th><span class="tip" title="${CAPEX_DEF}&#10;&#10;${OPEX_DEF}">Тип затрат</span></th><th>Сумма, ₽</th><th></th></tr></thead>
 <tbody>
@@ -4530,7 +4529,7 @@ html += `
 <button class="btn btn-success btn-sm" onclick="loadTemplate(state.projectType)">📂 Загрузить полный перечень задач этапов монтажа/внедрения-наладки-испытаний-приёмки (${TYPE_RU[state.projectType] || ''})</button>
 <button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу вручную</button>
 </div>
-<div>
+<div style="overflow-x:auto;">
 <table>
 <thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длительность</th><th>Исполнитель (ФИО, квалификация)</th><th>Стоимость (ФОТ)</th><th>Примечание</th><th>Вид проверочных работ</th></tr></thead>
 <tbody>${fullTaskRowsHtml}</tbody>
@@ -4576,6 +4575,16 @@ ${state.taskVerifLocked ? `<button class="btn btn-outline btn-sm" style="margin-
 </div>
 </div>
 <p style="margin:10px 0 0; color:var(--gr-dim); font-size:12px;">Счётчики ловушек квалификации по этапам I–V теперь встроены прямо в таблицу задач выше — под последней задачей каждого этапа (голубая строка «🎯 Счётчик ловушек квалификации»). Наведите на значок ⚠️ у исполнителя, чтобы увидеть нормативное основание требования (ГОСТ/ТУ/ФЗ/приказ ФСТЭК).</p>
+
+${state.taskNotesLocked && state.taskVerifLocked ? `
+<div style="margin-top:16px; border:1px solid rgba(57,255,157,0.35); background:rgba(57,255,157,0.06); border-radius:10px; padding:14px 16px;">
+<div style="font-weight:700; color:var(--gr-green); margin-bottom:6px;">✅ Справочник: комплект типовых документов проекта «${TYPE_RU[state.projectType] || ''}»</div>
+<p style="margin:0 0 6px; font-size:12.5px; color:var(--gr-muted2);">Появляется только сейчас, когда обе ловушки выше уже зафиксированы — это не подсказка к выбору, а сверка ПОСЛЕ него. Показывает, какой набор документов (ТЗ → Договор → специфический документ этапа приёмки → документ обучения, где предусмотрен → закрывающий акт) реально сопровождает проект именно этого типа — то же самое содержание попадёт в Приложение к Договору (занятие 4) и в итоговый отчёт (DOCX).</p>
+${canonicalDocSetHtml(state.projectType)}
+</div>
+` : `
+<p style="margin-top:14px; color:var(--gr-dim); font-size:12px; font-style:italic;">Справочник по комплекту документов проекта откроется здесь после того, как обе ловушки выше будут зафиксированы (кнопки «🔎 Проверить точность выбора») — так он не превращается в подсказку к самому выбору.</p>
+`}
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:22px 0 6px;">Комплектующие проекта (по рулетке — ${TYPE_RU[state.projectType] || ''})</div>
 <p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Ниже — реальный перечень всего, что подлежит установке по вашему типу проекта (датчики, контроллеры, замки, блок центрального процессора и т.п.), с тремя ценами (Бюджет/Мидл/VIP) и вендором 2026 года — проверено по актуальным прайс-листам рынка. Это готовая часть материальной составляющей цены Договора: без вариантов выбора и без ловушек, просто рыночный факт.</p>
@@ -4855,6 +4864,12 @@ ${reqInput('Паспортные данные (если физлицо)', 'custP
 
 <p style="font-weight:700; margin:16px 0 4px;">13. Приложения к Договору</p>
 <p style="text-align:justify; font-size:13.5px;">Приложение №1 — Локальная смета; Приложение №2 — Календарный график производства работ; Приложение №3 — Спецификация комплектующих и оборудования; Приложение №4 — Акт первичного обследования объекта.</p>
+${state.taskNotesLocked && state.taskVerifLocked ? `
+<p style="text-align:justify; font-size:13.5px;">Приложение №5 — комплект документов исполнения проекта (техническое задание, документ этапа приёмки, документ обучения персонала Заказчика, закрывающий акт) — полный состав ниже; тот же перечень, что уже сверен в занятии 2 после фиксации ловушек «Примечание»/«Вид проверочных работ», и что будет вшито в итоговый отчёт по проекту.</p>
+${canonicalDocSetHtml(state.projectType)}
+` : `
+<p style="text-align:justify; font-size:13.5px; color:var(--gr-dim); font-style:italic;">Приложение №5 (комплект документов исполнения) появится здесь после того, как в занятии 2 будут зафиксированы обе ловушки «Примечание» и «Вид проверочных работ».</p>
+`}
 
 <div style="margin-top:26px; display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; font-size:13px;">
 <div style="flex:1 1 280px;">
@@ -7462,6 +7477,43 @@ const GANTT_SOFT_SPECIFIC = {
     audit: { name:"Проведение внутреннего аудита, gap-анализ по ГОСТ Р ИСО/МЭК 27001, отчёт с рекомендациями", dur:5, doc:"Отчёт по итогам аудита с рекомендациями" },
     training: { name:"Разработка программы обучения, проведение тренинга и фишинг-симуляции, оценка результатов", dur:3, doc:"Протокол обучения и оценки результатов" },
 };
+// Комплект типовых документов проекта («что должно остаться у студента в голове на 5 лет») —
+// 06.08.2026, по просьбе преподавателя. НЕ хардкод отдельного списка строк: для портфеля I
+// (ИТСО) берётся напрямую из GANTT_ITSO (этап V — те же 5 документов у всех 6 типов, т.к. их
+// apply одинаковы), для портфелей II/III — из GANTT_SOFT_SPECIFIC (специфический документ типа)
+// + строк GANTT_SOFT_COMMON этапов IV/V с apply[projectType]===true (варьируется по типу: у
+// одних типов есть акт ввода, у других — только итоговый отчёт/акт передачи, см. CLAUDE.md).
+// Единый источник данных — если реальные задачи Гантта изменятся, список обновится сам, без
+// риска разойтись с уже существующим текстом (тот же принцип, что и в остальном коде практикума).
+function canonicalDocSet(projectType) {
+    const portfolio = portfolioOfCode(projectType);
+    const items = [
+        { n: 1, label: 'Техническое задание (ТЗ) на систему/решение', basis: 'Занятие 1 — этап I, формируется до начала монтажа/внедрения' },
+        { n: 2, label: 'Договор подряда / оказания услуг по ИБ', basis: 'Занятие 4 — предмет Договора соответствует типу проекта' },
+    ];
+    if (portfolio === 'I') {
+        GANTT_ITSO.filter(r => r.stage === 'V').forEach(r => {
+            items.push({ n: items.length + 1, label: r.doc, basis: r.code + ' — подписывает: ' + r.role });
+        });
+    } else {
+        const spec = GANTT_SOFT_SPECIFIC[projectType];
+        if (spec) items.push({ n: items.length + 1, label: spec.doc, basis: 'специфический документ этого типа проекта' });
+        GANTT_SOFT_COMMON.filter(r => (r.stage === 'IV' || r.stage === 'V') && r.apply[projectType]).forEach(r => {
+            items.push({ n: items.length + 1, label: r.doc, basis: r.code + ' — ' + (r.norm && r.norm !== '-' ? r.norm : 'внутренний регламент проекта') });
+        });
+    }
+    return items;
+}
+// HTML-таблица комплекта документов — переиспользуется и в панели занятия 2 (справочник,
+// открывается только после фиксации ОБЕИХ ловушек — см. renderCurrentLesson case 2), и в
+// Приложении к Договору занятия 4 (тот же принцип: содержимое видно только когда ловушки уже
+// зафиксированы — независимо от порядка навигации студента между вкладками, т.к. вкладки после
+// разблокировки не запираются заново и студент технически может вернуться на занятие 2).
+function canonicalDocSetHtml(projectType) {
+    const items = canonicalDocSet(projectType);
+    const rows = items.map(it => `<tr><td style="text-align:center;">${it.n}</td><td>${it.label}</td><td style="color:var(--gr-muted2); font-size:12.5px;">${it.basis}</td></tr>`).join('');
+    return `<table style="margin-top:8px;"><thead><tr><th>№</th><th>Документ</th><th>Основание</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
 // материалы (компоненты с ценами по 3 уровням) — привязаны к конкретным задачам монтажа,
 // проверены агентом по реальным рыночным ценам (см. работу по Комплектующие_20типов); сохранены
 // при переходе на реальный перечень задач Гантта (раньше жёстко лежали в шаблонах id 2001-2003).
@@ -7672,11 +7724,10 @@ document.querySelector('.lesson-tab[data-lesson="2"]').classList.remove('locked'
 function saveProjectCheckpoint() {
 exportJSON();
 }
-function goToAuditStage() {
-const tab = document.querySelector('.lesson-tab[data-lesson="8"]');
-if (tab) tab.classList.remove('locked');
-gotoLesson(8);
-}
+// УДАЛЕНО (2026-08-07): goToAuditStage() была мёртвым кодом — ни одна кнопка/обработчик её не
+// вызывали (проверено grep по всему файлу), это не было заметно как баг только потому, что общая
+// разблокировка вкладок 3-9 была сломана точно так же (см. фикс в nextLesson() выше) — «прыжок»
+// к занятию 8 всё равно был бы бесполезен, пока сам общий механизм не работал.
 function exportJSON() {
 const data = JSON.stringify(state, null, 2);
 const blob = new Blob([data], { type: 'application/json' });
@@ -7824,8 +7875,22 @@ function nextLesson() {
 // и с случаем «все три проекта уже сданы»). Раньше здесь был тупик — просто alert без каких-
 // либо действий, из-за чего со страницы 9 (стр. 15/15) реально было некуда идти дальше.
 if (currentLesson >= 9) { submitProjectReport(); return; }
+// ИСПРАВЛЕНО (2026-08-07, критический баг): вкладки занятий 3-9 никогда не разблокировались —
+// .locked снимался только с вкладок 1 и 2 (см. goToProject()), а дальше ни одна функция не
+// трогала .locked ни для одной вкладки в обычном игровом потоке. Из-за этого nextLesson()
+// (вызывается ТОЛЬКО как proceedFn из goNextGated() — т.е. ПОСЛЕ того, как студент уже прошёл
+// гейт-модалку с теорией и тест на компетенции) видел следующую вкладку всё ещё заблокированной
+// и просто отказывал alert'ом — реальный студент физически не мог продвинуться дальше занятия 2
+// ни по одному из 20 типов проекта. Подтверждено эмпирически (jsdom, полная цепочка кнопок
+// goNextGated → гейт → тест → «Продолжить» → nextLesson()) до исправления.
+// Так как к МОМЕНТУ вызова nextLesson() гейт уже пройден (это гарантируется тем, что nextLesson
+// передаётся в openGateModal/proceedAfterGate как proceedFn и вызывается только из их цепочки),
+// разблокировать следующую вкладку здесь — не обход защиты, а фиксация уже состоявшегося факта.
+// Разблокировка сделана ИМЕННО здесь (а не разом для всех 9 вкладок при старте проекта), чтобы
+// не дать студенту кликнуть по вкладке впереди и проскочить теорию/тест — клик по вкладке
+// (обработчик #lessonTabs) не проходит через goNextGated() и по-прежнему проверяет .locked.
 const nextTab = document.querySelector('.lesson-tab[data-lesson="' + (currentLesson + 1) + '"]');
-if (nextTab && nextTab.classList.contains('locked')) { alert('Занятие ' + (currentLesson + 1) + ' пока заблокировано — сначала завершите текущее.'); return; }
+if (nextTab) nextTab.classList.remove('locked');
 gotoLesson(currentLesson + 1);
 }
 
@@ -8373,6 +8438,27 @@ body += repTable(reflHeader, reflRows);
 body += repP('Таблица показывает, на скольких из 10 этапов студент осознанно сформулировал позицию заказчика по своему же решению (заполнено этапов: ' + reflKeys.length + ' из 10), а не только позицию фирмы-исполнителя, в которой он действовал практически весь практикум. Столбец «Верно/Ошибка» отмечен «н/д» намеренно: это открытые вопросы без единственно правильного ответа, их оценка содержанием не предусмотрена методикой практикума (см. раздел о необязательности полей выше).');
 body += repEmpty();
 }
+
+// ============================================================
+// 11. Комплект типовых документов проекта — 06.08.2026, по просьбе преподавателя («список
+// самых важных документов... сколько — чтобы у студента в голове они остались на 5 лет»).
+// Печатается безусловно (отчёт формируется в конце практикума), в отличие от справочника
+// занятия 2 и Приложения №5 Договора, которые открываются только после фиксации обеих ловушек
+// «Примечание»/«Вид проверочных работ» — здесь эта гонка условий уже неактуальна, поэтому
+// раздел печатается всегда, независимо от locked-состояния, с честной пометкой, если ловушки
+// так и не были зафиксированы студентом на момент печати.
+body += repSubHeading('11. Комплект типовых документов проекта');
+body += repP('Единый набор документов делового цикла проекта данного типа — от технического задания до закрывающего акта, — построенный по формуле «5 документов на тип проекта», предложенной как ориентир, который должен остаться в памяти студента на годы вперёд, а не как перечень для заучивания наизусть.');
+const cds = (typeof canonicalDocSet === 'function') ? canonicalDocSet(state.projectType) : [];
+if (cds.length) {
+    body += repCaption(tblN++, 'Комплект документов проекта «' + projectLabel + '»');
+    body += repTable(['№', 'Документ', 'Основание'], cds.map(function(it) { return [String(it.n), it.label, it.basis]; }));
+    body += repP('Число документов в комплекте (' + cds.length + ') намеренно не выравнено искусственно до одной и той же цифры для всех 20 типов проектов практикума: где в реальном составе задач данного типа не предусмотрен отдельный документ обучения или отдельный акт ввода (например, у организационно-административных типов вроде политики ИБ), соответствующая строка в таблице просто отсутствует, а не подменяется вымышленным названием.');
+} else {
+    body += repP('Комплект документов не может быть построен: тип проекта не определён.');
+}
+body += repP((state.taskNotesLocked && state.taskVerifLocked) ? 'На момент формирования отчёта обе ловушки занятия 2 («Примечание» и «Вид проверочных работ») зафиксированы — состав таблицы выше совпадает с уже показанным студенту справочником занятия 2 и Приложением №5 Договора.' : 'На момент формирования отчёта хотя бы одна из ловушек занятия 2 («Примечание» / «Вид проверочных работ») ещё не зафиксирована — справочник в занятии 2 и Приложение №5 Договора студенту ещё не показывались; таблица выше при этом уже доступна, т.к. итоговый отчёт печатается по завершении практикума.');
+body += repEmpty();
 
 const documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
 + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
