@@ -351,12 +351,6 @@ body { font-family: 'Segoe UI', sans-serif; background: #0A1120; padding: 20px; 
     --gr-text: #E9EEF6; --gr-muted: #A9BBD1; --gr-muted2: #8CA0BC; --gr-dim: #66809E;
     --gr-gold: #E8B24A; --gr-green: #39FF9D; --gr-cyan: #33E6FF; --gr-red: #FF3B5C;
 }
-/* --- Модальное окно «Задача как процесс (PMBOK ITTO)», занятие 2 --- */
-.itto-modal-overlay { position: fixed; inset: 0; background: rgba(5,9,18,0.72); z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.itto-modal-box { background: var(--gr-panel); border: 1px solid var(--gr-line2); border-radius: 14px; max-width: 820px; width: 100%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-.itto-modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--gr-line); color: var(--gr-text); font-weight: 600; font-size: 14.5px; }
-.itto-modal-body { padding: 14px 18px; overflow: auto; background: #ffffff; display: flex; justify-content: center; }
-.itto-modal-actions { display: flex; gap: 10px; justify-content: center; padding: 14px 18px; border-top: 1px solid var(--gr-line); background: var(--gr-panel2); }
 /* --- СТАРТОВЫЙ ЭКРАН (ВОРОНКА) --- */
 #startScreen { padding: 40px 30px; background: var(--gr-bg); display: none; color: var(--gr-text); font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; }
 #startScreen.hidden { display: none; }
@@ -1396,24 +1390,6 @@ input:disabled, select:disabled { opacity: 0.45; }
 </div>
 <div style="padding:14px 24px; border-top:1px solid var(--gr-line); background:var(--gr-panel2); display:flex; justify-content:center;">
 <button class="btn btn-success" style="font-size:15px; padding:12px 32px;" onclick="saveProjectCheckpoint()">💾 Сохранить проект на текущей отметке</button>
-</div>
-</div>
-
-<!-- Модальное окно «Показать задачу как процесс (PMBOK ITTO)» — занятие 2, задачи с определённым
-     «Видом проверочных работ» (см. verificationMethod()/VERIFICATION_METHODS). Карточка строится
-     из уже введённых в практикум данных (не выдуманных заново) и доступна для печати/сохранения
-     как отдельное изображение — см. openTaskProcessCard()/printTaskProcessCard()/downloadTaskProcessCardPng(). -->
-<div id="taskProcessModalOverlay" class="itto-modal-overlay" style="display:none;" onclick="if(event.target===this) closeTaskProcessCard()">
-<div class="itto-modal-box">
-<div class="itto-modal-head">
-<span>Задача как процесс — Входы / Инструменты и методы / Выходы (PMBOK ITTO)</span>
-<button class="btn btn-sm btn-outline" onclick="closeTaskProcessCard()">✕ Закрыть</button>
-</div>
-<div id="taskProcessCardHost" class="itto-modal-body"></div>
-<div class="itto-modal-actions">
-<button class="btn btn-primary btn-sm" onclick="printTaskProcessCard()">🖨️ Печать</button>
-<button class="btn btn-success btn-sm" onclick="downloadTaskProcessCardPng()">💾 Скачать как PNG</button>
-</div>
 </div>
 </div>
 
@@ -2608,176 +2584,6 @@ function taskOutputDoc(t) {
     if (t.stage === 'II') return 'Акт скрытых работ / акт монтажа — ' + t.name;
     if (t.stage === 'III') return 'Акт пусконаладочных работ (ПНР) и протокол испытаний — ' + t.name;
     return 'Акт выполненных работ по задаче — ' + t.name;
-}
-
-// ============================================================
-// «ЗАДАЧА КАК ПРОЦЕСС» (PMBOK ITTO) — занятие 2, кнопка появляется ТОЛЬКО у задач с определённым
-// «Видом проверочных работ» (см. verificationMethod()/VERIFICATION_METHODS, 30 задач по обоим
-// портфелям, этапы II-V). У этих задач, в отличие от этапа I (ТЗ/эскиз/план), выход измерим и
-// проверяем по нормативу — именно поэтому у них есть чем заполнить все три колонки ITTO без
-// придумывания нового контента: Инструменты и методы = дословно verificationMethod(t), Выходы =
-// дословно taskOutputDoc(t), Критерий приёмки — вытянутый регэкспом норматив из того же текста
-// (если он там есть). Термины и раскладка (Входы/Инструменты и методы/Выходы) — по PMBOK Guide,
-// а НЕ по IDEF0 (см. обсуждение в CLAUDE.md/чате: IDEF0-схемы практикума на стр. 2-3 — отдельная,
-// несмешиваемая нотация со своими стрелками Control/Mechanism; здесь стрелки подписаны терминами
-// ITTO, а не ICOM, хотя расположены в похожей визуальной логике намеренно — для преемственности
-// с уже знакомой студенту графикой).
-const TASK_PROCESS_INPUTS = {
-    II: 'Комплектующие и материалы (ТМЦ) по смете, проектная документация, результат предыдущей задачи этапа',
-    III: 'Смонтированная система/оборудование (результат этапа монтажа), техно-рабочий проект, инструменты измерения',
-    IV: 'Настроенная и подключённая система после пусконаладки, программа и методика испытаний',
-    V: 'Испытанная система с положительными протоколами, полный комплект исполнительной документации'
-};
-// Извлекает измеримый норматив из текста «Вида проверочных работ», если он там явно указан
-// (в скобках, с сравнением/единицей измерения) — иначе возвращает null, и карточка честно
-// показывает общую формулировку критерия, а не выдуманное число.
-function taskAcceptanceCriterion(vmethodText) {
-    if (!vmethodText) return null;
-    const matches = [...vmethodText.matchAll(/\(([^)]*(?:≥|≤|·|Ом|МОм|В\b|люкс|с\)|норма)[^)]*)\)/gi)];
-    if (!matches.length) return null;
-    // если внутри скобок явно указано слово «норма» — оставляем только саму норму, без названия
-    // прибора (прибор и так показан отдельно, в блоке «Инструменты и методы»); если скобок с
-    // нормативом несколько (напр. IV.3 — два коэффициента) — объединяем все, а не только первую.
-    const parts = matches.map(m => {
-        const normMatch = m[1].match(/норма\s*(.+)$/i);
-        return normMatch ? normMatch[1] : m[1];
-    });
-    return parts.join('; ');
-}
-function wrapSvgText(text, maxCharsPerLine) {
-    const words = text.split(' ');
-    const lines = [];
-    let cur = '';
-    words.forEach(w => {
-        const test = cur ? cur + ' ' + w : w;
-        if (test.length > maxCharsPerLine && cur) { lines.push(cur); cur = w; }
-        else cur = test;
-    });
-    if (cur) lines.push(cur);
-    return lines;
-}
-function svgTextBlock(x, y, text, maxCharsPerLine, lineHeight, opts) {
-    opts = opts || {};
-    const lines = wrapSvgText(text, maxCharsPerLine);
-    return lines.map((ln, i) =>
-        `<text x="${x}" y="${y + i * lineHeight}" font-family="IBM Plex Sans, Arial, sans-serif" font-size="${opts.size || 13}" fill="${opts.fill || '#1A2333'}" font-weight="${opts.weight || 400}">${ln.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</text>`
-    ).join('');
-}
-// Высоты всех пяти блоков (заголовок, процесс, входы, выходы, критерий, инструменты) считаются
-// ИЗ РЕАЛЬНОГО количества строк после переноса, а не берутся фиксированными числами — иначе на
-// более длинных реальных названиях задач/документов/методов проверки (до ~90 символов, см.
-// GANTT_ITSO/GANTT_SOFT_COMMON/VERIFICATION_METHODS) текст вылезал за рамку блока (обнаружено при
-// стресс-тесте с намеренно длинным названием задачи — см. CLAUDE.md/чат). Кнопка появляется только
-// у задач с t.code из VERIFICATION_METHODS (см. verificationMethod()), а такой код есть ТОЛЬКО у
-// задач из фиксированных таблиц Гантта — у добавленной студентом вручную задачи (addTask()) кода
-// нет вовсе, поэтому карточка никогда не строится по непредсказуемо длинному студенческому тексту.
-function buildTaskProcessCardSvg(t) {
-    const vmethod = verificationMethod(t) || '—';
-    const outDoc = taskOutputDoc(t);
-    const inputs = TASK_PROCESS_INPUTS[t.stage] || 'Результат предыдущей задачи этапа, проектная документация';
-    const criterion = taskAcceptanceCriterion(verificationMethod(t)) || 'соответствие проектным параметрам и требованиям ГОСТ';
-    const W = 760;
-    const SIDE_W = 190, SIDE_CHARS = 25, SIDE_LH = 14;
-    const PROC_W = 280, PROC_CHARS = 27, PROC_LH = 16;
-    const TOP_W = 340, TOP_CHARS = 44, TOP_LH = 13;
-    const BOT_W = 380, BOT_CHARS = 48, BOT_LH = 13;
-
-    const titleText = `Задача: «${t.name}» (этап ${t.stage}, код ${t.code || '—'})`;
-    const titleLines = wrapSvgText(titleText, 84);
-    const inputLines = wrapSvgText(inputs, SIDE_CHARS);
-    const outputLines = wrapSvgText(outDoc, SIDE_CHARS);
-    const procLines = wrapSvgText(t.name, PROC_CHARS);
-    const critLines = wrapSvgText(criterion, TOP_CHARS);
-    const toolLines = wrapSvgText(vmethod, BOT_CHARS);
-
-    const sideH = Math.max(74, 34 + Math.max(inputLines.length, outputLines.length) * SIDE_LH);
-    const procH = Math.max(80, 42 + procLines.length * PROC_LH);
-    const critH = Math.max(48, 32 + critLines.length * TOP_LH);
-    const toolH = Math.max(54, 36 + toolLines.length * BOT_LH);
-
-    const titleH = 14 + titleLines.length * 17;
-    const topMargin = titleH + 24;
-    const critY = topMargin;
-    const procY = critY + critH + 26;
-    const procX = (W - PROC_W) / 2;
-    const cx = W / 2, cy = procY + procH / 2;
-    const toolY = procY + procH + 26;
-    const sideY = cy - sideH / 2;
-    const inX = 24, outX = W - 24 - SIDE_W;
-    const H = toolY + toolH + 46;
-
-    let svg = `<svg id="taskProcessCardSvg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; max-width:100%; height:auto;">`;
-    svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>`;
-    // заголовок (может занимать 1-2 строки — под него зарезервировано ровно titleH)
-    svg += svgTextBlock(24, 24, titleText, 84, 17, { size: 14.5, weight: 700, fill: '#0F1A2E' });
-    svg += `<line x1="24" y1="${titleH + 6}" x2="${W - 24}" y2="${titleH + 6}" stroke="#DDE3EC" stroke-width="1"/>`;
-    // центральный процесс-блок
-    svg += `<rect x="${procX}" y="${procY}" width="${PROC_W}" height="${procH}" rx="10" fill="#EAF3FF" stroke="#2B6CB0" stroke-width="1.6"/>`;
-    svg += svgTextBlock(procX + 14, procY + 22, 'ПРОЦЕСС', 40, 15, { size: 11.5, weight: 700, fill: '#2B6CB0' });
-    svg += svgTextBlock(procX + 14, procY + 42, t.name, PROC_CHARS, PROC_LH, { size: 12.5, weight: 600, fill: '#0F1A2E' });
-    // Входы (слева)
-    svg += `<rect x="${inX}" y="${sideY}" width="${SIDE_W}" height="${sideH}" rx="8" fill="#F4F7FB" stroke="#9AA9BD" stroke-width="1.2"/>`;
-    svg += svgTextBlock(inX + 14, sideY + 20, 'ВХОДЫ', 30, 14, { size: 11.5, weight: 700, fill: '#3D4A5E' });
-    svg += svgTextBlock(inX + 14, sideY + 39, inputs, SIDE_CHARS, SIDE_LH, { size: 11, fill: '#3D4A5E' });
-    svg += `<path d="M${inX + SIDE_W} ${cy} L${procX - 6} ${cy}" stroke="#3D4A5E" stroke-width="1.8" marker-end="url(#arrIn)"/>`;
-    // Выходы (справа)
-    svg += `<rect x="${outX}" y="${sideY}" width="${SIDE_W}" height="${sideH}" rx="8" fill="#EAFBF1" stroke="#2F9E5C" stroke-width="1.2"/>`;
-    svg += svgTextBlock(outX + 14, sideY + 20, 'ВЫХОДЫ', 30, 14, { size: 11.5, weight: 700, fill: '#1E6B41' });
-    svg += svgTextBlock(outX + 14, sideY + 39, outDoc, SIDE_CHARS, SIDE_LH, { size: 11, fill: '#1E6B41' });
-    svg += `<path d="M${procX + PROC_W + 6} ${cy} L${outX} ${cy}" stroke="#1E6B41" stroke-width="1.8" marker-end="url(#arrOut)"/>`;
-    // Критерий приёмки (сверху)
-    svg += `<rect x="${cx - TOP_W / 2}" y="${critY}" width="${TOP_W}" height="${critH}" rx="8" fill="#FFF6E5" stroke="#B8860B" stroke-width="1.2"/>`;
-    svg += svgTextBlock(cx - TOP_W / 2 + 14, critY + 18, 'КРИТЕРИЙ ПРИЁМКИ', 34, 12.5, { size: 10.5, weight: 700, fill: '#8A6200' });
-    svg += svgTextBlock(cx - TOP_W / 2 + 14, critY + 34, criterion, TOP_CHARS, TOP_LH, { size: 10.5, fill: '#8A6200' });
-    svg += `<path d="M${cx} ${critY + critH} L${cx} ${procY - 6}" stroke="#B8860B" stroke-width="1.8" marker-end="url(#arrCrit)"/>`;
-    // Инструменты и методы (снизу)
-    svg += `<rect x="${cx - BOT_W / 2}" y="${toolY}" width="${BOT_W}" height="${toolH}" rx="8" fill="#F3EEFB" stroke="#6B46A8" stroke-width="1.2"/>`;
-    svg += svgTextBlock(cx - BOT_W / 2 + 14, toolY + 20, 'ИНСТРУМЕНТЫ И МЕТОДЫ', 42, 12.5, { size: 10.5, weight: 700, fill: '#4B2E80' });
-    svg += svgTextBlock(cx - BOT_W / 2 + 14, toolY + 36, vmethod, BOT_CHARS, BOT_LH, { size: 10.5, fill: '#4B2E80' });
-    svg += `<path d="M${cx} ${procY + procH} L${cx} ${toolY - 6}" stroke="#6B46A8" stroke-width="1.8" marker-end="url(#arrTool)"/>`;
-    // подпись-легенда
-    svg += svgTextBlock(24, H - 14, 'ITTO по PMBOK Guide (Входы / Инструменты и методы / Выходы); критерий приёмки — норматив из практикума.', 108, 12, { size: 10, fill: '#8CA0BC' });
-    svg += `<defs>
-<marker id="arrIn" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3D4A5E"/></marker>
-<marker id="arrOut" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1E6B41"/></marker>
-<marker id="arrCrit" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#B8860B"/></marker>
-<marker id="arrTool" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6B46A8"/></marker>
-</defs>`;
-    svg += `</svg>`;
-    return svg;
-}
-function openTaskProcessCard(taskId) {
-    const t = state.tasks.find(x => x.id === taskId);
-    if (!t || !verificationMethod(t)) return;
-    const host = document.getElementById('taskProcessCardHost');
-    host.innerHTML = buildTaskProcessCardSvg(t);
-    document.getElementById('taskProcessModalOverlay').style.display = 'flex';
-}
-function closeTaskProcessCard() {
-    document.getElementById('taskProcessModalOverlay').style.display = 'none';
-}
-function printTaskProcessCard() {
-    const svgEl = document.getElementById('taskProcessCardSvg');
-    if (!svgEl) return;
-    const xml = new XMLSerializer().serializeToString(svgEl);
-    const w = window.open('', '_blank', 'width=900,height=700');
-    if (!w) { alert('Браузер заблокировал всплывающее окно печати — разрешите всплывающие окна для этого сайта.'); return; }
-    w.document.write('<!DOCTYPE html><html><head><title>Печать — задача как процесс (ITTO)</title><style>body{margin:0;padding:24px;display:flex;justify-content:center;background:#fff;}</style></head><body>' + xml + '</body></html>');
-    w.document.close();
-    w.focus();
-    setTimeout(() => { w.print(); }, 300);
-}
-async function downloadTaskProcessCardPng() {
-    const svgEl = document.getElementById('taskProcessCardSvg');
-    if (!svgEl) return;
-    const res = await repSvgToPng(svgEl, 2.5);
-    if (!res) { alert('Не удалось подготовить изображение.'); return; }
-    const blob = new Blob([res.buffer], { type: 'image/png' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'zadacha_process_ITTO.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
 }
 
 function openSketch() {
@@ -4663,8 +4469,7 @@ const verificationCell = vmethod
 ? `<select onchange="updateTaskVerification(${t.id}, this.value)" ${state.taskVerifLocked ? 'disabled' : ''} style="min-width:230px;">
 <option value="">— вид проверки? —</option>
 ${verificationOptionsFor(t).map(v => `<option value="${v.replace(/"/g, '&quot;')}" ${t.studentVerification === v ? 'selected' : ''}>${v.slice(0, 60)}${v.length > 60 ? '…' : ''}</option>`).join('')}
-</select>
-<button class="btn btn-sm btn-outline" style="margin-top:6px; white-space:nowrap;" onclick="openTaskProcessCard(${t.id})" title="Показать эту задачу как процесс: Входы / Инструменты и методы / Выходы (PMBOK ITTO) — с печатью и сохранением как PNG">🖼️ Как процесс (PMBOK)</button>`
+</select>`
 : '<span style="color:var(--gr-dim);">н/п</span>';
 return `
 <tr>
