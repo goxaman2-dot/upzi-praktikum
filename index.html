@@ -2738,6 +2738,13 @@ return [
 // словам в названии задачи, чтобы проверка работала одинаково и для шаблонных, и для ручных задач.
 // ============================================================
 function inferRequiredPosition(t) {
+// Задача явно помечена как роль ВНЕ штата фирмы (Комиссия/Электролаборатория/Заказчик, см.
+// isExternalRole()/roleEmployee()) — здесь принципиально не нужен (и не может быть верно назначен)
+// сотрудник фирмы, поэтому требование квалификации не подбирается вовсе (как и для этапа I).
+// Без этой проверки т.requiredPosition===null ниже по коду неотличимо от «требование ещё не
+// вычислено» и подменялось эвристикой по этапу — из-за этого штатному наладчику ошибочно
+// засчитывался ✅ верный подбор на задаче, которую по нормативу обязана выполнять внешняя сторона.
+if (t.externalRole) return null;
 if (t.requiredPosition && t.requiredPosition.length) return t.requiredPosition;
 if (t.stage !== 'II' && t.stage !== 'III' && t.stage !== 'IV' && t.stage !== 'V') return null;
 const installer = resolveBpEmployee(['Монтажников С.А.']);
@@ -4298,6 +4305,11 @@ const statusCell = (t) => t.progress === 100
 // например, «Согласование цены с заказчиком»: директор И бухгалтер, т.к. согласуются сразу три
 // уровня цены — бюджетный/средний/дорогой) в виде убираемых «чипов» + маленький select добавления.
 function employeeCell(t) {
+// Роль задачи — заведомо ВНЕ штата фирмы (Комиссия/Электролаборатория/Заказчик, см.
+// isExternalRole()/inferRequiredPosition()) — назначать сюда сотрудника фирмы нечего и не нужно:
+// показываем «н/п», как уже сделано для столбца «Вид проверочных работ» у задач без метода
+// контроля, вместо select'а и ложного значка ⚠️ у несуществующего требования к должности.
+if (t.externalRole) return '<span style="color:var(--gr-dim);">н/п — внешняя сторона</span>';
 const extras = getTaskEmployeeIds(t).filter(eid => eid !== t.employeeId);
 const chips = extras.map(eid => {
 const e = state.employees.find(e => e.id === eid);
@@ -4541,6 +4553,8 @@ ${state.taskNotesLocked && state.taskNotesResult ? `
 <div class="trap-check-pending">Заполните столбец «Примечание» и нажмите «Проверить», чтобы увидеть результат по эталону.</div>
 `)}
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockTaskNotes()" ${state.taskNotesLocked ? 'disabled' : ''}>${state.taskNotesLocked ? '✅ Зафиксировано' : (state.taskNotesResult ? '🔁 Пересмотреть выбор' : '🔎 Проверить точность выбора')}</button>
+${state.taskNotesLocked ? `<button class="btn btn-outline btn-sm" style="margin-top:8px; width:100%;" onclick="unlockTaskNotes()">🔓 Изменить ответы (снять фиксацию)</button>
+<p style="margin:8px 0 0; color:#F2CB7A; font-size:12.5px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:6px 10px;">🔒 Столбец «Примечание» зафиксирован — поэтому выбор в таблице неактивен. Необходимо: нажать «🔓 Изменить ответы (снять фиксацию)», чтобы снова редактировать столбец.</p>` : ''}
 </div>
 <div class="trap-check-panel" style="flex:1 1 320px; position:static; max-width:none;">
 <div class="trap-check-title">СЧЁТЧИК-ТОЧНОСТЬ — «Вид проверочных работ»</div>
@@ -4557,6 +4571,8 @@ ${state.taskVerifLocked && state.taskVerifResult ? `
 <div class="trap-check-pending">Заполните столбец «Вид проверочных работ» и нажмите «Проверить», чтобы увидеть результат по эталону.</div>
 `)}
 <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" onclick="lockTaskVerification()" ${state.taskVerifLocked ? 'disabled' : ''}>${state.taskVerifLocked ? '✅ Зафиксировано' : (state.taskVerifResult ? '🔁 Пересмотреть выбор' : '🔎 Проверить точность выбора')}</button>
+${state.taskVerifLocked ? `<button class="btn btn-outline btn-sm" style="margin-top:8px; width:100%;" onclick="unlockTaskVerification()">🔓 Изменить ответы (снять фиксацию)</button>
+<p style="margin:8px 0 0; color:#F2CB7A; font-size:12.5px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:6px 10px;">🔒 Столбец «Вид проверочных работ» зафиксирован — поэтому выбор в таблице неактивен. Необходимо: нажать «🔓 Изменить ответы (снять фиксацию)», чтобы снова редактировать столбец.</p>` : ''}
 </div>
 </div>
 <p style="margin:10px 0 0; color:var(--gr-dim); font-size:12px;">Счётчики ловушек квалификации по этапам I–V теперь встроены прямо в таблицу задач выше — под последней задачей каждого этапа (голубая строка «🎯 Счётчик ловушек квалификации»). Наведите на значок ⚠️ у исполнителя, чтобы увидеть нормативное основание требования (ГОСТ/ТУ/ФЗ/приказ ФСТЭК).</p>
@@ -6599,6 +6615,21 @@ state.taskVerifReportNote = null;
 }
 recalcAll();
 }
+// Снятие фиксации столбца «Примечание» — симметрично unlockStaff()/unlockResources() (см. ниже):
+// без этой функции после ОДНОКРАТНОЙ фиксации (кнопка «Проверить точность выбора», порог 40%
+// достигнут) весь select каждой строки таблицы занятия 2 навсегда оставался disabled, а сама
+// кнопка фиксации — тоже disabled («✅ Зафиксировано»), т.е. вернуться и поменять ответ было
+// принципиально нечем ни через таблицу, ни через панель счётчика. Тот же класс бага, что уже
+// был исправлен для «Ресурсов фирмы»/«Персонала» 2026-07-26, здесь пропущен при реализации
+// отдельных счётчиков «Примечание»/«Вид проверочных работ» — исправлено 06.08.2026.
+function unlockTaskNotes() {
+state.taskNotesLocked = false;
+recalcAll();
+}
+function unlockTaskVerification() {
+state.taskVerifLocked = false;
+recalcAll();
+}
 // --- реестр ресурсов фирмы (этап 0) ---
 function addRes() {
 state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово', costType: 'CAPEX' });
@@ -7465,10 +7496,25 @@ function seniorityTierForType(projectType) {
     return 'base';
 }
 const PROG_TIER_BY_TYPE_II = { siem: 'chief', crypto: 'chief', dlp: 'lead', iam: 'lead', edr: 'lead', ngfw: 'base', vpn: 'base', backup: 'base' };
+// Единая проверка «эта роль — внешняя сторона, а не сотрудник фирмы» — раньше проверялась только
+// ЗДЕСЬ, внутри roleEmployee(), и нигде не сохранялась на самой задаче. Из-за этого
+// inferRequiredPosition() (стр. 7, ловушка квалификации) не знала, что requiredPosition===null
+// у такой задачи означает «внутренний специалист не нужен в принципе», и подставляла свою
+// обычную эвристику по этапу («этап IV → нужен Наладчик» и т.п.) — задача повисала пустой (без
+// ловушки-сабботажа, т.к. sabotageStage2to5Assignments тоже пропускает null-employeeId), а
+// счётчик квалификации при этом настоящим образом принимал штатного наладчика как «✅ верно» для
+// работы, которую по ГОСТ обязана делать сертифицированная внешняя электролаборатория/комиссия
+// заказчика — то есть хвалил студента за манипуляцию, обратную задуманной. Исправлено переносом
+// проверки в отдельную функцию и явной пометкой t.externalRole на самой задаче (см.
+// buildRealStage2Tasks) — inferRequiredPosition() теперь читает эту пометку напрямую, а не
+// пытается угадать её заново по стадии.
+function isExternalRole(role) {
+    return /комисси|заказчика|электролаборатория/.test((role || '').toLowerCase());
+}
 function roleEmployee(role, portfolio, projectType) {
     const find = (name) => { const e = state.employees.find(e => e.name === name && e.correct); return e ? e.id : null; };
     const R = (role || '').toLowerCase();
-    if (/комисси|заказчика|электролаборатория/.test(R)) return null;
+    if (isExternalRole(role)) return null;
     if (portfolio === 'I') {
         if (/электромонтажник|силов/.test(R)) return find('Электриков Р.М.');
         if (/монтажник|мастер/.test(R)) {
@@ -7556,6 +7602,7 @@ function buildRealStage2Tasks(projectType) {
                 id, name: r.name, duration: r.dur, stage: r.stage,
                 employeeId: roleEmployee(r.role, portfolio, projectType),
                 requiredPosition: reqPositionFor(r.role, portfolio, projectType),
+                externalRole: isExternalRole(r.role),
                 predecessors: [predCode ? codeToId[predCode] : 1013],
                 materials: (REAL_TASK_MATERIALS[projectType] && REAL_TASK_MATERIALS[projectType][r.code]) || [],
                 refDoc: r.doc, code: r.code
@@ -7573,6 +7620,7 @@ function buildRealStage2Tasks(projectType) {
                 id, name: r.name, duration: r.dur, stage: r.stage,
                 employeeId: roleEmployee(r.role, portfolio, projectType),
                 requiredPosition: reqPositionFor(r.role, portfolio, projectType),
+                externalRole: isExternalRole(r.role),
                 predecessors: [predCode ? codeToId[predCode] : 1013],
                 // код с префиксом 'S-' — у ГАНТТ_ИТСО и ГАНТТ_СОФТ_ОРГ коды пересекаются (оба
                 // используют "II.1", "III.1" и т.д.), префикс не даёт VERIFICATION_METHODS перепутать
