@@ -732,9 +732,49 @@ input:disabled, select:disabled { opacity: 0.45; }
 .trap-check-line.bad { color: #f87171; }
 .trap-check-sub { color: var(--gr-dim); font-size: 11.5px; margin-top: 4px; }
 
+/* ДОБАВЛЕНО (2026-08-08, по идее преподавателя): «сосуд прогресса» — горизонтальная полоса из
+   10 сегментов (Старт 0 + Занятия 1-9), каждый сегмент закрашен по своему проценту выполнения
+   (тест на компетенции + ловушки этого этапа, где они есть — см. computeVesselLevels()).
+   position:fixed, поверх шапки mainApp, видна на Старте 0 и на всех занятиях; скрывается сама
+   (display:none выставляется в JS), если активного проекта нет (интро/рулетка/личный кабинет).
+   ИСПРАВЛЕНО (2026-08-08, по замечанию преподавателя со скриншотом): изначально стояла на
+   top:0 — ровно там же, где уже лежит .page-num-badge («Стр. N/15», position:fixed, top:10px,
+   z-index:99999 — выше сосуда), из-за чего оба элемента визуально сливались в одну тесную
+   полосу у самого верха, а подписи «З2»-«З9» (кириллическая «З» перед цифрой) на таком мелком
+   шрифте читались как «32»-«39». Сосуд сдвинут ниже (top:38px, под бейджем), подписи укрупнены
+   и заменены на однозначные цифры, под полосой добавлена явная строка с названиями слабых
+   занятий текстом (см. renderVesselWidget()) — не нужно наводить курсор, чтобы понять, что западает. */
+#vesselWidget { position: fixed; top: 38px; left: 0; right: 0; z-index: 500; display: none; background: rgba(10,17,32,0.97); border-bottom: 1px solid var(--gr-line); padding: 8px 14px; backdrop-filter: blur(4px); }
+#vesselWidget.visible { display: block; }
+.vessel-row { display: flex; align-items: center; gap: 10px; max-width: 1400px; margin: 0 auto; }
+.vessel-label { font-size: 12px; color: var(--gr-dim); white-space: nowrap; flex: 0 0 auto; }
+.vessel-cells { display: flex; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.vessel-cell { flex: 1 1 0; height: 30px; border-radius: 5px; position: relative; cursor: default; background: rgba(255,255,255,0.06); border: 1px solid var(--gr-line); overflow: hidden; }
+.vessel-cell-fill { position: absolute; left: 0; bottom: 0; width: 100%; transition: height 0.3s ease, background 0.3s ease; }
+.vessel-cell-fill.vc-empty { height: 0; }
+.vessel-cell-fill.vc-red { background: #f87171; }
+.vessel-cell-fill.vc-yellow { background: #F2CB7A; }
+.vessel-cell-fill.vc-green { background: #4ade80; }
+.vessel-cell.vc-cell-red { border-color: #f87171; }
+.vessel-cell.vc-cell-yellow { border-color: #F2CB7A; }
+.vessel-cell.vc-cell-green { border-color: #4ade80; }
+.vessel-cell-num { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 14px; font-weight: 800; color: var(--gr-text); text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+.vessel-avg { flex: 0 0 auto; font-size: 12.5px; font-weight: 700; white-space: nowrap; padding: 3px 10px; border-radius: 8px; }
+.vessel-avg.vc-red { color: #f87171; background: rgba(248,113,113,0.12); }
+.vessel-avg.vc-yellow { color: #F2CB7A; background: rgba(242,203,122,0.12); }
+.vessel-avg.vc-green { color: #4ade80; background: rgba(74,222,128,0.12); }
+.vessel-weak-row { max-width: 1400px; margin: 6px auto 0; font-size: 12px; color: #F2CB7A; line-height: 1.4; }
+.vessel-weak-row strong { color: #f87171; }
+
 </style>
 </head>
 <body>
+
+<!-- ========== СОСУД ПРОГРЕССА (10 уровней: Старт 0 + Занятия 1-9) ==========
+     Рендерится JS (renderVesselWidget(), вызывается из recalcAll()) — сам контейнер здесь
+     статический (position:fixed, см. CSS #vesselWidget), виден поверх любого экрана практикума,
+     но пуст/скрыт (без класса .visible), пока не выбран активный проект. -->
+<div id="vesselWidget"><div class="vessel-row" id="vesselRow"></div><div class="vessel-weak-row" id="vesselWeakRow"></div></div>
 
 <!-- ========== ЗАСТАВКА (корпоративный стиль) ========== -->
 <div class="dg-tooltip" id="dgTooltip"></div>
@@ -1342,7 +1382,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 </div>
 <button class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:white; border-color:rgba(255,255,255,0.3); white-space:nowrap;" onclick="backToWizard()">← Вернуться к данным заказчика</button>
 <button class="btn btn-outline db-nav-btn" onclick="showDashboard()">🗂 Личный кабинет</button>
-<button class="btn btn-primary" id="finalReportBtn" style="white-space:nowrap;" onclick="downloadFinalPracticeReport()">📥 Итоговый отчёт (DOCX)</button>
+<button class="btn btn-primary" id="finalReportBtn" style="white-space:nowrap;" onclick="finalReportButtonClick()">📥 Итоговый отчёт (DOCX)</button>
 </div>
 <div class="lesson-tabs" id="lessonTabs">
 <div class="lesson-tab active" data-lesson="1">1. Ресурсы фирмы</div>
@@ -1884,6 +1924,7 @@ function confirmRouletteAndContinue() {
     currentProjectIndex = -1;
     renderDashboard();
     document.getElementById('dashboardScreen').classList.add('visible');
+    renderVesselWidget();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1896,6 +1937,7 @@ function openRouletteForChest(idx) {
     rouletteTargetChest = idx;
     document.getElementById('dashboardScreen').classList.remove('visible');
     document.getElementById('mainApp').classList.remove('visible');
+    renderVesselWidget();
     const nameEl = document.getElementById('rlResultName');
     nameEl.classList.remove('rl-spinning');
     nameEl.textContent = '— нажмите «Крутить» —';
@@ -1995,6 +2037,7 @@ function showDashboard() {
     document.getElementById('mainApp').classList.remove('visible');
     renderDashboard();
     document.getElementById('dashboardScreen').classList.add('visible');
+    renderVesselWidget();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2035,11 +2078,62 @@ function startProjectRun(i) {
     document.getElementById('startScreen').classList.add('visible');
     applyAssignedProjectToFunnel();
     renderStaffSelectPanel();
+    renderVesselWidget();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function submitProjectReport() {
+// ДОБАВЛЕНО (2026-08-08): маршрутизатор клика по кнопке «📥 Итоговый отчёт (DOCX)» в шапке —
+// эта кнопка видна на КАЖДОМ занятии (не только на 9-м), поэтому она НЕ может безусловно вызывать
+// submitProjectReport() (это преждевременно завершило бы проект прямо с занятия, скажем, №3).
+// Только на занятии 9, в реальном (не тестовом) режиме, клик по ней равнозначен «Сдать отчётность
+// и перейти к следующему проекту» — на остальных занятиях это по-прежнему просто печать текущего
+// состояния без каких-либо побочных эффектов на статус проекта, как и было раньше.
+function finalReportButtonClick() {
+    if (currentLesson === 9 && currentProjectIndex >= 0) {
+        submitProjectReport();
+    } else {
+        downloadFinalPracticeReport();
+    }
+}
+async function submitProjectReport() {
     if (currentProjectIndex < 0) { alert('Тестовый режим (воронка пропущена) — статус проекта не отслеживается.'); return; }
+    // ДОБАВЛЕНО (2026-08-08, по идее преподавателя — «сосуд прогресса» из 10 уровней, средний балл
+    // ≥80% решает переход): раньше единственным условием перехода к следующему проекту было
+    // физически дойти до занятия 9 и нажать кнопку — счёт (тест на компетенции/ловушки) при этом
+    // не проверялся вовсе. Теперь это ПОЛНАЯ ЗАМЕНА прежнего правила: переход возможен, только если
+    // средний балл по всем 10 уровням сосуда (Старт 0 + Занятия 1-9, см. vesselOverallAverage())
+    // не ниже 80%. Проверка — ПЕРЕД печатью DOCX и до смены статуса: если средний балл недостаточен,
+    // ни печать, ни переход не выполняются, студент получает конкретный список того, что подтянуть.
+    const vesselAvg = vesselOverallAverage();
+    if (vesselAvg < 80) {
+        const weakLevels = computeVesselLevels().filter(function(l) { return l.cls !== 'green'; });
+        const weakList = weakLevels.map(function(l) { return LESSON_TITLES_WITH_START0(l.idx) + ' — ' + (l.cls === 'empty' ? 'не начато' : l.pct.toFixed(0) + '%'); }).join('\n');
+        alert('⛔ Переход к следующему проекту пока недоступен.\n\nСредний балл по «сосуду прогресса» (10 уровней): ' + vesselAvg.toFixed(1) + '% — требуется не менее 80%.\n\nУровни ниже зелёного статуса:\n' + weakList + '\n\nПересдайте тесты на компетенции и пересмотрите ответы в ловушках (Старт 0, Занятие 1, Занятие 2, Занятие 8) на этих этапах, затем попробуйте снова.');
+        return;
+    }
+    // ДОБАВЛЕНО (2026-08-08, по прямой просьбе преподавателя — «сделай так чтобы 2 кнопки давали
+    // такое действие = переход к следующему проекту»): раньше «Сдать отчётность заказчику» и
+    // «Итоговый отчёт (DOCX)» были двумя независимыми действиями (печать документа vs переход к
+    // следующему проекту), из-за чего студент, нажавший ТОЛЬКО кнопку DOCX в шапке на занятии 9,
+    // не понимал, почему рулетка следующего портфеля не открылась — она и не должна была, это
+    // разные функции. Теперь «Сдать отчётность» сама сначала формирует и скачивает итоговый DOCX
+    // (await, чтобы файл гарантированно успел сохраниться до перехода), и только потом выполняет
+    // переход/открытие рулетки ниже. Вызов из типографически другого места — см.
+    // finalReportButtonClick() — сделан ОДНОСТОРОННИМ (только submitProjectReport → docx, а не
+    // наоборот), чтобы не получить взаимную рекурсию между двумя функциями.
+    // ИСПРАВЛЕНО (2026-08-08, по жалобе «нет перехода — ничего не происходит»): downloadFinalPracticeReport()
+    // сама ловит ошибки внутри своего try/catch, но код ДО него (запрос ФИО/группы через prompt(),
+    // работа с DOM-кнопкой) не защищён — если там что-то бросит исключение в реальном браузере
+    // (canvas/JSZip там реально работают и могут дать сбой не так, как в тестовой песочнице), весь
+    // await здесь падает БЕЗ единого alert'а — студент видит полную тишину вместо перехода. Обёрнуто
+    // в try/catch: переход к следующему проекту теперь происходит ДАЖЕ если печать документа
+    // не удалась — печать не должна быть блокирующим условием для перехода.
+    try {
+        await downloadFinalPracticeReport();
+    } catch (err) {
+        console.error('Ошибка формирования DOCX при сдаче отчётности:', err);
+        alert('⚠️ Не удалось сформировать DOCX-отчёт (' + err.message + '), но переход к следующему проекту всё равно выполняется — при необходимости распечатайте отчёт позже.');
+    }
     projectStatuses[currentProjectIndex] = 'done';
     const doneName = assignedProjects[currentProjectIndex].name;
     const finishedNum = currentProjectIndex + 1;
@@ -2078,6 +2172,7 @@ function submitProjectReport() {
         document.getElementById('mainApp').classList.remove('visible');
         renderDashboard();
         document.getElementById('dashboardScreen').classList.add('visible');
+        renderVesselWidget();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
@@ -4115,6 +4210,7 @@ document.getElementById('dispEst').innerText = state.summary.totalWithVAT > 0 ? 
 renderSideDynamic();
 renderCurrentLesson();
 renderStaffSelectPanel();
+renderVesselWidget();
 }
 
 function renderStaffSelectPanel() {
@@ -7068,6 +7164,124 @@ const totalChecked = rows.reduce((s, r) => s + r.total, 0);
 const totalOpex = rows.reduce((s, r) => s + r.opex, 0);
 const totalCapex = rows.reduce((s, r) => s + r.capex, 0);
 return { rows: rows, totalErrors: totalErrors, totalChecked: totalChecked, totalOpex: totalOpex, totalCapex: totalCapex, errorPercent: totalChecked > 0 ? (totalErrors / totalChecked) * 100 : 0 };
+}
+
+// ============================================================
+// «СОСУД ПРОГРЕССА» — 10 уровней (Старт 0 + Занятия 1-9) (ДОБАВЛЕНО 2026-08-08, по идее
+// преподавателя). Процент каждого уровня — среднее из: (а) результата теста на компетенции
+// этого этапа (state.competencyTests[stage] — единственная метрика, которая реально существует
+// для ВСЕХ 10 этапов без исключения) и (б) результатов «ловушек» этого этапа, ГДЕ они реально
+// есть в коде практикума (не выдумано — см. перечень ниже, сверено построчно с lockStaff/
+// lockResources/checkTaskQualification/lockTaskNotes/lockTaskVerification/lockAuditDo/
+// lockAuditAfter). У занятий 3, 4, 5, 6, 7, 9 отдельного «правильно/неправильно» счётчика в коде
+// практикума нет (это описательные/расчётные страницы, а не страницы с ловушкой) — их уровень
+// сосуда наполняется ТОЛЬКО тестом на компетенции, без искусственно добавленных вторых метрик.
+function vesselTrapComponents(stageIdx) {
+const comps = [];
+const pushErr = function(r) { if (r) comps.push(100 - r.errorPercent); };
+const pushAcc = function(r) { if (r) comps.push(r.accuracy); };
+const qc = state.qualCheckResults;
+if (stageIdx === 0) {
+pushErr(state.staffResult);
+} else if (stageIdx === 1) {
+pushErr(state.resResult);
+if (qc) pushErr(qc.I);
+} else if (stageIdx === 2) {
+if (qc) { pushErr(qc.II); pushErr(qc.III); pushErr(qc.IV); pushErr(qc.V); }
+pushAcc(state.taskNotesResult);
+pushAcc(state.taskVerifResult);
+} else if (stageIdx === 8) {
+pushErr(state.auditDoResult);
+pushErr(state.auditAfterResult);
+}
+// Занятия 3, 5, 6, 7, 9 (stageIdx 3,5,6,7,9) — своих ловушек нет, comps остаётся пустым.
+return comps;
+}
+// Возвращает {label, pct, state} для одного уровня: state — 'empty' (ничего не сделано ещё,
+// серый), 'red' (<40%), 'yellow' (40-79%), 'green' (>=80%). pct — число 0-100, ДАЖЕ для 'empty'
+// (используется в среднем по всему сосуду — непройденный уровень честно даёт 0, а не исключается
+// из среднего, иначе итоговый средний балл можно было бы искусственно завысить, просто не открывая
+// часть занятий).
+function vesselLevelInfo(stageIdx) {
+const test = (state.competencyTests || {})[stageIdx];
+const parts = [];
+if (test && test.total > 0) parts.push((test.correctCount / test.total) * 100);
+parts.push.apply(parts, vesselTrapComponents(stageIdx));
+if (parts.length === 0) return { pct: 0, cls: 'empty' };
+const pct = parts.reduce((s, v) => s + v, 0) / parts.length;
+const cls = pct >= 80 ? 'green' : (pct >= 40 ? 'yellow' : 'red');
+return { pct: pct, cls: cls };
+}
+// ИСПРАВЛЕНО (2026-08-08): раньше метки были 'С0'/'З1'..'З9' — кириллическая «З» перед цифрой
+// на мелком шрифте читалась как «3» (т.е. «З4» выглядело как «34»). Заменено на голые цифры
+// 0-9 (0 = Старт 0, 1-9 = номер занятия — расшифровка вынесена в текст .vessel-label слева от
+// полосы и в title каждой ячейки), однозначные и не требующие транслитерации.
+const VESSEL_LEVEL_LABELS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+function computeVesselLevels() {
+const out = [];
+for (let i = 0; i <= 9; i++) {
+const info = vesselLevelInfo(i);
+out.push({ idx: i, label: VESSEL_LEVEL_LABELS[i], pct: info.pct, cls: info.cls });
+}
+return out;
+}
+function vesselOverallAverage() {
+const levels = computeVesselLevels();
+return levels.reduce((s, l) => s + l.pct, 0) / levels.length;
+}
+function renderVesselWidget() {
+const box = document.getElementById('vesselWidget');
+const row = document.getElementById('vesselRow');
+if (!box || !row) return;
+// Показываем сосуд только когда есть активный проект (в работе задачи/сотрудники) — на экранах
+// интро/рулетки/личного кабинета, где state ещё не наполнен, виджет только мешал бы.
+// Помимо самих данных (state.tasks/employees), проверяем ВИДИМОСТЬ mainApp/startScreen —
+// иначе виджет остался бы висеть поверх экранов рулетки/личного кабинета/интро между проектами
+// (эти переходы не всегда вызывают recalcAll(), а старые state.tasks от предыдущего проекта
+// физически никуда не деваются между розыгрышами).
+const mainAppEl = document.getElementById('mainApp');
+const startScreenEl = document.getElementById('startScreen');
+const appScreenVisible = (mainAppEl && mainAppEl.classList.contains('visible')) || (startScreenEl && startScreenEl.classList.contains('visible'));
+const hasProject = !!(state && state.tasks && state.tasks.length && state.employees && state.employees.length);
+if (!hasProject || !appScreenVisible) { box.classList.remove('visible'); return; }
+box.classList.add('visible');
+const levels = computeVesselLevels();
+const avg = levels.reduce((s, l) => s + l.pct, 0) / levels.length;
+const avgCls = avg >= 80 ? 'green' : (avg >= 40 ? 'yellow' : 'red');
+row.innerHTML = '<span class="vessel-label">Прогресс (0=Старт 0, 1-9=Занятия):</span>'
++ '<div class="vessel-cells">'
++ levels.map(function(l) {
+const title = LESSON_TITLES_WITH_START0(l.idx) + ' — ' + (l.cls === 'empty' ? 'ещё не начато' : l.pct.toFixed(0) + '%');
+const fillH = l.cls === 'empty' ? 0 : Math.max(8, l.pct);
+const borderCls = l.cls === 'empty' ? '' : ' vc-cell-' + l.cls;
+return '<div class="vessel-cell' + borderCls + '" title="' + title + '">'
++ '<div class="vessel-cell-fill vc-' + l.cls + '" style="height:' + fillH + '%;"></div>'
++ '<div class="vessel-cell-num">' + l.label + '</div>'
++ '</div>';
+}).join('')
++ '</div>'
++ '<span class="vessel-avg vc-' + avgCls + '">Среднее: ' + avg.toFixed(1) + '% ' + (avg >= 80 ? '✅' : '(нужно ≥80%)') + '</span>';
+// ДОБАВЛЕНО (2026-08-08, по замечанию преподавателя «не понятно номер занятия, которое
+// выполнено плохо»): под самой полосой — явным текстом название каждого НЕ зелёного уровня с
+// его процентом, без необходимости наводить курсор на ячейку, чтобы это увидеть.
+const weakBox = document.getElementById('vesselWeakRow');
+if (weakBox) {
+const weak = levels.filter(function(l) { return l.cls !== 'green'; });
+if (!weak.length) {
+weakBox.innerHTML = '';
+} else {
+const parts = weak.map(function(l) {
+const nm = LESSON_TITLES_WITH_START0(l.idx);
+const pctTxt = l.cls === 'empty' ? 'не начато' : l.pct.toFixed(0) + '%';
+return (l.cls === 'red' ? '<strong>' + nm + ' (' + pctTxt + ')</strong>' : nm + ' (' + pctTxt + ')');
+});
+weakBox.innerHTML = '⚠️ Требуют внимания: ' + parts.join('; ') + '.';
+}
+}
+}
+function LESSON_TITLES_WITH_START0(idx) {
+if (idx === 0) return 'Старт 0 — Ресурсы и персонал фирмы';
+return 'Занятие ' + idx + ' — ' + (LESSON_TITLES[idx] || '');
 }
 
 // ============================================================
