@@ -467,6 +467,17 @@ font-size: 14px; margin-top: 4px; background: var(--gr-panel2); color: var(--gr-
 .test-retake-btn:hover { background: rgba(232,178,74,0.12); }
 /* --- Таблицы: карточный вид тёмной консоли, зебра и подсветка строки --- */
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; background: var(--gr-panel); border: 1px solid var(--gr-line); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 6px 16px rgba(0,0,0,.25); }
+/* ДОБАВЛЕНО (2026-08-08, по жалобе «не вся таблица отображается» на занятии 2): широкие таблицы
+   (8+ столбцов, из них 2 — выпадающие списки с длинными названиями документов) физически шире
+   main-panel на многих экранах — их оборачивают в <div class="table-scroll"> вместо голого
+   overflow-x:auto. Разница не в механике (та же прокрутка), а в том, что скролл теперь ВСЕГДА
+   видимый и контрастный (не тонкая едва заметная браузерная полоса по умолчанию, которую легко
+   принять за «таблица обрезана и это баг»), плюс явная текстовая подсказка над таблицей. */
+.table-scroll { overflow-x: auto; border-radius: 12px; scrollbar-width: auto; scrollbar-color: var(--gr-cyan) var(--gr-panel2); }
+.table-scroll::-webkit-scrollbar { height: 14px; }
+.table-scroll::-webkit-scrollbar-track { background: var(--gr-panel2); border-radius: 8px; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--gr-cyan); border-radius: 8px; border: 3px solid var(--gr-panel2); }
+.table-scroll-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gr-cyan); background: rgba(51,230,255,0.08); border: 1px solid rgba(51,230,255,0.3); border-radius: 8px; padding: 6px 12px; margin-bottom: 8px; }
 th { background: var(--gr-panel2); text-align: left; padding: 11px 10px; font-weight: 700; color: var(--gr-muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; position: sticky; top: 0; border-bottom: 2px solid var(--gr-line); font-family: 'IBM Plex Mono', monospace; }
 td { padding: 9px 10px; border-bottom: 1px solid var(--gr-line); vertical-align: middle; color: var(--gr-muted); }
 tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
@@ -1419,6 +1430,7 @@ input:disabled, select:disabled { opacity: 0.45; }
 <div class="summary-card"><label>Задач / длительность</label><span><span id="dispTasks">0</span> / <span id="dispDur">0 дн</span></span></div>
 <div class="summary-card"><label>Труд по задачам</label><span id="dispLaborS">0 ₽</span></div>
 <div class="summary-card"><label>Материалы</label><span id="dispMatS">0 ₽</span></div>
+<div class="summary-card" id="auxMatCard" style="display:none;"><label>Вспомог. материалы и крепёж <span class="tip" style="font-weight:400; text-transform:none;" title="Кабель-канал, дюбели, хомуты, коннекторы, изолента и т.п. — расходники монтажа, которых нет в перечне комплектующих. Только для физических проектов ИТСО (портфель I); педагогическая оценка ~7% от суммы комплектующих.">ⓘ</span></label><span id="dispAuxMat">0 ₽</span></div>
 <div class="summary-card" style="border-color:#67e8f9;"><label style="color:#0891b2;">OPEX разовый (ГПХ, доставка)</label><span id="dispOpexO" style="color:#0891b2;">0 ₽</span></div>
 <div class="summary-card" style="border-color:var(--gr-cyan); background:rgba(51,230,255,0.07);"><label style="color:var(--gr-cyan);">Смета (итого)</label><span id="dispEst" style="color:var(--gr-cyan);">—</span></div>
 </div>
@@ -1701,53 +1713,60 @@ function changeChestFocus() {
 // СЛУЧАЙНО, но ТОЛЬКО из числа объектов, реально удовлетворяющих требованиям выпавшего проекта —
 // см. эталон «объекты_проекты_матрица.xlsx» (лист «Легенда_и_методика») для полного обоснования.
 // ============================================================
+// ДОБАВЛЕНО (2026-08-08, по просьбе преподавателя): поле scale ('small'|'medium'|'large') — грубая
+// оценка физического масштаба объекта, используется ТОЛЬКО как внутренний эталон для проверки
+// количества комплектующих, которое студент вводит сам (см. componentQtyReference() и ловушку
+// «Кол-во (шт.)» в case 2). Это ПЕДАГОГИЧЕСКАЯ ОЦЕНКА по типу объекта (не измеренная площадь
+// конкретного здания — у вымышленных объектов практикума нет реальных чертежей), не источник в
+// смысле цитируемого документа. small — частный дом/гараж/дача/компактный офис-точка; medium —
+// среднее здание/учреждение; large — крупный многоэтажный/многозальный/протяжённый объект.
 const OBJECTS = [
-    { id: 'mall', name: 'Торговый центр «Галактика»', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'school', name: 'Средняя школа №14', addr: 'г. Ставрополь, ул. Ленина, 218', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'office_it', name: 'Офис ООО «Софтлайн Юг» (аренда в бизнес-центре)', addr: 'г. Ставрополь, пр-т Октябрьской Революции, 5', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1 },
-    { id: 'mfc', name: 'МФЦ «Мои документы»', addr: 'г. Ставрополь, ул. Мира, 337', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'bank', name: 'Отделение банка «Ставрополь-Кредит»', addr: 'г. Ставрополь, ул. Дзержинского, 114', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'factory', name: 'Завод «Электроприбор»', addr: 'г. Ставрополь, ул. Ворошилова, 5', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'warehouse', name: 'Логистический склад «ТрансЛогистик»', addr: 'г. Михайловск, Промышленный проезд, 3', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 1 },
-    { id: 'clinic', name: 'Городская поликлиника №3', addr: 'г. Ставрополь, ул. Достоевского, 58', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'kindergarten', name: 'Детский сад №27 «Ромашка»', addr: 'г. Ставрополь, ул. Голенева, 62', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'university', name: 'Учебный корпус СКФУ', addr: 'г. Ставрополь, ул. Пушкина, 1', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'gas_station', name: 'АЗС «ЛУКОЙЛ» на трассе Р-217', addr: 'Шпаковский р-н, трасса «Кавказ», 12 км', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
-    { id: 'residential', name: 'Жилой комплекс «Северный» (УК)', addr: 'г. Ставрополь, ул. Тухачевского, 25', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'hotel', name: 'Гостиница «Интурист»', addr: 'г. Ставрополь, ул. Голенева, 45', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'stadium', name: 'Спортивный комплекс «Труд»', addr: 'г. Ставрополь, ул. Мира, 275', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'museum', name: 'Ставропольский краеведческий музей', addr: 'г. Ставрополь, ул. Дзержинского, 135', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'datacenter', name: 'Дата-центр «ЮгДата»', addr: 'г. Ставрополь, ул. Доваторцев, 42', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'court', name: 'Промышленный районный суд', addr: 'г. Ставрополь, ул. Ленина, 480', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'military', name: 'Воинская часть №34567', addr: 'г. Ставрополь, в/г №3', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'substation', name: 'Электроподстанция «Юго-Западная»', addr: 'г. Ставрополь, Юго-Западный промрайон', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'water_utility', name: 'Водоканал (насосная станция №2)', addr: 'г. Ставрополь, ул. Гидростроителей, 8', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'airport', name: 'Аэропорт «Шпаковское»', addr: 'с. Пелагиада, аэропорт Ставрополь', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'seaport', name: 'Морской порт (грузовой терминал)', addr: 'г. Новороссийск, Морской проезд, 1', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
-    { id: 'metro', name: 'Станция метрополитена', addr: 'г. Москва, Кольцевая линия', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'railway', name: 'Железнодорожный вокзал', addr: 'г. Ставрополь, привокзальная площадь, 1', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'insurance', name: 'Офис страховой компании «Юг-Гарант»', addr: 'г. Ставрополь, ул. Лермонтова, 191', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1 },
-    { id: 'car_dealer', name: 'Автосалон «АвтоМир»', addr: 'г. Ставрополь, Шпаковское шоссе, 3', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'restaurant', name: 'Ресторан сети «Вкус» (точка в ТЦ)', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'cinema', name: 'Кинотеатр «Победа» (в составе ТРЦ)', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'fitness', name: 'Фитнес-клуб «Атлетик»', addr: 'г. Ставрополь, ул. Спартака, 22', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'parking', name: 'Многоуровневый паркинг', addr: 'г. Ставрополь, ул. Мира, 300', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
-    { id: 'library', name: 'Центральная городская библиотека', addr: 'г. Ставрополь, пр-т К. Маркса, 105', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'admin', name: 'Здание районной администрации', addr: 'г. Ставрополь, ул. Лермонтова, 191', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'institute', name: 'НИИ прикладных исследований', addr: 'г. Ставрополь, ул. Кулакова, 2', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 1 },
-    { id: 'farm', name: 'Агрокомплекс «Ставропольские нивы»', addr: 'Изобильненский р-н, х. Спорный', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
-    { id: 'post_office', name: 'Отделение «Почты России»', addr: 'г. Ставрополь, ул. Ленина, 384', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'startup', name: 'Коворкинг / офис финтех-стартапа', addr: 'г. Ставрополь, ул. 45-я Параллель, 9', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1 },
-    { id: 'mall_big', name: 'Торгово-развлекательный комплекс «Плаза»', addr: 'г. Ставрополь, ул. Доваторцев, 30', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1 },
-    { id: 'cottage', name: 'Коттеджный посёлок «Лесная поляна» (УК)', addr: 'Шпаковский р-н, пос. Лесная поляна', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0 },
-    { id: 'hospital', name: 'Городская больница №2 (стационар)', addr: 'г. Ставрополь, ул. Ломоносова, 44', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1 },
-    { id: 'telecom', name: 'Оператор связи «ЮгТелеком» (узел + офис)', addr: 'г. Ставрополь, ул. Октябрьская, 168', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1 },
+    { id: 'mall', name: 'Торговый центр «Галактика»', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'school', name: 'Средняя школа №14', addr: 'г. Ставрополь, ул. Ленина, 218', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'office_it', name: 'Офис ООО «Софтлайн Юг» (аренда в бизнес-центре)', addr: 'г. Ставрополь, пр-т Октябрьской Революции, 5', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1, scale: 'small' },
+    { id: 'mfc', name: 'МФЦ «Мои документы»', addr: 'г. Ставрополь, ул. Мира, 337', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 1, scale: 'medium' },
+    { id: 'bank', name: 'Отделение банка «Ставрополь-Кредит»', addr: 'г. Ставрополь, ул. Дзержинского, 114', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'medium' },
+    { id: 'factory', name: 'Завод «Электроприбор»', addr: 'г. Ставрополь, ул. Ворошилова, 5', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'warehouse', name: 'Логистический склад «ТрансЛогистик»', addr: 'г. Михайловск, Промышленный проезд, 3', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'clinic', name: 'Городская поликлиника №3', addr: 'г. Ставрополь, ул. Достоевского, 58', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'kindergarten', name: 'Детский сад №27 «Ромашка»', addr: 'г. Ставрополь, ул. Голенева, 62', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'university', name: 'Учебный корпус СКФУ', addr: 'г. Ставрополь, ул. Пушкина, 1', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'gas_station', name: 'АЗС «ЛУКОЙЛ» на трассе Р-217', addr: 'Шпаковский р-н, трасса «Кавказ», 12 км', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'small' },
+    { id: 'residential', name: 'Жилой комплекс «Северный» (УК)', addr: 'г. Ставрополь, ул. Тухачевского, 25', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'large' },
+    { id: 'hotel', name: 'Гостиница «Интурист»', addr: 'г. Ставрополь, ул. Голенева, 45', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'stadium', name: 'Спортивный комплекс «Труд»', addr: 'г. Ставрополь, ул. Мира, 275', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'museum', name: 'Ставропольский краеведческий музей', addr: 'г. Ставрополь, ул. Дзержинского, 135', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'datacenter', name: 'Дата-центр «ЮгДата»', addr: 'г. Ставрополь, ул. Доваторцев, 42', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'medium' },
+    { id: 'court', name: 'Промышленный районный суд', addr: 'г. Ставрополь, ул. Ленина, 480', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'medium' },
+    { id: 'military', name: 'Воинская часть №34567', addr: 'г. Ставрополь, в/г №3', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'substation', name: 'Электроподстанция «Юго-Западная»', addr: 'г. Ставрополь, Юго-Западный промрайон', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'small' },
+    { id: 'water_utility', name: 'Водоканал (насосная станция №2)', addr: 'г. Ставрополь, ул. Гидростроителей, 8', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'small' },
+    { id: 'airport', name: 'Аэропорт «Шпаковское»', addr: 'с. Пелагиада, аэропорт Ставрополь', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'seaport', name: 'Морской порт (грузовой терминал)', addr: 'г. Новороссийск, Морской проезд, 1', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'metro', name: 'Станция метрополитена', addr: 'г. Москва, Кольцевая линия', perimeter: 0, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'medium' },
+    { id: 'railway', name: 'Железнодорожный вокзал', addr: 'г. Ставрополь, привокзальная площадь, 1', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'insurance', name: 'Офис страховой компании «Юг-Гарант»', addr: 'г. Ставрополь, ул. Лермонтова, 191', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1, scale: 'small' },
+    { id: 'car_dealer', name: 'Автосалон «АвтоМир»', addr: 'г. Ставрополь, Шпаковское шоссе, 3', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'restaurant', name: 'Ресторан сети «Вкус» (точка в ТЦ)', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0, scale: 'small' },
+    { id: 'cinema', name: 'Кинотеатр «Победа» (в составе ТРЦ)', addr: 'г. Ставрополь, пр-т Кулакова, 14', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'fitness', name: 'Фитнес-клуб «Атлетик»', addr: 'г. Ставрополь, ул. Спартака, 22', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'parking', name: 'Многоуровневый паркинг', addr: 'г. Ставрополь, ул. Мира, 300', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'library', name: 'Центральная городская библиотека', addr: 'г. Ставрополь, пр-т К. Маркса, 105', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'medium' },
+    { id: 'admin', name: 'Здание районной администрации', addr: 'г. Ставрополь, ул. Лермонтова, 191', perimeter: 0, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'medium' },
+    { id: 'institute', name: 'НИИ прикладных исследований', addr: 'г. Ставрополь, ул. Кулакова, 2', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 1, scale: 'medium' },
+    { id: 'farm', name: 'Агрокомплекс «Ставропольские нивы»', addr: 'Изобильненский р-н, х. Спорный', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'large' },
+    { id: 'post_office', name: 'Отделение «Почты России»', addr: 'г. Ставрополь, ул. Ленина, 384', perimeter: 0, standalone: 0, mass: 1, kii: 0, itInfra: 1, scale: 'small' },
+    { id: 'startup', name: 'Коворкинг / офис финтех-стартапа', addr: 'г. Ставрополь, ул. 45-я Параллель, 9', perimeter: 0, standalone: 0, mass: 0, kii: 0, itInfra: 1, scale: 'small' },
+    { id: 'mall_big', name: 'Торгово-развлекательный комплекс «Плаза»', addr: 'г. Ставрополь, ул. Доваторцев, 30', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 1, scale: 'large' },
+    { id: 'cottage', name: 'Коттеджный посёлок «Лесная поляна» (УК)', addr: 'Шпаковский р-н, пос. Лесная поляна', perimeter: 1, standalone: 1, mass: 1, kii: 0, itInfra: 0, scale: 'large' },
+    { id: 'hospital', name: 'Городская больница №2 (стационар)', addr: 'г. Ставрополь, ул. Ломоносова, 44', perimeter: 1, standalone: 1, mass: 1, kii: 1, itInfra: 1, scale: 'large' },
+    { id: 'telecom', name: 'Оператор связи «ЮгТелеком» (узел + офис)', addr: 'г. Ставрополь, ул. Октябрьская, 168', perimeter: 1, standalone: 1, mass: 0, kii: 1, itInfra: 1, scale: 'medium' },
     // ДОБАВЛЕНО (2026-07-26, по замечанию преподавателя): до этого момента все 40 объектов были
     // организациями (юр. лица) — портфель I (ИТСО: СКУД/видеонаблюдение/сигнализация/периметр)
     // в реальной практике массово продаётся и частным лицам (физ. лицам), а не только фирмам.
-    { id: 'private_house', name: 'Частный дом (индивидуальное домовладение)', addr: 'г. Ставрополь, пос. Демино, ул. Садовая, 7', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
-    { id: 'garage_coop', name: 'Гаражный бокс в гаражном кооперативе «Мотор»', addr: 'г. Ставрополь, Гаражный массив №4', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
-    { id: 'dacha', name: 'Дачный участок (СНТ «Урожай»)', addr: 'Шпаковский р-н, СНТ «Урожай», уч. 112', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0 },
+    { id: 'private_house', name: 'Частный дом (индивидуальное домовладение)', addr: 'г. Ставрополь, пос. Демино, ул. Садовая, 7', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'small' },
+    { id: 'garage_coop', name: 'Гаражный бокс в гаражном кооперативе «Мотор»', addr: 'г. Ставрополь, Гаражный массив №4', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'small' },
+    { id: 'dacha', name: 'Дачный участок (СНТ «Урожай»)', addr: 'Шпаковский р-н, СНТ «Урожай», уч. 112', perimeter: 1, standalone: 1, mass: 0, kii: 0, itInfra: 0, scale: 'small' },
 ];
 const PROJECT_REQUIRES = {
     skud: [],
@@ -2442,37 +2461,46 @@ const ETALON_20 = {
 // предлагается вендором (нет данных, не выдумано). Это готовая часть цены ДОГОВОРА — без
 // ловушек/вариантов выбора, просто факт рынка (см. case 2, блок «Комплектующие проекта»).
 // ============================================================
+// ДОБАВЛЕНО (2026-08-08, по просьбе преподавателя): поле unitKind у позиций портфеля I (ИТСО) —
+// 'mass' (мелкоштучная позиция, число которой реально зависит от размера объекта — датчики,
+// извещатели, камеры, считыватели, замки) — ИМЕННО эти позиции получают в case 2 редактируемое
+// поле «Кол-во (шт.)» и ловушку со сверкой по эталону; 'hub' (центральный узел — ППКП, NVR,
+// контрольная панель — количество растёт с масштабом объекта гораздо медленнее, не редактируется
+// студентом, эталон используется молча при подсчёте итога); 'fixed' (лицензия/комплект — цена уже
+// за готовое решение целиком, количество не масштабируется физическим размером объекта). У
+// портфелей II/III (софт/орг) unitKind не проставлен — там позиции это уровни лицензии/пакета,
+// а не физические штуки (см. componentQtyReference() — там же обоснование).
 const COMPONENTS_20 = {
     skud: [
-        { name:"Контроллер СКУД (1-2 двери)", budget:3000, middle:15000, vip:45000, vendor:"Iron Logic / Parsec / Bolid Orion", link:"https://sec-group.ru/c/kontrollery-skud/bolid/" },
-        { name:"Считыватель карт / биометрический", budget:1500, middle:6000, vip:25000, vendor:"Iron Logic / Parsec / ZKTeco", link:"https://skud.global-sec.ru/kontrolleryi/kontrolleryi-iron-logic/" },
-        { name:"Электромагнитный / электромеханический замок", budget:2500, middle:6000, vip:15000, vendor:"AccordTec / Tantos / Smartec", link:null },
-        { name:"Турникет (трипод / полноростовой — верхний уровень)", budget:45000, middle:120000, vip:550000, vendor:"Iron Logic / Parsec / PERCo", link:"https://securityrussia.com/skud/kontrolery/" },
-        { name:"ПО управления СКУД (сервер, лицензия)", budget:0, middle:25000, vip:120000, vendor:"Parsec / Bolid Orion Pro", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid" },
+        { name:"Контроллер СКУД (1-2 двери)", budget:3000, middle:15000, vip:45000, vendor:"Iron Logic / Parsec / Bolid Orion", link:"https://sec-group.ru/c/kontrollery-skud/bolid/", unitKind:'mass' },
+        { name:"Считыватель карт / биометрический", budget:1500, middle:6000, vip:25000, vendor:"Iron Logic / Parsec / ZKTeco", link:"https://skud.global-sec.ru/kontrolleryi/kontrolleryi-iron-logic/", unitKind:'mass' },
+        { name:"Электромагнитный / электромеханический замок", budget:2500, middle:6000, vip:15000, vendor:"AccordTec / Tantos / Smartec", link:null, unitKind:'mass' },
+        { name:"Турникет (трипод / полноростовой — верхний уровень)", budget:45000, middle:120000, vip:550000, vendor:"Iron Logic / Parsec / PERCo", link:"https://securityrussia.com/skud/kontrolery/", unitKind:'hub' },
+        { name:"ПО управления СКУД (сервер, лицензия)", budget:0, middle:25000, vip:120000, vendor:"Parsec / Bolid Orion Pro", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid", unitKind:'fixed' },
     ],
     video: [
-        { name:"IP-камера", budget:6000, middle:8000, vip:35000, vendor:"HiWatch (Hikvision) / Dahua / Hikvision Pro", link:"https://www.dssl.ru/products/kamery-videonablyudeniya/tag/ip-kamery-hikvision/" },
-        { name:"Видеорегистратор (NVR)", budget:12000, middle:45000, vip:150000, vendor:"HiWatch / Dahua / TRASSIR", link:"https://dahuapro.ru/ip-videoregistratory/" },
-        { name:"ПО видеоаналитики (лицензия/канал)", budget:0, middle:5090, vip:25000, vendor:"TRASSIR", link:"https://www.dssl.ru/integratoram/price/" },
-        { name:"ИБП для системы видеонаблюдения", budget:5000, middle:8000, vip:20000, vendor:"Ippon / Bolid РИП", link:null },
+        { name:"IP-камера", budget:6000, middle:8000, vip:35000, vendor:"HiWatch (Hikvision) / Dahua / Hikvision Pro", link:"https://www.dssl.ru/products/kamery-videonablyudeniya/tag/ip-kamery-hikvision/", unitKind:'mass' },
+        { name:"Видеорегистратор (NVR)", budget:12000, middle:45000, vip:150000, vendor:"HiWatch / Dahua / TRASSIR", link:"https://dahuapro.ru/ip-videoregistratory/", unitKind:'hub' },
+        { name:"ПО видеоаналитики (лицензия/канал)", budget:0, middle:5090, vip:25000, vendor:"TRASSIR", link:"https://www.dssl.ru/integratoram/price/", unitKind:'fixed' },
+        { name:"ИБП для системы видеонаблюдения", budget:5000, middle:8000, vip:20000, vendor:"Ippon / Bolid РИП", link:null, unitKind:'hub' },
     ],
     fire: [
-        { name:"ППКП (прибор приёмно-контрольный пожарный)", budget:8000, middle:35000, vip:150000, vendor:"Рубеж / Болид Орион", link:"https://products.rubezh.ru/catalog/pozharnaya_signalizatsiya/" },
-        { name:"Дымовой / тепловой извещатель", budget:350, middle:900, vip:2500, vendor:"Болид / Рубеж / System Sensor", link:"https://bolid.ru/production/fire-detection-alarm-sys/" },
-        { name:"Оповещатель (сирена + световое табло)", budget:700, middle:2000, vip:6000, vendor:"Болид / Рубеж", link:"https://shop.bolid.ru/catalog/803660864/" },
-        { name:"Модуль управления эвакуацией", budget:5000, middle:20000, vip:80000, vendor:"Болид / Рубеж", link:"https://bolid.ru/projects/iso-orion/fire-automatic/ps/" },
+        { name:"ППКП (прибор приёмно-контрольный пожарный)", budget:8000, middle:35000, vip:150000, vendor:"Рубеж / Болид Орион", link:"https://products.rubezh.ru/catalog/pozharnaya_signalizatsiya/", unitKind:'hub' },
+        { name:"Дымовой / тепловой извещатель", budget:350, middle:900, vip:2500, vendor:"Болид / Рубеж / System Sensor", link:"https://bolid.ru/production/fire-detection-alarm-sys/", unitKind:'mass' },
+        { name:"Оповещатель (сирена + световое табло)", budget:700, middle:2000, vip:6000, vendor:"Болид / Рубеж", link:"https://shop.bolid.ru/catalog/803660864/", unitKind:'mass' },
+        { name:"Модуль управления эвакуацией", budget:5000, middle:20000, vip:80000, vendor:"Болид / Рубеж", link:"https://bolid.ru/projects/iso-orion/fire-automatic/ps/", unitKind:'hub' },
     ],
     security: [
-        { name:"ПКП (прибор приёмно-контрольный охранный)", budget:3875, middle:12000, vip:45000, vendor:"Bolid", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid" },
-        { name:"ИК-извещатель (объёмный)", budget:415, middle:1153, vip:3500, vendor:"Риэлта (Фотон-9) / Bolid", link:"https://satro-paladin.com/catalog/product/6632/" },
-        { name:"Магнитоконтакт", budget:150, middle:400, vip:1200, vendor:"Bolid / Астра", link:"https://sector-sb.ru/catalog/ops/produktsiya_kompanii_bolid/integrirovannaya_sistema_orion/ohrannye_izveschateli_bolid" },
-        { name:"Комплект радиоканальный начального уровня (Астра-Р)", budget:3450, middle:null, vip:null, vendor:"Teko (Астра-Р)", link:"https://satro-paladin.com/catalog/product/7822/" },
+        { name:"ПКП (прибор приёмно-контрольный охранный)", budget:3875, middle:12000, vip:45000, vendor:"Bolid", link:"https://www.drdoors-msc.ru/skud/kontrollery/Bolid", unitKind:'hub' },
+        { name:"ИК-извещатель (объёмный)", budget:415, middle:1153, vip:3500, vendor:"Риэлта (Фотон-9) / Bolid", link:"https://satro-paladin.com/catalog/product/6632/", unitKind:'mass' },
+        { name:"Магнитоконтакт", budget:150, middle:400, vip:1200, vendor:"Bolid / Астра", link:"https://sector-sb.ru/catalog/ops/produktsiya_kompanii_bolid/integrirovannaya_sistema_orion/ohrannye_izveschateli_bolid", unitKind:'mass' },
+        { name:"Комплект радиоканальный начального уровня (Астра-Р)", budget:3450, middle:null, vip:null, vendor:"Teko (Астра-Р)", link:"https://satro-paladin.com/catalog/product/7822/", unitKind:'fixed' },
     ],
     perimeter: [
-        { name:"Радиоволновый извещатель (Барьер-100/300/500)", budget:24000, middle:47000, vip:90000, vendor:"Forteza (Барьер)", link:"https://forteza.ru/products/barer300" },
-        { name:"Активный ИК-барьер", budget:8000, middle:20000, vip:60000, vendor:"Falcon Eye / Teko / Smartec", link:null },
-        { name:"Быстроразворачиваемый комплекс охраны периметра", budget:null, middle:null, vip:600000, vendor:"Радиобарьер (спец.поставщик)", link:"http://bezopas.ru/catalog/tehnicheskie-sredstva-ohrani/radiobarer.html" },
-        { name:"ПО видеоаналитики периметра (лицензия)", budget:0, middle:15000, vip:60000, vendor:"TRASSIR / AxxonSoft", link:"https://www.dssl.ru/integratoram/price/" },
+        { name:"Радиоволновый извещатель (Барьер-100/300/500)", budget:24000, middle:47000, vip:90000, vendor:"Forteza (Барьер)", link:"https://forteza.ru/products/barer300", unitKind:'mass' },
+        { name:"Активный ИК-барьер", budget:8000, middle:20000, vip:60000, vendor:"Falcon Eye / Teko / Smartec", link:null, unitKind:'mass' },
+        { name:"Быстроразворачиваемый комплекс охраны периметра", budget:null, middle:null, vip:600000, vendor:"Радиобарьер (спец.поставщик)", link:"http://bezopas.ru/catalog/tehnicheskie-sredstva-ohrani/radiobarer.html", unitKind:'fixed' },
+        { name:"ПО видеоаналитики периметра (лицензия)", budget:0, middle:15000, vip:60000, vendor:"TRASSIR / AxxonSoft", link:"https://www.dssl.ru/integratoram/price/", unitKind:'fixed' },
     ],
     hybrid: [
         { name:"PSIM-платформа интеграции подсистем", budget:50000, middle:200000, vip:800000, vendor:"Итриум (Bolid) / AxxonSoft", link:"https://bolid.ru/" },
@@ -2555,12 +2583,70 @@ const COMPONENTS_20 = {
 // список hybrid содержал только 2 позиции интеграции, из-за чего «Материалы» гибридного проекта были
 // искусственно занижены (не хватало камер/контроллеров/датчиков/замков и т.п. каждой подсистемы).
 COMPONENTS_20.hybrid = [...COMPONENTS_20.skud, ...COMPONENTS_20.video, ...COMPONENTS_20.fire, ...COMPONENTS_20.security, ...COMPONENTS_20.perimeter, ...COMPONENTS_20.hybrid];
+// ДОБАВЛЕНО (2026-08-08): эталонное количество комплектующих по масштабу объекта (OBJECTS[].scale)
+// и роли позиции (unitKind, см. комментарий у COMPONENTS_20 выше) — используется студентом как
+// ловушка «Кол-во (шт.)» в таблице занятия 2 (ввод только для unitKind:'mass') и как множитель в
+// componentsTotal() ниже. Верхние границы по просьбе преподавателя: мелкоштучные — до 10/20/200 шт.
+// (малый/средний/крупный объект), центральные узлы (ЦПУ/пульт/сервер) — до 2/4/10 шт. Конкретные
+// числа внутри этих границ — ПЕДАГОГИЧЕСКАЯ ОЦЕНКА, откалиброванная по норме СП 5.13130.2009
+// «Системы противопожарной защиты. Установки пожарной сигнализации...» (защищаемая площадь одним
+// точечным дымовым/тепловым извещателем — не более 85 м², не менее 2 извещателей на помещение) —
+// т.к. у вымышленных объектов практикума нет реальных чертежей/площадей, норма применена не как
+// точный расчёт по конкретному зданию, а как ориентир правдоподобного порядка величины плотности
+// датчиков на объект такого масштаба. Для не-ИТСО типов (unitKind не определён) не используется.
+const COMPONENT_QTY_REF = {
+    mass: { small: 6, medium: 16, large: 130 },
+    hub: { small: 1, medium: 2, large: 6 },
+    fixed: { small: 1, medium: 1, large: 1 }
+};
+const COMPONENT_KIND_RU = { mass: 'мелкоштучная позиция (датчики/извещатели/камеры)', hub: 'центральный узел (ЦПУ/пульт/сервер)', fixed: 'ПО / комплект (без пересчёта количества)' };
+const OBJECT_SCALE_RU = { small: 'малый (частный дом/гараж/точка до ~30 м²)', medium: 'средний (учреждение/офис)', large: 'крупный (протяжённый/многозальный объект)' };
+function componentQtyReference(item, scale) {
+    if (!item || !item.unitKind) return 1;
+    const sc = (scale === 'small' || scale === 'large') ? scale : 'medium';
+    const row = COMPONENT_QTY_REF[item.unitKind];
+    return row ? (row[sc] || row.medium) : 1;
+}
+// Фактическое кол-во позиции, используемое в смете: для mass — введённое студентом число (до
+// фиксации ловушки трактуется как 1, чтобы ИТОГО не показывал 0 ₽ на пустой смете); для hub/fixed —
+// эталон по масштабу объекта (эти позиции студент не вводит, см. componentQtyReference()).
+function componentEffectiveQty(it, scale) {
+    if (!it || !it.unitKind || it.unitKind !== 'mass') return componentQtyReference(it, scale);
+    const v = state.componentQty ? state.componentQty[it.name] : undefined;
+    return (typeof v === 'number' && v > 0) ? v : 1;
+}
 // Сумма комплектующих текущего типа проекта по выбранному уровню цены (state.priceLevel) —
-// null-позиции (нет на этом уровне у вендора) в сумму не входят.
-function componentsTotal(projectType, level) {
+// null-позиции (нет на этом уровне у вендора) в сумму не входят. Позиции с unitKind учитываются
+// с учётом количества (componentEffectiveQty); позиции без unitKind (софт/орг-портфели) — как
+// раньше, по цене за единицу без множителя, т.к. количественная ловушка для них не реализована.
+function componentsTotal(projectType, level, scale) {
     const items = COMPONENTS_20[projectType] || [];
     const key = level === 'budget' ? 'budget' : (level === 'vip' ? 'vip' : 'middle');
-    return items.reduce((s, it) => s + (typeof it[key] === 'number' ? it[key] : 0), 0);
+    const sc = scale || (typeof state !== 'undefined' && state ? state.objectScale : 'medium') || 'medium';
+    return items.reduce((s, it) => {
+        if (typeof it[key] !== 'number') return s;
+        const qty = it.unitKind ? componentEffectiveQty(it, sc) : 1;
+        return s + it[key] * qty;
+    }, 0);
+}
+// ДОБАВЛЕНО (2026-08-08): вспомогательные материалы и крепёж (кабель-канал, дюбели, хомуты,
+// коннекторы, изолента и т.п.) — по жалобе преподавателя на скриншоте занятия 9: строка «Материалы»
+// в боковой панели показывала 0 ₽, хотя реально для монтажа (скруток, кабель-каналов) расходники
+// нужны всегда. Это ОТДЕЛЬНАЯ категория затрат — не то же самое, что COMPONENTS_20 (готовое ОБОРУДОВАНИЕ
+// по прайсу вендора: датчики/камеры/ППКП и т.п.) и не то же самое, что task.materials (материалы
+// КОНКРЕТНОЙ задачи). Применяется ТОЛЬКО к портфелю I (6 типов ИТСО — реальный физический монтаж по
+// зданию): портфель II (софт/железо в стойку — ngfw/dlp/iam/siem/edr/vpn/backup/crypto) практически
+// не расходует крепёж (максимум рейка/патч-корды), портфель III (policy/kii/pdn/passport/audit/
+// training) — чисто документарный результат, монтажа нет вовсе. Процент (7%) — ЯВНО ПОМЕЧЕННАЯ
+// ПЕДАГОГИЧЕСКАЯ ОЦЕНКА: проверено через WebSearch 08.08.2026 по ГЭСНм/сметному делу — единой
+// фиксированной нормы на «неучтённые материалы»/расходники такого рода не существует, в реальной
+// практике сметчик определяет эту долю экспертно, а не по ГОСТ. Решение о 3-уровневом охвате (не
+// единый % на все 20 типов и не 20 отдельных эталонов) согласовано с преподавателем через
+// AskUserQuestion — тот же принцип, что уже применён к OBJECTS.scale (3 категории, не 43 числа).
+const AUX_MATERIALS_PCT = 0.07;
+function auxMaterialsSum(projectType, level, scale) {
+    if (portfolioOfCode(projectType) !== 'I') return 0;
+    return componentsTotal(projectType, level, scale) * AUX_MATERIALS_PCT;
 }
 const NOTE_CAT_LABEL = { survey: 'Анкета клиента', tz: 'ТЗ / эскиз', key: 'Ключевая задача внедрения' };
 // НИЖЕ — устаревшая привязка (оставлена как справочный материал, в столбце «Примечание» больше
@@ -3297,6 +3383,11 @@ document.getElementById('mainApp').classList.add('visible');
 document.getElementById('projectClientName').innerText = (clientData.name || '—') + ' (' + (clientData.address || '—') + ')';
 document.getElementById('projectFirmDisplay').innerText = clientData.firmName || '…';
 state.client = clientData;
+// ДОБАВЛЕНО (2026-08-08): масштаб объекта заказчика — из assignedProject.object.scale (см. OBJECTS[]),
+// используется ловушкой «Кол-во (шт.)» комплектующих на занятии 2 (componentQtyReference()).
+if (assignedProject && assignedProject.object && assignedProject.object.scale) {
+    state.objectScale = assignedProject.object.scale;
+}
 if (state.tasks.length === 0) {
 state.projectType = state.sketch ? state.sketch.type : ((assignedProject && assignedProject.code) || 'video');
 state.tasks = shuffleTaskAssignments(bpTasks(state.projectType));
@@ -3758,6 +3849,16 @@ taskNotesReportNote: null,
 taskVerifLocked: false,
 taskVerifResult: null,
 taskVerifReportNote: null,
+// ДОБАВЛЕНО (2026-08-08): масштаб объекта заказчика (small/medium/large, см. OBJECTS[].scale) —
+// проставляется в goToProject() из assignedProject.object.scale, здесь только безопасный дефолт
+// на случай прямого freshState() без известного объекта (тестовый режим и т.п.).
+objectScale: 'medium',
+// Ловушка «Кол-во (шт.)» комплектующих (занятие 2) — студент вводит своё количество только для
+// мелкоштучных позиций (unitKind:'mass'), ключ — it.name (стабилен в пределах типа проекта).
+componentQty: {},
+componentQtyLocked: false,
+componentQtyResult: null,
+componentQtyReportNote: null,
 tasks: [],
 drawings: [{ name: 'План этажа', url: '' }],
 summary: { totalLabor: 0, totalMaterial: 0, overheads: 0, profit: 0, total: 0, totalWithVAT: 0 },
@@ -4082,7 +4183,10 @@ const perDay = cost / span;
 for (let d = start; d < start + span && d < days; d++) costPerDay[d] += perDay;
 });
 const bridge = state.tasks.find(t => t.id === 1013);
-const componentsSum = componentsTotal(state.projectType, state.priceLevel);
+// ИСПРАВЛЕНО (2026-08-08): + auxMaterialsSum() (крепёж, портфель I) — иначе последняя точка кривой
+// расходилась бы с state.summary.total (в него крепёж уже входит), нарушая инвариант «сквозная
+// сверка», описанный в комментарии buildCostCurve() выше.
+const componentsSum = componentsTotal(state.projectType, state.priceLevel) + auxMaterialsSum(state.projectType, state.priceLevel);
 let bridgeDay = null;
 if (bridge && componentsSum > 0) {
 bridgeDay = Math.min(days - 1, Math.max(0, Math.floor(sched.startOf[1013] || 0)));
@@ -4171,6 +4275,13 @@ if (typeof state.taskNotesReportNote === 'undefined') state.taskNotesReportNote 
 if (typeof state.taskVerifLocked === 'undefined') state.taskVerifLocked = false;
 if (typeof state.taskVerifResult === 'undefined') state.taskVerifResult = null;
 if (typeof state.taskVerifReportNote === 'undefined') state.taskVerifReportNote = null;
+// ДОБАВЛЕНО (2026-08-08): бэкфилл для старых сохранённых/импортированных проектов, у которых этих
+// полей ещё не было (см. также freshState() и ловушку «Кол-во (шт.)» в case 2).
+if (typeof state.objectScale === 'undefined') state.objectScale = 'medium';
+if (!state.componentQty) state.componentQty = {};
+if (typeof state.componentQtyLocked === 'undefined') state.componentQtyLocked = false;
+if (typeof state.componentQtyResult === 'undefined') state.componentQtyResult = null;
+if (typeof state.componentQtyReportNote === 'undefined') state.componentQtyReportNote = null;
 state.firmResources.forEach(r => { if (!r.costType) r.costType = (r.category === 'Основные средства' && r.period === 'разово') ? 'CAPEX' : 'OPEX'; });
 state.employees.forEach(e => { if (!e.eduLevel) e.eduLevel = (e.qualification || '').indexOf('средн') === 0 || (e.qualification || '').indexOf('среднее') >= 0 ? 'Среднее образ-е' : 'Специалист'; });
 let totalLabor = 0, totalMaterial = 0, totalDuration = 0;
@@ -4187,7 +4298,15 @@ state.summary.totalLabor = totalLabor;
 // + реальные комплектующие проекта (COMPONENTS_20, см. case 2 «Комплектующие проекта») —
 // готовая часть материальной составляющей цены Договора, по проверенным ценам вендоров.
 const componentsSum = componentsTotal(state.projectType, state.priceLevel);
-state.summary.totalMaterial = totalMaterial + componentsSum;
+// ДОБАВЛЕНО (2026-08-08): вспомогательные материалы и крепёж (см. auxMaterialsSum()) — 0 для
+// портфелей II/III, 7% от componentsSum для портфеля I. componentsAndTaskMaterial — старое значение
+// (без крепежа), используется отдельной строкой «2» в Локальной смете (case 4); totalMaterial —
+// ГРАНД-ИТОГО материалов (с крепежом), участвует в state.summary.total и во всех производных
+// (накладные/прибыль/НДС/цена Договора) — единая точка интеграции, как и было для componentsSum.
+const auxMatSum = auxMaterialsSum(state.projectType, state.priceLevel);
+state.summary.componentsAndTaskMaterial = totalMaterial + componentsSum;
+state.summary.auxMaterials = auxMatSum;
+state.summary.totalMaterial = totalMaterial + componentsSum + auxMatSum;
 state.summary.totalComponents = componentsSum;
 state.summary.total = totalLabor + state.summary.totalMaterial;
 document.getElementById('dispTasks').innerText = state.tasks.length;
@@ -4205,7 +4324,15 @@ document.getElementById('dispCapex').innerText = capexSum.toLocaleString('ru-RU'
 document.getElementById('dispOpexM').innerText = opexM.toLocaleString('ru-RU') + ' ₽';
 document.getElementById('dispOpexO').innerText = opexO.toLocaleString('ru-RU') + ' ₽';
 document.getElementById('dispLaborS').innerText = totalLabor.toLocaleString('ru-RU') + ' ₽';
-document.getElementById('dispMatS').innerText = totalMaterial.toLocaleString('ru-RU') + ' ₽';
+// ИСПРАВЛЕНО (2026-08-08): раньше здесь показывался только «totalMaterial» из task.materials
+// (материалы КОНКРЕТНЫХ задач, почти всегда 0) — стоимость комплектующих (COMPONENTS_20) в карточку
+// сайдбара не попадала вовсе, хотя в Локальной смете (case 4) и state.summary.totalMaterial она
+// уже учитывалась корректно. Теперь показывается ГРАНД-ИТОГО (задачи + комплектующие + крепёж).
+document.getElementById('dispMatS').innerText = state.summary.totalMaterial.toLocaleString('ru-RU') + ' ₽';
+const auxCard = document.getElementById('auxMatCard');
+if (auxCard) auxCard.style.display = (auxMatSum > 0) ? '' : 'none';
+const auxCardEl = document.getElementById('dispAuxMat');
+if (auxCardEl) auxCardEl.innerText = auxMatSum.toLocaleString('ru-RU') + ' ₽';
 document.getElementById('dispEst').innerText = state.summary.totalWithVAT > 0 ? Math.round(state.summary.totalWithVAT).toLocaleString('ru-RU') + ' ₽' : '— (занятие 4)';
 renderSideDynamic();
 renderCurrentLesson();
@@ -4399,6 +4526,13 @@ const statusCell = (t) => t.progress === 100
 // Ячейка исполнителя: основной (select) + доп. исполнители (если задаче нужно 2-3 человека —
 // например, «Согласование цены с заказчиком»: директор И бухгалтер, т.к. согласуются сразу три
 // уровня цены — бюджетный/средний/дорогой) в виде убираемых «чипов» + маленький select добавления.
+// Общий хелпер сортировки списка сотрудников по ФИО (используется во ВСЕХ выпадающих списках
+// исполнителей/дублёров — см. employeeCell() и assignUnderstudy-select занятия 6). Возвращает
+// НОВЫЙ отсортированный массив (.slice()), не мутирует переданный — порядок state.employees/
+// индексы id нигде не меняются, только порядок пунктов внутри самого <select>.
+function sortByNameRu(list) {
+return list.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+}
 function employeeCell(t) {
 // Роль задачи — заведомо ВНЕ штата фирмы (Комиссия/Электролаборатория/Заказчик, см.
 // isExternalRole()/inferRequiredPosition()) — назначать сюда сотрудника фирмы нечего и не нужно:
@@ -4411,15 +4545,22 @@ const e = state.employees.find(e => e.id === eid);
 return `<div style="display:flex; align-items:center; gap:4px; margin-top:3px; font-size:11px; background:rgba(51,230,255,0.06); border-radius:10px; padding:2px 7px; white-space:nowrap;">+ ${e ? e.name : '—'}<span style="cursor:pointer; color:var(--gr-red); font-weight:700;" title="Убрать доп. исполнителя" onclick="removeTaskEmployee(${t.id}, ${eid})" tabindex="0" role="button" aria-label="Убрать доп. исполнителя ${e ? e.name : ''}">✕</span></div>`;
 }).join('');
 const avail = state.employees.filter(e => !getTaskEmployeeIds(t).includes(e.id));
+// ДОБАВЛЕНО (2026-08-08, по просьбе преподавателя): выпадающие списки ФИО сортируются по
+// алфавиту (только ДЛЯ ОТОБРАЖЕНИЯ — сортируется КОПИЯ через .slice(), исходный порядок
+// state.employees/id не трогается, т.к. на него завязаны прочие места кода — таблица
+// штатного расписания Старта 0, авторасчёт ФОТ и т.д.). sortByNameRu() — общий хелпер,
+// см. определение рядом с остальными cross-cutting утилитами.
+const employeesSorted = sortByNameRu(state.employees);
+const availSorted = sortByNameRu(avail);
 return `
 <select onchange="updateTaskPrimaryEmployee(${t.id}, this.value)">
 <option value="">—</option>
-${state.employees.map(e => `<option value="${e.id}" ${e.id === t.employeeId ? 'selected' : ''}>${e.name}</option>`).join('')}
+${employeesSorted.map(e => `<option value="${e.id}" ${e.id === t.employeeId ? 'selected' : ''}>${e.name}</option>`).join('')}
 </select>${taskQualBadge(t)}
 ${chips}
 ${avail.length ? `<select onchange="if(this.value){addTaskEmployee(${t.id}, this.value); this.value='';}" style="margin-top:3px; font-size:11px; color:var(--gr-dim);">
 <option value="">+ доп. исполнитель</option>
-${avail.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+${availSorted.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
 </select>` : ''}`;
 }
 // Предшественники: список чекбоксов по другим задачам проекта. Задачи БЕЗ общего предшественника
@@ -4482,7 +4623,7 @@ ${state.resourcesLocked ? `<p style="margin-bottom:8px; color:#F2CB7A; font-size
 ${state.resourcesLocked ? `<button class="btn btn-outline btn-sm" onclick="unlockResources()">🔓 Изменить состав ресурсов (снять фиксацию)</button>` : ''}
 </div>
 <div>
-<div style="overflow-x:auto;">
+<div class="table-scroll">
 <table>
 <thead><tr><th>Подходит?</th><th>Категория</th><th>Наименование потребности</th><th>Ед.</th><th>Кол-во</th><th>Цена/тариф, ₽</th><th>Период</th><th><span class="tip" title="${CAPEX_DEF}&#10;&#10;${OPEX_DEF}">Тип затрат</span></th><th>Сумма, ₽</th><th></th></tr></thead>
 <tbody>
@@ -4569,7 +4710,7 @@ const noteOptions = noteOptionsFor(t).map(doc =>
 ).join('');
 const vmethod = verificationMethod(t);
 const verificationCell = vmethod
-? `<select onchange="updateTaskVerification(${t.id}, this.value)" ${state.taskVerifLocked ? 'disabled' : ''} style="min-width:230px;">
+? `<select onchange="updateTaskVerification(${t.id}, this.value)" ${state.taskVerifLocked ? 'disabled' : ''} style="min-width:180px; max-width:210px;">
 <option value="">— вид проверки? —</option>
 ${verificationOptionsFor(t).map(v => `<option value="${v.replace(/"/g, '&quot;')}" ${t.studentVerification === v ? 'selected' : ''}>${v.slice(0, 60)}${v.length > 60 ? '…' : ''}</option>`).join('')}
 </select>`
@@ -4583,7 +4724,7 @@ return `
 <td>${employeeCell(t)}</td>
 <td style="white-space:nowrap; font-weight:600;">${Math.round(cost).toLocaleString('ru-RU')} ₽<br><span style="font-size:11px; color:var(--gr-dim); font-weight:400;">${execs.map(e => e.ratePerHour + ' ₽/ч').join(' + ') || '0 ₽/ч'} × ${hours.toFixed(0)} ч × 1,302 (взносы 30,2%)</span></td>
 <td>
-<select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:250px;">
+<select onchange="updateTaskNote(${t.id}, this.value)" ${state.taskNotesLocked ? 'disabled' : ''} style="min-width:180px; max-width:220px;">
 <option value="">— что появляется на выходе? —</option>
 ${noteOptions}
 </select>
@@ -4621,7 +4762,8 @@ html += `
 <button class="btn btn-success btn-sm" onclick="loadTemplate(state.projectType)">📂 Загрузить полный перечень задач этапов монтажа/внедрения-наладки-испытаний-приёмки (${TYPE_RU[state.projectType] || ''})</button>
 <button class="btn btn-primary btn-sm" onclick="addTask('II')">➕ Добавить задачу вручную</button>
 </div>
-<div style="overflow-x:auto;">
+<div class="table-scroll-hint">↔️ Таблица шире экрана (8 столбцов, два из них — списки с длинными названиями) — прокрутите её вправо голубым ползунком внизу таблицы, чтобы увидеть столбцы «Примечание» и «Вид проверочных работ» у каждой задачи.</div>
+<div class="table-scroll">
 <table>
 <thead><tr><th>#</th><th>Задача</th><th>Этап</th><th>Длительность</th><th>Исполнитель (ФИО, квалификация)</th><th>Стоимость (ФОТ)</th><th>Примечание</th><th>Вид проверочных работ</th></tr></thead>
 <tbody>${fullTaskRowsHtml}</tbody>
@@ -4679,8 +4821,11 @@ ${canonicalDocSetHtml(state.projectType)}
 `}
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:22px 0 6px;">Комплектующие проекта (по рулетке — ${TYPE_RU[state.projectType] || ''})</div>
-<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Ниже — реальный перечень всего, что подлежит установке по вашему типу проекта (датчики, контроллеры, замки, блок центрального процессора и т.п.), с тремя ценами (Бюджет/Мидл/VIP) и вендором 2026 года — проверено по актуальным прайс-листам рынка. Это готовая часть материальной составляющей цены Договора: без вариантов выбора и без ловушек, просто рыночный факт.</p>
+<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Ниже — реальный перечень всего, что подлежит установке по вашему типу проекта (датчики, контроллеры, замки, блок центрального процессора и т.п.), с тремя ценами (Бюджет/Мидл/VIP) и вендором 2026 года — проверено по актуальным прайс-листам рынка. Цены за единицу — рыночный факт без ловушки; а вот КОЛИЧЕСТВО мелкоштучных позиций (датчики/извещатели/камеры) для вашего объекта нужно оценить самостоятельно — см. столбец «Кол-во (шт.)» и пояснение ниже.</p>
 <p style="margin-bottom:10px; color:var(--gr-cyan); font-size:13px; background:rgba(51,230,255,0.07); border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px;">🔗 <strong>Как выбранная цена (Бюджет/Мидл/VIP) попадает в проект:</strong> сумма по выбранному уровню не привязана к конкретной монтажной задаче — она добавляется ОДНИМ платежом в день задачи <strong>1013 «Инициализация проекта»</strong> (сразу после получения аванса, когда фирма реально закупает оборудование у поставщика). Именно поэтому: (1) в итоговой смете (стр. 4) эта сумма входит в строку «Материалы»; (2) на графике «Освоенный бюджет» над диаграммой Ганта (стр. 3) в этот день виден вертикальный СКАЧОК кривой — переключите уровень цены здесь и посмотрите на стр. 3, как меняется размер скачка.</p>
+${COMPONENTS_20[state.projectType] && COMPONENTS_20[state.projectType].some(it => it.unitKind === 'mass') ? `
+<p style="margin-bottom:10px; color:#F2CB7A; font-size:13px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:8px 12px;">📐 <strong>Наводка на норму:</strong> ваш объект заказчика (см. шапку проекта) отнесён к масштабу «${OBJECT_SCALE_RU[state.objectScale] || state.objectScale}». Для пожарной/охранной сигнализации ориентир даёт СП 5.13130.2009 «Системы противопожарной защиты. Установки пожарной сигнализации...» — один точечный дымовой/тепловой извещатель защищает не более 85 м² площади, но не менее 2 извещателей на помещение; для СКУД/видеонаблюдения/периметра прямого норматива на штуки нет — оценивайте по количеству точек доступа/зон контроля объекта такого масштаба. Введите СВОЁ число в столбец «Кол-во (шт.)» — система примет ответ, близкий к разумному порядку величины (не единственное «правильное» число).</p>
+` : ''}
 <div class="toolbar" style="margin-bottom:8px;">
 <label>Уровень цены: <select onchange="state.priceLevel=this.value; recalcAll();">
 <option value="budget" ${state.priceLevel === 'budget' ? 'selected' : ''}>Бюджет</option>
@@ -4688,23 +4833,36 @@ ${canonicalDocSetHtml(state.projectType)}
 <option value="vip" ${state.priceLevel === 'vip' ? 'selected' : ''}>VIP</option>
 </select></label>
 </div>
-<div>
+<div class="table-scroll">
 <table>
-<thead><tr><th>#</th><th>Наименование</th><th>Бюджетная</th><th>Middle</th><th>VIP</th><th>Вендор</th></tr></thead>
+<thead><tr><th>#</th><th>Наименование</th><th>Кол-во (шт.)</th><th>Бюджетная</th><th>Middle</th><th>VIP</th><th>Вендор</th></tr></thead>
 <tbody>
 ${(COMPONENTS_20[state.projectType] || []).map((it, i) => `
 <tr>
 <td>${i + 1}</td>
 <td>${it.name}</td>
+<td>${it.unitKind === 'mass'
+    ? `<input type="number" min="1" max="500" value="${state.componentQty[it.name] || ''}" placeholder="?" ${state.componentQtyLocked ? 'disabled' : ''} onchange="updateComponentQty('${it.name.replace(/'/g, "\\'")}', this.value)" style="width:70px;">`
+    : (it.unitKind ? `<span style="color:var(--gr-dim); font-style:italic;" title="${COMPONENT_KIND_RU[it.unitKind] || ''}">${componentQtyReference(it, state.objectScale)} (эталон)</span>` : `<span style="color:var(--gr-dim);">—</span>`)}</td>
 <td style="${state.priceLevel === 'budget' ? 'font-weight:700; background:rgba(57,255,157,0.06);' : ''}">${it.budget != null ? it.budget.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
 <td style="${state.priceLevel === 'middle' ? 'font-weight:700; background:rgba(57,255,157,0.06);' : ''}">${it.middle != null ? it.middle.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
 <td style="${state.priceLevel === 'vip' ? 'font-weight:700; background:rgba(57,255,157,0.06);' : ''}">${it.vip != null ? it.vip.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
 <td>${it.link ? `<a href="${it.link}" target="_blank" rel="noopener">${it.vendor}</a>` : it.vendor}</td>
-</tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--gr-dim); padding:12px;">Нет данных по комплектующим для этого типа проекта</td></tr>'}
+</tr>`).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--gr-dim); padding:12px;">Нет данных по комплектующим для этого типа проекта</td></tr>'}
 </tbody>
-<tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="2">ИТОГО по уровню «${state.priceLevel.toUpperCase()}»</td><td colspan="3">${componentsTotal(state.projectType, state.priceLevel).toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
+<tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="3">ИТОГО по уровню «${state.priceLevel.toUpperCase()}» (с учётом введённого кол-ва)</td><td colspan="3">${componentsTotal(state.projectType, state.priceLevel).toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
 </table>
 </div>
+${COMPONENTS_20[state.projectType] && COMPONENTS_20[state.projectType].some(it => it.unitKind === 'mass') ? `
+<div style="margin-top:10px; padding:12px; background:var(--gr-panel2); border-radius:10px;">
+${state.componentQtyResult ? `
+<div style="font-size:13px; color:var(--gr-muted2); margin-bottom:8px;">Верно (в допуске ±40% от ориентира): <b style="color:#39FF9D;">${state.componentQtyResult.correct}</b> из ${state.componentQtyResult.total} — точность ${state.componentQtyResult.accuracy.toFixed(1)}%.</div>
+` : ''}
+<button class="btn btn-primary btn-sm" style="width:100%;" onclick="lockComponentQty()" ${state.componentQtyLocked ? 'disabled' : ''}>${state.componentQtyLocked ? '✅ Зафиксировано' : (state.componentQtyResult ? '🔁 Пересмотреть количество' : '🔎 Проверить количество')}</button>
+${state.componentQtyLocked ? `<button class="btn btn-outline btn-sm" style="margin-top:8px; width:100%;" onclick="unlockComponentQty()">🔓 Изменить количество (снять фиксацию)</button>
+<p style="margin-top:8px; color:#F2CB7A; font-size:12px;">🔒 Кол-во зафиксировано — поля неактивны. Необходимо: нажать «🔓 Изменить количество», чтобы снова редактировать столбец.</p>` : ''}
+</div>
+` : ''}
 <p style="margin-top:8px; margin-bottom:0; color:var(--gr-muted2); font-size:12.5px;">Сумма комплектующих по выбранному уровню цены уже включена в общую материальную составляющую проекта (см. панель «Бюджет проекта» справа и занятие 4 «Смета») — это часть цены Договора, которую видит заказчик.</p>
 `;
 break;
@@ -4763,6 +4921,9 @@ const custName = cust.name || 'Заказчик не определён';
 const custAddr = cust.address || '—';
 const custPhone = cust.phone || '—';
 const total = state.summary.total;
+// ДОБАВЛЕНО (2026-08-08): есть ли отдельная строка «Вспомогательные материалы и крепёж» (только
+// портфель I) — от неё зависит нумерация последующих строк Локальной сметы ниже.
+const hasAuxMat = state.summary.auxMaterials > 0;
 // ИСПРАВЛЕНО (round 1): раньше накладные в смете считались условной плоской ставкой (10% от
 // прямых затрат) — это НЕ совпадало с реальными накладными расходами офиса (аренда, связь,
 // транспорт, ОС из занятия 1), которые показывались в п.2.6 Договора и в блоке 7-8 занятия 5,
@@ -4868,17 +5029,20 @@ ${Math.abs(overheadGapPts) > 10 ? `
 </div>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:26px 0 6px;">📄 Локальная смета № ${contractNo}-С на выполнение работ по проекту «${TYPE_RU[state.projectType] || ''}»</div>
-<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Калькуляция сформирована автоматически по фактическим данным проекта: трудозатратам исполнителей (стр. 1, с учётом страховых взносов 30,2%), стоимости комплектующих (стр. 2, по выбранному уровню цены) и реальным накладным расходам офиса (стр. 1, пропорционально сроку проекта — та же сумма, что в п.2.6 Договора). Ниже — постатейная разбивка, являющаяся Приложением №1 к Договору.</p>
+<p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Калькуляция сформирована автоматически по фактическим данным проекта: трудозатратам исполнителей (стр. 1, с учётом страховых взносов 30,2%), стоимости комплектующих (стр. 2, по выбранному уровню цены)${hasAuxMat ? ', вспомогательным материалам и крепежу (стр. 3, педагогическая оценка для проектов с физическим монтажом)' : ''} и реальным накладным расходам офиса (стр. 1, пропорционально сроку проекта — та же сумма, что в п.2.6 Договора). Ниже — постатейная разбивка, являющаяся Приложением №1 к Договору.</p>
 <table>
 <thead><tr><th style="width:46px;">№</th><th>Статья затрат</th><th style="text-align:right;">Сумма, ₽</th><th style="text-align:right;">% от прямых затрат</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>Оплата труда исполнителей (с начислениями 30,2%)</td><td style="text-align:right; white-space:nowrap;">${state.summary.totalLabor.toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.totalLabor/total*100 : 0).toFixed(1)}%</td></tr>
-<tr><td>2</td><td>Материалы и комплектующие (уровень «${state.priceLevel.toUpperCase()}»)</td><td style="text-align:right; white-space:nowrap;">${state.summary.totalMaterial.toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.totalMaterial/total*100 : 0).toFixed(1)}%</td></tr>
+<tr><td>2</td><td>Материалы и комплектующие (уровень «${state.priceLevel.toUpperCase()}»)</td><td style="text-align:right; white-space:nowrap;">${state.summary.componentsAndTaskMaterial.toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.componentsAndTaskMaterial/total*100 : 0).toFixed(1)}%</td></tr>
+${hasAuxMat ? `
+<tr><td>3</td><td>Вспомогательные материалы и крепёж (кабель-канал, дюбели, хомуты, коннекторы и т.п.; ~${(AUX_MATERIALS_PCT*100).toFixed(0)}% от стоимости комплектующих — педагогическая оценка, единой нормы для этой статьи не существует) <span class="tip" title="Проверено по ГЭСНм и практике сметного дела: расходники такого рода в реальности определяются экспертным решением сметчика, а не фиксированной нормой. Строка показана только для проектов с реальным физическим монтажом (портфель I).">ⓘ</span></td><td style="text-align:right; white-space:nowrap;">${Math.round(state.summary.auxMaterials).toLocaleString('ru-RU')}</td><td style="text-align:right;">${(total ? state.summary.auxMaterials/total*100 : 0).toFixed(1)}%</td></tr>
+` : ''}
 <tr style="font-weight:600; background:var(--gr-panel2);"><td colspan="2">Итого прямые затраты</td><td style="text-align:right; white-space:nowrap;">${total.toLocaleString('ru-RU')}</td><td style="text-align:right;">100%</td></tr>
-<tr><td>3</td><td>Накладные расходы (аренда, связь, транспорт, содержание офиса + амортизация ОС — за ${ovhDays.toFixed(0)} дн. проекта)</td><td style="text-align:right; white-space:nowrap;">${Math.round(overheads).toLocaleString('ru-RU')}</td><td style="text-align:right;">${overheadPct.toFixed(1)}%</td></tr>
-<tr><td>4</td><td>Плановая прибыль исполнителя</td><td style="text-align:right; white-space:nowrap;">${profit.toLocaleString('ru-RU')}</td><td style="text-align:right;">${profitPct}%</td></tr>
+<tr><td>${hasAuxMat ? 4 : 3}</td><td>Накладные расходы (аренда, связь, транспорт, содержание офиса + амортизация ОС — за ${ovhDays.toFixed(0)} дн. проекта)</td><td style="text-align:right; white-space:nowrap;">${Math.round(overheads).toLocaleString('ru-RU')}</td><td style="text-align:right;">${overheadPct.toFixed(1)}%</td></tr>
+<tr><td>${hasAuxMat ? 5 : 4}</td><td>Плановая прибыль исполнителя</td><td style="text-align:right; white-space:nowrap;">${profit.toLocaleString('ru-RU')}</td><td style="text-align:right;">${profitPct}%</td></tr>
 <tr style="font-weight:600; background:var(--gr-panel2);"><td colspan="2">Итого цена работ без НДС</td><td style="text-align:right; white-space:nowrap;">${Math.round(priceBeforeVAT).toLocaleString('ru-RU')}</td><td style="text-align:right;">—</td></tr>
-<tr><td>5</td><td>В том числе НДС (${vatRate}%, гл. 21 НК РФ)</td><td style="text-align:right; white-space:nowrap;">${Math.round(vatAmount).toLocaleString('ru-RU')}</td><td style="text-align:right;">—</td></tr>
+<tr><td>${hasAuxMat ? 6 : 5}</td><td>В том числе НДС (${vatRate}%, гл. 21 НК РФ)</td><td style="text-align:right; white-space:nowrap;">${Math.round(vatAmount).toLocaleString('ru-RU')}</td><td style="text-align:right;">—</td></tr>
 </tbody>
 <tfoot><tr style="font-weight:700; background:rgba(51,230,255,0.1);"><td colspan="2">ИТОГО СМЕТНАЯ СТОИМОСТЬ С НДС (цена Договора)</td><td style="text-align:right; white-space:nowrap;">${Math.round(contrTotal).toLocaleString('ru-RU')} ₽</td><td></td></tr></tfoot>
 </table>
@@ -4998,10 +5162,18 @@ const plStart0 = new Date(state.startDate);
 const plFmt = (d) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
 const plDateOf = (dayOffset) => { const d = new Date(plStart0); d.setDate(d.getDate() + Math.round(dayOffset)); return d; };
 
-// --- Блок 1. Комплектующие проекта (выбранный уровень цены) + 10% фурнитура/крепёж/расходники ---
+// --- Блок 1. Комплектующие проекта (выбранный уровень цены) + вспомогательные материалы/крепёж ---
+// ИСПРАВЛЕНО (2026-08-08): раньше здесь была ОТДЕЛЬНАЯ, независимо изобретённая надбавка 10%,
+// применявшаяся КО ВСЕМ 20 типам проекта без разбора — включая чисто документарные проекты
+// портфеля III (например, «Типовой комплект ОРД» для policy), где физического монтажа, а значит и
+// кабель-канала/крепежа, не бывает в принципе. Теперь используется ЕДИНАЯ функция auxMaterialsSum()
+// (см. ~строка 2632) — та же, что участвует в Договоре/смете занятия 4 и в сайдбаре — чтобы у фирмы
+// (бюджет, занятие 5) и у заказчика (Договор, занятие 4) была ОДНА и та же цифра крепежа, а не две
+// разные, случайно разошедшиеся (7% против прежних 10%), и чтобы портфели II/III не получали
+// фантомную надбавку на монтаж, которого у них нет.
 const plCompBase = componentsTotal(state.projectType, state.priceLevel);
-const plHardwarePct = 10;
-const plHardwareSum = plCompBase * (plHardwarePct / 100);
+const plHardwareSum = auxMaterialsSum(state.projectType, state.priceLevel);
+const plHardwarePct = AUX_MATERIALS_PCT * 100;
 const plCompTotal = plCompBase + plHardwareSum;
 
 // --- Блоки 2-5. Разбивка задач по 4 укрупнённым этапам проекта ---
@@ -5096,10 +5268,10 @@ html += `
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:4px 0 8px;">1. Комплектующие проекта (уровень цены «${(state.priceLevel || '').toUpperCase()}»)</div>
 <div class="summary-grid">
 <div class="summary-card"><label>Комплектующие по прайсу вендоров</label><span>${plCompBase.toLocaleString('ru-RU')} ₽</span></div>
-<div class="summary-card"><label>Фурнитура, крепёж, расходники (+${plHardwarePct}%)</label><span>${plHardwareSum.toLocaleString('ru-RU')} ₽</span></div>
+<div class="summary-card"><label>Вспомогательные материалы и крепёж${plHardwareSum > 0 ? ' (+' + plHardwarePct.toFixed(0) + '%)' : ''}</label><span>${plHardwareSum.toLocaleString('ru-RU')} ₽</span></div>
 <div class="summary-card" style="background:rgba(51,230,255,0.07); border-color:var(--gr-cyan);"><label>Итого комплектующие</label><span>${plCompTotal.toLocaleString('ru-RU')} ₽</span></div>
 </div>
-<p style="margin:8px 0 20px; color:var(--gr-dim); font-size:12.5px;">База — сумма по спецификации проекта (занятие 2) на выбранном уровне цены; 10% сверху закладывается на мелкую фурнитуру, крепёж, кабельные стяжки и прочие расходники, не входящие в спецификацию поштучно.</p>
+<p style="margin:8px 0 20px; color:var(--gr-dim); font-size:12.5px;">База — сумма по спецификации проекта (занятие 2) на выбранном уровне цены. ${plHardwareSum > 0 ? `Для проектов портфеля I (физический монтаж ИТСО) сверху закладывается ${plHardwarePct.toFixed(0)}% на кабель-канал, дюбели, хомуты, коннекторы, изоленту и прочие расходники, не входящие в спецификацию поштучно — педагогическая оценка, единой нормы для этой статьи не существует.` : 'Для этого типа проекта (программно-аппаратное решение или организационно-административная услуга) физического монтажа нет, поэтому надбавка на крепёж и расходные материалы не применяется.'}</p>
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:4px 0 8px;">2-5. Задачи проекта по этапам — сроки и стоимость</div>
 <table>
@@ -5245,7 +5417,7 @@ ${wlNeedsBackup.length ? wlNeedsBackup.map(r => `
 <td style="text-align:center; white-space:nowrap;">${r.status}</td>
 <td><select onchange="assignUnderstudy(${r.e.id}, this.value)">
 <option value="">— не назначен —</option>
-${state.employees.filter(x => x.studentMark && x.id !== r.e.id).map(x => `<option value="${x.id}" ${r.e.understudyId === x.id ? 'selected' : ''}>${x.name} (${x.position})</option>`).join('')}
+${sortByNameRu(state.employees.filter(x => x.studentMark && x.id !== r.e.id)).map(x => `<option value="${x.id}" ${r.e.understudyId === x.id ? 'selected' : ''}>${x.name} (${x.position})</option>`).join('')}
 </select></td>
 </tr>`).join('') : `<tr><td colspan="6" style="text-align:center; color:var(--gr-dim);">Перегруженных сотрудников и сотрудников с нагрузкой более 100 ч на проекте нет — дублёр не требуется.</td></tr>`}
 </tbody>
@@ -5399,7 +5571,7 @@ ${state.auditDoLocked ? `
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px;">Балльная оценка риска методом Дельфи — ДО внедрения проекта</div>
 <p style="margin-bottom:8px; color:var(--gr-muted2); font-size:13px;">Мини-метод Дельфи (учебное упрощение классического варианта на 7+ анонимных экспертов): 2-3 «эксперта» — студент и один-два одногруппника — независимо друг от друга оценивают каждую отмеченную выше угрозу по вероятности (P, 1-5) и тяжести ущерба (I, 1-5). Если разброс оценок по P или I составляет 2 балла и более, строка помечается «раунд 2»: эксперты обсуждают расхождение и вписывают согласованное значение вручную (поле «Согл. P/I»), иначе согласованная оценка берётся как среднее автоматически. Балл риска угрозы = P × I; считается только по угрозам, отмеченным актуальными в аудите ДО.</p>
 ${delphiExpertsBlock}
-<div style="overflow-x:auto;">
+<div class="table-scroll">
 <table style="min-width:920px;">
 ${delphiTableHead}
 <tbody>${delphiScored.length ? delphiScored.map((t, i) => delphiRow(t, 'Do', i + 1)).join('') : '<tr><td colspan="15" style="text-align:center; color:var(--gr-dim);">Нет угроз, отмеченных как актуальные в аудите ДО</td></tr>'}</tbody>
@@ -5447,7 +5619,7 @@ ${state.auditAfterLocked && state.auditAfterResult ? `
 ${state.auditAfterLocked ? `
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px;">Балльная оценка риска методом Дельфи — ПОСЛЕ внедрения проекта</div>
 <p style="margin-bottom:8px; color:var(--gr-muted2); font-size:13px;">Тот же список угроз, что и в оценке ДО (скопирован по методике листа «Оценка_риска_Дельфи») — эксперты переоценивают в первую очередь вероятность (P), так как именно она обычно снижается после внедрения контрмер; тяжесть ущерба (I), как правило, меняется меньше. Снижение суммарного балла риска — техническое и экономическое обоснование выбранного проекта ИБ.</p>
-<div style="overflow-x:auto;">
+<div class="table-scroll">
 <table style="min-width:920px;">
 ${delphiTableHead}
 <tbody>${delphiScored.length ? delphiScored.map((t, i) => delphiRow(t, 'After', i + 1)).join('') : '<tr><td colspan="15" style="text-align:center; color:var(--gr-dim);">Нет угроз, отмеченных как актуальные в аудите ДО</td></tr>'}</tbody>
@@ -5520,7 +5692,7 @@ ${efficiencyDonut(em.firmROI, (em.firmROI !== null && em.firmROI >= 0) ? 'var(--
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:26px 0 10px;">2. Эффективность проекта ИБ для заказчика — методика TDI/BRI</div>
 <p style="margin-bottom:8px; color:var(--gr-muted2); font-size:13px;">Авторская русская методика (не американский ROSI): полная формула TDI = (2C+2I+2A)·P·V·(1+S) в практикуме не раскладывается по компонентам C/I/A/V/S — вместо этого используется уже согласованная на занятии 8 методом Дельфи пара оценок (P, I) по каждой угрозе: <strong>TDI_norm = 100·P·I/25</strong> воспроизводит мультипликативную природу полной формулы упрощённо. Классы угроз по TDI_norm: <strong>Opportunist</strong> [20;70], <strong>Apex Predator</strong> &gt;70 (катастрофический класс).</p>
-<div style="overflow-x:auto;">
+<div class="table-scroll">
 <table style="min-width:760px;">
 <thead><tr><th>№</th><th>Код</th><th>Угроза</th><th>Балл риска ДО</th><th>Балл риска ПОСЛЕ</th><th>TDI_norm (ДО)</th><th>Класс угрозы</th></tr></thead>
 <tbody>${em.perThreat.length ? emThreatRows : '<tr><td colspan="7" style="text-align:center; color:var(--gr-dim);">Нет угроз, отмеченных актуальными в аудите ДО (занятие 8)</td></tr>'}</tbody>
@@ -5570,7 +5742,7 @@ ${efficiencyDonut(pctGLRatio, (em.contrTotal <= em.xGL_max) ? 'var(--gr-green)' 
 
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:30px 0 10px;">4. Сводная таблица ошибок по этапам практикума</div>
 <p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Ниже — единый свод всех ошибок, допущенных за весь практикум: подбор штатного расписания и ресурсов фирмы (Занятие 1/5) и квалификация исполнителей по Этапам I–V диаграммы Ганта (Занятия 2–6). Денежная величина «сверх затрат» разнесена по статьям ОРЕХ (операционные — оклады, аренда, расходники) и САРЕХ (капитальные — единовременные вложения в основные средства): для штата и ресурсов это стоимость ошибочно включённых позиций, для этапов Ганта — переплата за неверно подобранного исполнителя относительно верного по этой же задаче.</p>
-<div style="overflow-x:auto;">
+<div class="table-scroll">
 <table style="min-width:640px;">
 <thead><tr><th>Этап / раздел практикума</th><th>Ошибок</th><th>Проверено</th><th>ОРЕХ: перерасход / сверх затраты</th><th>САРЕХ: перерасход / сверх затраты</th></tr></thead>
 <tbody>
@@ -6340,10 +6512,17 @@ function openDirectionPopup(stageKey, proceedFn) {
 }
 
 let testKeySeq = [];
-// Тайные клавиатурные коды мгновенного зачёта теста «на хорошо» — по умолчанию один общий код
-// на все этапы (0-0-0-2-5), но для отдельных этапов преподаватель может задать свой персональный
-// код (ДОБАВЛЕНО 2026-07-26: для страницы 8 (Занятие 8) — код 0-0-0-4-0).
-const SECRET_TEST_CODES = { default: '00025', 8: '00040' };
+// Тайный клавиатурный код мгновенного зачёта теста «на хорошо» — ОДИН единый код на ВСЕ этапы
+// (Старт 0 + все 9 занятий), включая Занятие 8.
+// ИСТОРИЯ: изначально (2026-07-25) был один код 0-0-0-2-5 на все этапы; 2026-07-26 для Занятия 8
+// завели отдельный персональный код 0-0-0-4-0 (SECRET_TEST_CODES = { default: '00025', 8: '00040' }
+// ); 2026-08-08 добавлен универсальный 0-0-0-7-5 поверх обоих (по просьбе преподавателя — «устаю
+// часто отвечать, сам ошибаюсь»); тогда же, по его прямому решению, оба старых кода (00025/00040)
+// и объект SECRET_TEST_CODES УДАЛЕНЫ — остаётся только один код, не нужно помнить какой из трёх
+// актуален для текущей страницы. НЕ ПУТАТЬ с 0-0-0-8-0 (см. ниже, ~строка 3889/5478) — это ДРУГАЯ,
+// сознательно НЕ удалённая функция (показ эталонных ответов в таблице Дельфи-аудита занятия 8), а
+// не альтернативный код зачёта теста — преподаватель явно решил её оставить (AskUserQuestion).
+const UNIVERSAL_TEST_CODE = '00075';
 function openCompetencyTest(stageKey, direction, proceedFn) {
     const entries = (COMPETENCY_TESTS[stageKey] && COMPETENCY_TESTS[stageKey][direction]) || [];
     testKeySeq = [];
@@ -6389,14 +6568,12 @@ function openCompetencyTest(stageKey, direction, proceedFn) {
 
     // Скрытый клавиатурный тестовый шорткат (по просьбе преподавателя, аналог кнопки «Пропустить
     // воронку (для теста)»): последовательность цифровых клавиш, набранная на клавиатуре пока открыт
-    // тест, мгновенно засчитывает его на оценку «хорошо» без реальных ответов. Код по умолчанию —
-    // 0-0-0-2-5; для отдельных этапов (см. SECRET_TEST_CODES выше) действует персональный код —
-    // например, для Занятия 8 (страница 8 практикума) это 0-0-0-4-0 (добавлено 2026-07-26).
-    const secretCode = SECRET_TEST_CODES[stageKey] || SECRET_TEST_CODES.default;
+    // тест, мгновенно засчитывает его на оценку «хорошо» без реальных ответов. ОДИН код на все этапы
+    // без исключений — 0-0-0-7-5 (см. историю смены кодов в комментарии у UNIVERSAL_TEST_CODE выше).
     function keyHandler(e) {
         testKeySeq.push(e.key);
-        if (testKeySeq.length > secretCode.length) testKeySeq.shift();
-        if (testKeySeq.join('') === secretCode) {
+        if (testKeySeq.length > UNIVERSAL_TEST_CODE.length) testKeySeq.shift();
+        if (testKeySeq.join('') === UNIVERSAL_TEST_CODE) {
             document.removeEventListener('keydown', keyHandler);
             gradeCompetencyTest(stageKey, direction, entries, proceedFn, 4);
         }
@@ -6737,6 +6914,51 @@ function unlockTaskVerification() {
 state.taskVerifLocked = false;
 recalcAll();
 }
+// ДОБАВЛЕНО (2026-08-08): ловушка «Кол-во (шт.)» комплектующих (занятие 2, таблица «Комплектующие
+// проекта») — по просьбе преподавателя: сумма комплектующих раньше считалась «из расчёта 1 штука»,
+// что нереалистично (объект может требовать десятки датчиков). Студент, зная масштаб СВОЕГО объекта
+// (виден в шапке проекта), должен сам оценить количество мелкоштучных позиций (unitKind:'mass') —
+// центральные узлы (hub) и ПО/комплекты (fixed) количества не запрашивают, см. COMPONENT_KIND_RU.
+// Третий, отдельный от «Примечания»/«Вид проверочных работ» счётчик — тот же паттерн lock/unlock.
+function updateComponentQty(name, value) {
+if (state.componentQtyLocked) return;
+const n = parseInt(value, 10);
+state.componentQty[name] = (Number.isFinite(n) && n > 0) ? n : '';
+recalcAll();
+}
+// Позиция считается «верной», если введённое число попадает в реалистичный коридор ±40% от
+// педагогического эталона (componentQtyReference) — не точное совпадение (у реального объекта нет
+// одного «правильного» числа датчиков, есть порядок величины), но и не любое число подряд.
+function componentQtyTolerant(studentVal, refVal) {
+if (typeof studentVal !== 'number' || studentVal <= 0) return false;
+const lo = refVal * 0.6, hi = refVal * 1.4;
+return studentVal >= lo && studentVal <= hi;
+}
+function lockComponentQty() {
+if (state.componentQtyLocked) return;
+const items = (COMPONENTS_20[state.projectType] || []).filter(it => it.unitKind === 'mass');
+let correct = 0, wrong = 0, total = 0;
+items.forEach(it => {
+total++;
+const studentVal = state.componentQty[it.name];
+const refVal = componentQtyReference(it, state.objectScale);
+if (componentQtyTolerant(studentVal, refVal)) correct++; else wrong++;
+});
+const accuracy = total > 0 ? (correct / total) * 100 : 0;
+state.componentQtyResult = { correct, wrong, total, accuracy };
+if (accuracy >= 40) {
+state.componentQtyLocked = true;
+state.componentQtyReportNote = 'верность оценки количества мелкоштучных комплектующих (допуск ±40% от ориентира по СП 5.13130.2009 и масштабу объекта): ' + accuracy.toFixed(1) + '% (' + correct + ' из ' + total + ') — порог 40% достигнут.';
+} else {
+state.componentQtyLocked = false;
+state.componentQtyReportNote = null;
+}
+recalcAll();
+}
+function unlockComponentQty() {
+state.componentQtyLocked = false;
+recalcAll();
+}
 // --- реестр ресурсов фирмы (этап 0) ---
 function addRes() {
 state.firmResources.push({ id: Date.now(), category: RES_CATS[0], name: 'Новая потребность', unit: 'шт', qty: 1, price: 0, period: 'разово', costType: 'CAPEX' });
@@ -7032,7 +7254,10 @@ const deltaEAL = EAL0 - EALb;
 // --- Бюджет фирмы, потраченный на проект (CAPEX/OPEX доля — те же формулы, что в занятии 5) ---
 const efSched = computeSchedule();
 const efCompBase = componentsTotal(state.projectType, state.priceLevel);
-const efCompTotal = efCompBase * 1.10;
+// ИСПРАВЛЕНО (2026-08-08): та же самая правка, что и в занятии 5 (см. plHardwareSum) — раньше
+// здесь был третий, независимо захардкоженный `* 1.10`, применявшийся ко всем 20 типам без разбора.
+// Теперь — auxMaterialsSum() (7%, только портфель I), единая с занятиями 4/5/сайдбаром.
+const efCompTotal = efCompBase + auxMaterialsSum(state.projectType, state.priceLevel);
 let efStagesTotal = 0;
 [['I'], ['II'], ['III', 'IV'], ['V']].forEach(function(stages) {
 state.tasks.filter(function(t) { return stages.indexOf(t.stage) !== -1; }).forEach(function(t) { efStagesTotal += calcTaskCost(t).total; });
@@ -7190,6 +7415,7 @@ if (qc) pushErr(qc.I);
 if (qc) { pushErr(qc.II); pushErr(qc.III); pushErr(qc.IV); pushErr(qc.V); }
 pushAcc(state.taskNotesResult);
 pushAcc(state.taskVerifResult);
+pushAcc(state.componentQtyResult);
 } else if (stageIdx === 8) {
 pushErr(state.auditDoResult);
 pushErr(state.auditAfterResult);
