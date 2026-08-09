@@ -387,11 +387,19 @@ font-size: 14px; margin-top: 4px; background: var(--gr-panel2); color: var(--gr-
 .header h1 { font-size: 22px; font-weight: 600; }
 .header p { color: var(--gr-muted2); opacity: 1; font-size: 14px; margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
 .lesson-tabs { display: flex; gap: 6px; padding: 16px 30px; background: var(--gr-panel); border-bottom: 1px solid var(--gr-line); flex-wrap: wrap; }
-.lesson-tab { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--gr-line2); background: var(--gr-panel2); cursor: pointer; font-size: 12.5px; font-weight: 500; transition: border-color 0.2s, background-color 0.2s, color 0.2s; color: var(--gr-muted2); font-family: 'IBM Plex Mono', monospace; }
+.lesson-tab { display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 18px; border-radius: 8px; border: 1px solid var(--gr-line2); background: var(--gr-panel2); cursor: pointer; font-size: 12.5px; font-weight: 500; transition: border-color 0.2s, background-color 0.2s, color 0.2s; color: var(--gr-muted2); font-family: 'IBM Plex Mono', monospace; }
 .lesson-tab:hover:not(.locked) { border-color: var(--gr-cyan); color: var(--gr-text); }
 .lesson-tab.active { background: rgba(51,230,255,0.12); color: var(--gr-cyan); border-color: var(--gr-cyan); box-shadow: 0 0 12px rgba(51,230,255,0.25); }
 .lesson-tab.locked { opacity: 0.4; cursor: not-allowed; }
 .lesson-tab.done { border-color: var(--gr-green); background: rgba(57,255,157,0.08); color: var(--gr-green); }
+/* ДОБАВЛЕНО (2026-08-09): мини-столбик прогресса занятия справа от названия вкладки —
+   см. updateLessonTabBars(). Палитра красный/жёлтый/зелёный переиспользована из .vessel-cell-fill. */
+.lesson-tab-bar { flex: 0 0 auto; width: 7px; height: 20px; border-radius: 3px; background: rgba(255,255,255,0.10); overflow: hidden; display: flex; align-items: flex-end; }
+.lesson-tab-bar-fill { width: 100%; border-radius: 3px; transition: height 0.3s ease, background 0.3s ease; }
+.lesson-tab-bar-fill.vc-empty { height: 0; }
+.lesson-tab-bar-fill.vc-red { background: #f87171; }
+.lesson-tab-bar-fill.vc-yellow { background: #F2CB7A; }
+.lesson-tab-bar-fill.vc-green { background: #4ade80; }
 .content { display: flex; padding: 24px 30px; gap: 30px; min-height: 600px; background: var(--gr-bg); color: var(--gr-text); }
 .main-panel { flex: 2; min-width: 0; }
 .side-panel { flex: 0 0 240px; max-width: 240px; background: var(--gr-panel); border-radius: 12px; padding: 12px; border: 1px solid var(--gr-line); font-size: 12px; }
@@ -1397,15 +1405,15 @@ input:disabled, select:disabled { opacity: 0.45; }
 <button class="btn btn-primary" id="finalReportBtn" style="white-space:nowrap;" onclick="finalReportButtonClick()">📥 Итоговый отчёт (DOCX)</button>
 </div>
 <div class="lesson-tabs" id="lessonTabs">
-<div class="lesson-tab active" data-lesson="1">1. Ресурсы фирмы</div>
-<div class="lesson-tab locked" data-lesson="2">2. Вид работ по проекту и комплектующие</div>
-<div class="lesson-tab locked" data-lesson="3">3. Календарь работ по Ганту</div>
-<div class="lesson-tab locked" data-lesson="4">4. Смета и Договор на проект</div>
-<div class="lesson-tab locked" data-lesson="5">5. Бюджет проекта для фирмы</div>
-<div class="lesson-tab locked" data-lesson="6">6. Дефицит</div>
-<div class="lesson-tab locked" data-lesson="7">7. Оптимизация</div>
-<div class="lesson-tab locked" data-lesson="8">8. Аудит ИБ заказчика</div>
-<div class="lesson-tab locked" data-lesson="9">9. Эффективность бюджета и проекта ИБ</div>
+<div class="lesson-tab active" data-lesson="1"><span class="lesson-tab-txt">1. Ресурсы фирмы</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="2"><span class="lesson-tab-txt">2. Вид работ по проекту и комплектующие</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="3"><span class="lesson-tab-txt">3. Календарь работ по Ганту</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="4"><span class="lesson-tab-txt">4. Смета и Договор на проект</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="5"><span class="lesson-tab-txt">5. Бюджет проекта для фирмы</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="6"><span class="lesson-tab-txt">6. Дефицит</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="7"><span class="lesson-tab-txt">7. Оптимизация</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="8"><span class="lesson-tab-txt">8. Аудит ИБ заказчика</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
+<div class="lesson-tab locked" data-lesson="9"><span class="lesson-tab-txt">9. Эффективность бюджета и проекта ИБ</span><span class="lesson-tab-bar" title="Прогресс не начат"><span class="lesson-tab-bar-fill vc-empty"></span></span></div>
 </div>
 <div class="content" id="mainContent">
 <div class="main-panel">
@@ -5584,7 +5592,9 @@ ${teacherHintMode ? '<p style="margin-bottom:10px; color:var(--gr-gold); font-si
 <p style="margin-bottom:10px; color:#F2CB7A; font-size:13px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:8px 12px;">⚠️ В список подмешаны угрозы из <strong>ДРУГИХ</strong> типов проектов и портфелей — они здесь не актуальны. Отметьте только те угрозы, которые ваш проект (по рулетке) реально устраняет или снижает, затем нажмите «Завершить (зафиксировать) аудит ДО».</p>
 <div class="toolbar">
 <button class="btn btn-secondary btn-sm" onclick="selectAllAuditDo()" ${state.auditDoLocked ? 'disabled' : ''}>☑️ Выбрать все</button>
+${(state.auditDoLocked && !state.auditAfterLocked) ? `<button class="btn btn-outline btn-sm" onclick="unlockAuditDo()">🔓 Изменить отметки ДО (снять фиксацию)</button>` : ''}
 </div>
+${state.auditDoLocked ? `<p style="margin:0 0 10px; color:#F2CB7A; font-size:12.5px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:6px 10px;">🔒 Аудит ДО зафиксирован — поэтому чекбоксы неактивны. ${state.auditAfterLocked ? 'Чтобы изменить отметки, сначала снимите фиксацию аудита ПОСЛЕ (ниже), затем — «Изменить отметки ДО».' : 'Чтобы изменить отметки, нажмите «🔓 Изменить отметки ДО (снять фиксацию)».'}</p>` : ''}
 <div style="max-height:340px; overflow-y:auto;">
 <table>
 <thead><tr><th>Актуальна?</th><th>Код</th><th>Категория</th><th>Наименование угрозы</th></tr></thead>
@@ -5633,7 +5643,9 @@ ${!state.auditDoLocked ? `
 <p style="margin-bottom:10px; color:var(--gr-muted2); font-size:13px;">Проект завершён. Отметьте угрозы, которые <strong>по-прежнему актуальны</strong> для заказчика — то есть НЕ были закрыты выполненным проектом (остаточный риск, требующий отдельного решения в будущем).</p>
 <div class="toolbar">
 <button class="btn btn-secondary btn-sm" onclick="selectAllAuditAfter()" ${state.auditAfterLocked ? 'disabled' : ''}>☑️ Выбрать все</button>
+${state.auditAfterLocked ? `<button class="btn btn-outline btn-sm" onclick="unlockAuditAfter()">🔓 Изменить отметки ПОСЛЕ (снять фиксацию)</button>` : ''}
 </div>
+${state.auditAfterLocked ? `<p style="margin:0 0 10px; color:#F2CB7A; font-size:12.5px; background:rgba(232,178,74,0.08); border:1px solid rgba(232,178,74,0.35); border-radius:8px; padding:6px 10px;">🔒 Аудит ПОСЛЕ зафиксирован — поэтому чекбоксы неактивны. Чтобы изменить отметки, нажмите «🔓 Изменить отметки ПОСЛЕ (снять фиксацию)».</p>` : ''}
 <div style="max-height:340px; overflow-y:auto;">
 <table>
 <thead><tr><th>Осталась актуальной?</th><th>Код</th><th>Категория</th><th>Наименование угрозы</th></tr></thead>
@@ -6565,6 +6577,122 @@ let testKeySeq = [];
 // сознательно НЕ удалённая функция (показ эталонных ответов в таблице Дельфи-аудита занятия 8), а
 // не альтернативный код зачёта теста — преподаватель явно решил её оставить (AskUserQuestion).
 const UNIVERSAL_TEST_CODE = '00075';
+
+// ============================================================
+// 4.1а РАСПРОСТРАНЕНИЕ 0-0-0-7-5 НА СТРАНИЦЫ ЗАНЯТИЙ (ДОБАВЛЕНО 08.08.2026, по прямой просьбе
+// преподавателя: «распространи этот код на все страницы занятий и тесты между занятиями, кроме
+// 0-0-0-8-0 для аудита метода дельфи»). До этой правки код работал ТОЛЬКО внутри окна теста
+// (openCompetencyTest) — сами ловушки на страницах занятий (Старт 0 — персонал; Занятие 1 —
+// ресурсы; Занятие 2 — исполнители этапов II-V + «Примечание» + «Вид проверочных работ» +
+// «Кол-во»; Занятие 8 — Дельфи-аудит ДО/ПОСЛЕ) по-прежнему требовалось заполнять вручную — именно
+// они, а не только тесты, определяют средний балл «сосуда прогресса» (vesselOverallAverage,
+// см. submitProjectReport()), и именно из-за них преподаватель не мог набрать ≥80% и пройти
+// дальше занятия 9 «Эффективность» к печати отчёта и рулетке следующего портфеля.
+// ОТДЕЛЬНЫЙ буфер клавиш (pageKeySeq) от testKeySeq — оба слушателя используют один и тот же
+// UNIVERSAL_TEST_CODE, но глобальный слушатель ниже явно НЕ срабатывает, пока открыто окно
+// теста/гейта/выбора направления (там код обрабатывает keyHandler внутри openCompetencyTest,
+// см. выше) — иначе одна и та же последовательность клавиш засчиталась бы дважды. 0-0-0-8-0
+// (teacherHintMode, показ эталонов в таблице Дельфи-аудита занятия 8) НЕ затронут — сравнение
+// идёт только с UNIVERSAL_TEST_CODE, второй код проверяется совершенно отдельным, не тронутым
+// здесь кодом (см. ~строка 3889/5478).
+function assignCorrectEmployeeForStage(stage) {
+    // Задачи БЕЗ требования к квалификации (в т.ч. externalRole — Комиссия/Электролаборатория/
+    // Заказчик, см. isExternalRole()/inferRequiredPosition()) намеренно не трогаем — назначать
+    // туда сотрудника фирмы нечего и не нужно, поле там и так «н/п».
+    state.tasks.filter(function(t) { return t.stage === stage; }).forEach(function(t) {
+        const req = inferRequiredPosition(t);
+        if (!req || !req.length) return;
+        // taskQualStatus() требует не только совпадения ДОЛЖНОСТИ, но и e.correct===true (ловушка
+        // «самозванца» — Приложение с той же должностью, но не тем ФИО) — подбираем именно такого.
+        const emp = state.employees.find(function(e) { return req.indexOf(e.position) !== -1 && e.correct; });
+        if (emp) t.employeeId = emp.id;
+    });
+}
+function applyUniversalShortcutOnStart0() {
+    // Только пока Старт 0 ещё редактируем (первый вход в проект) — в read-only режиме просмотра
+    // через «Личный кабинет» (см. renderStaffSelectPanel()) фиксировать уже нечего и не нужно.
+    if (state.tasks && state.tasks.length > 0) return;
+    if (!state.staffLocked) {
+        state.employees.forEach(function(e) { e.studentMark = !!e.correct; });
+        lockStaff();
+    }
+}
+function applyUniversalShortcutOnLesson1() {
+    if (!state.resourcesLocked) {
+        state.firmResources.forEach(function(r) { if (r.auto !== 'fot') r.studentMark = !!r.correct; });
+        lockResources();
+    }
+}
+function applyUniversalShortcutOnLesson2() {
+    // Перечень задач этапов II-V (монтаж/внедрение/наладка/испытания/приёмка) НЕ появляется в
+    // state.tasks автоматически при переходе на занятие 2 — студент должен сам нажать «📂 Загрузить
+    // полный перечень задач...» (loadTemplate(state.projectType), см. кнопку в case 2). Без этого
+    // шага state.tasks по-прежнему содержит ТОЛЬКО подготовительный этап I — ни у одной ловушки
+    // этого занятия просто нет данных для проверки (total=0 везде). Если студент ещё не нажимал
+    // кнопку — жмём за него здесь, ровно тем же вызовом, что и кнопка.
+    if (!state.tasks.some(function(t) { return t.stage !== 'I'; })) {
+        loadTemplate(state.projectType);
+    }
+    ['II', 'III', 'IV', 'V'].forEach(function(stage) {
+        assignCorrectEmployeeForStage(stage);
+        checkTaskQualification(stage);
+    });
+    if (!state.taskNotesLocked) {
+        state.tasks.forEach(function(t) { const doc = taskOutputDoc(t); if (doc) t.studentNote = doc; });
+        lockTaskNotes();
+    }
+    if (!state.taskVerifLocked) {
+        state.tasks.forEach(function(t) { const check = verificationMethod(t); if (check) t.studentVerification = check; });
+        lockTaskVerification();
+    }
+    // «Кол-во» существует только у портфеля I (unitKind:'mass') — у портфелей II/III items пуст,
+    // вызывать lockComponentQty() всё равно было бы безопасно (total=0), но НЕ БЕЗВРЕДНО для
+    // среднего балла: vesselTrapComponents() добавляет componentQtyResult.accuracy=0 в «сосуд»
+    // ЛЮБОЙ РАЗ, когда state.componentQtyResult не null — то есть искусственно утопило бы средний
+    // балл занятия 2 у типов без этой ловушки. Поэтому вызываем ТОЛЬКО когда items реально есть.
+    if (!state.componentQtyLocked) {
+        const items = (COMPONENTS_20[state.projectType] || []).filter(function(it) { return it.unitKind === 'mass'; });
+        if (items.length) {
+            items.forEach(function(it) { state.componentQty[it.name] = componentQtyReference(it, state.objectScale); });
+            lockComponentQty();
+        }
+    }
+}
+function applyUniversalShortcutOnLesson8() {
+    if (state.auditThreats && state.auditThreats.length) {
+        if (!state.auditDoLocked) {
+            state.auditThreats.forEach(function(t) { t.studentMarkDo = !!t.correctDo; });
+            lockAuditDo();
+        }
+        if (state.auditDoLocked && !state.auditAfterLocked) {
+            state.auditThreats.forEach(function(t) { t.studentMarkAfter = !!t.correctAfter; });
+            lockAuditAfter();
+        }
+    }
+}
+function applyUniversalShortcutOnPage() {
+    const startEl = document.getElementById('startScreen');
+    const mainEl = document.getElementById('mainApp');
+    const startVisible = startEl && startEl.classList.contains('visible');
+    const mainVisible = mainEl && mainEl.classList.contains('visible');
+    if (startVisible) { applyUniversalShortcutOnStart0(); return; }
+    if (!mainVisible) return;
+    if (currentLesson === 1) applyUniversalShortcutOnLesson1();
+    else if (currentLesson === 2) applyUniversalShortcutOnLesson2();
+    else if (currentLesson === 8) applyUniversalShortcutOnLesson8();
+    // Занятия 3, 4, 5, 6, 7, 9 — своих ловушек с эталоном нет (см. vesselTrapComponents()), автозаполнять
+    // там нечего; код на этих страницах просто ничего не делает (тихо, без alert — не мешает набору).
+}
+let pageKeySeq = [];
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('testOverlay') || document.getElementById('gateOverlay') || document.getElementById('dirOverlay')) return;
+    pageKeySeq.push(e.key);
+    if (pageKeySeq.length > UNIVERSAL_TEST_CODE.length) pageKeySeq.shift();
+    if (pageKeySeq.join('') === UNIVERSAL_TEST_CODE) {
+        pageKeySeq = [];
+        applyUniversalShortcutOnPage();
+    }
+});
 function openCompetencyTest(stageKey, direction, proceedFn) {
     const entries = (COMPETENCY_TESTS[stageKey] && COMPETENCY_TESTS[stageKey][direction]) || [];
     testKeySeq = [];
@@ -7185,6 +7313,27 @@ state.auditAfterReportNote = 'при аудите ИБ ПОСЛЕ исполне
 }
 recalcAll();
 }
+// ДОБАВЛЕНО (2026-08-08, по жалобе преподавателя со скриншотом «не могу выбрать угрозы ДО» —
+// причина в том, что фиксация аудита ДО/ПОСЛЕ была единственной парой ловушек во всём практикуме
+// БЕЗ функции разблокировки, тот же класс бага, что уже чинился для Ресурсов/Персонала 26.07.2026
+// и Примечания/Вида проверочных работ 06.08.2026, только пропущен здесь при реализации): после
+// фиксации (кнопкой «Завершить» ИЛИ через 0-0-0-7-5 на этой странице) все чекбоксы становились
+// disabled навсегда, снять фиксацию было нечем.
+// unlockAuditDo() НАМЕРЕННО не работает, если аудит ПОСЛЕ уже зафиксирован — блок «ПОСЛЕ» целиком
+// рендерится только пока state.auditDoLocked===true (см. renderCurrentLesson case 8), и снятие
+// фиксации ДО при уже зафиксированном ПОСЛЕ увело бы студента в противоречивое состояние (данные
+// ПОСЛЕ существуют в state, но UI для их просмотра/правки исчез бы, пока ДО снова не зафиксировано).
+// Сначала нужно снять фиксацию ПОСЛЕ (unlockAuditAfter), потом уже ДО — та же логика, что уже
+// применена в lockAuditAfter()/toggleAuditMarkAfter() (оба требуют auditDoLocked && !auditAfterLocked).
+function unlockAuditDo() {
+if (state.auditAfterLocked) return;
+state.auditDoLocked = false;
+recalcAll();
+}
+function unlockAuditAfter() {
+state.auditAfterLocked = false;
+recalcAll();
+}
 
 // ============================================================
 // МИНИ-МЕТОД ДЕЛЬФИ — оценка риска (P x I) 2-3 «экспертами», ДО и ПОСЛЕ проекта.
@@ -7498,6 +7647,12 @@ const levels = computeVesselLevels();
 return levels.reduce((s, l) => s + l.pct, 0) / levels.length;
 }
 function renderVesselWidget() {
+// ДОБАВЛЕНО (2026-08-09, по просьбе преподавателя «совместить кнопки занятий со шкалой
+// завершённости»): обновляем мини-полоски прогресса на самих вкладках ВСЕГДА, независимо от
+// видимости самого сосуда ниже — это не мешает (вкладки и так скрыты, если #mainApp не visible),
+// но гарантирует, что к моменту показа вкладки уже несут актуальный процент, а не ждут второго
+// recalcAll().
+updateLessonTabBars();
 const box = document.getElementById('vesselWidget');
 const row = document.getElementById('vesselRow');
 if (!box || !row) return;
@@ -7550,6 +7705,28 @@ weakBox.innerHTML = '⚠️ Требуют внимания: ' + parts.join('; '
 function LESSON_TITLES_WITH_START0(idx) {
 if (idx === 0) return 'Старт 0 — Ресурсы и персонал фирмы';
 return 'Занятие ' + idx + ' — ' + (LESSON_TITLES[idx] || '');
+}
+// ДОБАВЛЕНО (2026-08-09, по прямой просьбе преподавателя — «совместить кнопки с названиями
+// занятий с динамической шкалой завершённости»): у каждой вкладки #lessonTabs (data-lesson 1-9,
+// у Старта 0 своей вкладки нет — это отдельный экран) есть мини-полоска .lesson-tab-bar,
+// заполняемая по вертикали на pct% в цвет vesselLevelInfo(idx).cls — тот же источник данных и та
+// же красная/жёлтая/зелёная палитра, что уже использует горизонтальный «сосуд прогресса» выше,
+// без дублирования логики подсчёта. Не блокирует и не заменяет саму разблокировку вкладки
+// (.locked снимается только через goNextGated()→nextLesson(), как и раньше) — это ЧИСТО
+// индикатор, физически он просто CSS-высота внутри уже существующей кнопки.
+function updateLessonTabBars() {
+for (let i = 1; i <= 9; i++) {
+const tab = document.querySelector('.lesson-tab[data-lesson="' + i + '"]');
+if (!tab) continue;
+const fill = tab.querySelector('.lesson-tab-bar-fill');
+const barTrack = tab.querySelector('.lesson-tab-bar');
+if (!fill || !barTrack) continue;
+const info = vesselLevelInfo(i);
+const fillH = info.cls === 'empty' ? 0 : Math.max(6, info.pct);
+fill.style.height = fillH + '%';
+fill.className = 'lesson-tab-bar-fill vc-' + info.cls;
+barTrack.title = 'Занятие ' + i + ' — ' + (info.cls === 'empty' ? 'ещё не начато' : info.pct.toFixed(0) + '%');
+}
 }
 
 // ============================================================
