@@ -1,0 +1,2756 @@
+{
+  "__practicumSave": true,
+  "version": 2,
+  "savedAt": "2026-08-09T12:36:08.246425Z",
+  "studentIdentity": "игорь 2 (ниб-241)",
+  "currentProjectIndex": 0,
+  "currentLesson": 9,
+  "assignedProjects": [
+    {
+      "code": "hybrid",
+      "name": "Комплексный проект ИТСО «под ключ»",
+      "chest": "itso",
+      "chestTitle": "Портфель проектов I — ИТСО (инженерно-технические средства охраны)",
+      "object": {
+        "name": "Автосалон «АвтоМир»",
+        "addr": "г. Ставрополь, Шпаковское шоссе, 3",
+        "scale": "medium"
+      }
+    },
+    null,
+    null
+  ],
+  "projectStatuses": [
+    "in_progress",
+    "pending_spin",
+    "pending_spin"
+  ],
+  "projectRuns": [
+    true,
+    false,
+    false
+  ],
+  "chestFocusFilter": [
+    null,
+    null,
+    null
+  ],
+  "chestFocusPicked": [
+    -1,
+    -1,
+    -1
+  ],
+  "clientData": {
+    "firmName": "ООО «Безопасные системы»",
+    "name": "Петров Сергей Александрович",
+    "phone": "+7 916 555-12-34",
+    "address": "г. Ставрополь, Шпаковское шоссе, 3",
+    "details": "Объект: Автосалон «АвтоМир». Характеристики и особые требования уточняются на визите инженера-проектировщика.",
+    "visitDate": "2026-07-10 10:00"
+  },
+  "state": {
+    "projectType": "hybrid",
+    "priceLevel": "middle",
+    "startDate": "2026-07-01",
+    "firmResources": [
+      {
+        "id": 1,
+        "correct": true,
+        "studentMark": true,
+        "category": "Основные средства",
+        "name": "Ноутбук инженера",
+        "unit": "шт",
+        "qty": 2,
+        "price": 65000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 2,
+        "correct": true,
+        "studentMark": true,
+        "category": "Основные средства",
+        "name": "МФУ (печать чертежей и смет)",
+        "unit": "шт",
+        "qty": 1,
+        "price": 25000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 3,
+        "correct": true,
+        "studentMark": true,
+        "category": "Основные средства",
+        "name": "Грузовой автомобиль монтажников (ГАЗель Next, фургон)",
+        "unit": "шт",
+        "qty": 1,
+        "price": 2000000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 4,
+        "correct": true,
+        "studentMark": true,
+        "category": "Основные средства",
+        "name": "Подписка AutoCAD LT",
+        "unit": "лиц",
+        "qty": 1,
+        "price": 3500,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 5,
+        "correct": true,
+        "studentMark": true,
+        "category": "Основные средства",
+        "name": "Лицензия сметного ПО",
+        "unit": "лиц",
+        "qty": 1,
+        "price": 2200,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 6,
+        "correct": true,
+        "studentMark": true,
+        "category": "Аренда офиса",
+        "name": "Офис 40 м² (700 ₽/м² в мес)",
+        "unit": "м²",
+        "qty": 40,
+        "price": 700,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 7,
+        "correct": true,
+        "studentMark": true,
+        "category": "Содержание офиса",
+        "name": "Уборка помещения",
+        "unit": "усл",
+        "qty": 1,
+        "price": 4000,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 8,
+        "correct": true,
+        "studentMark": true,
+        "category": "Содержание офиса",
+        "name": "Оплата ЖКХ (свет, вода, тепло)",
+        "unit": "усл",
+        "qty": 1,
+        "price": 6000,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 9,
+        "correct": true,
+        "studentMark": true,
+        "category": "Хостинг и связь",
+        "name": "Интернет-доступ",
+        "unit": "усл",
+        "qty": 1,
+        "price": 1500,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 10,
+        "correct": true,
+        "studentMark": true,
+        "category": "Хостинг и связь",
+        "name": "IP-телефония",
+        "unit": "усл",
+        "qty": 1,
+        "price": 900,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 11,
+        "correct": true,
+        "studentMark": true,
+        "category": "Хостинг и связь",
+        "name": "Хостинг сайта и CRM",
+        "unit": "усл",
+        "qty": 1,
+        "price": 1200,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 12,
+        "correct": true,
+        "studentMark": true,
+        "category": "Трудовые ресурсы (ГПХ)",
+        "name": "Электрик по договору ГПХ (доп. задачи)",
+        "unit": "дог",
+        "qty": 1,
+        "price": 15000,
+        "period": "разово",
+        "costType": "OPEX"
+      },
+      {
+        "id": 13,
+        "correct": true,
+        "studentMark": true,
+        "category": "Грузоперевозки",
+        "name": "Доставка комплектующих и аппаратов (Газель)",
+        "unit": "рейс",
+        "qty": 2,
+        "price": 3500,
+        "period": "разово",
+        "costType": "OPEX"
+      },
+      {
+        "id": 14,
+        "correct": true,
+        "studentMark": true,
+        "category": "Грузоперевозки",
+        "name": "Доставка кабеля и датчиков",
+        "unit": "рейс",
+        "qty": 1,
+        "price": 3500,
+        "period": "разово",
+        "costType": "OPEX"
+      },
+      {
+        "id": 15,
+        "correct": true,
+        "studentMark": true,
+        "category": "Командировочные расходы",
+        "name": "Суточные при выезде инженера на объект (командировочные, ст. 168 ТК РФ)",
+        "unit": "день",
+        "qty": 1,
+        "price": 500,
+        "period": "разово",
+        "costType": "OPEX"
+      },
+      {
+        "id": 16,
+        "category": "Трудовые ресурсы (ГПХ)",
+        "name": "Постоянный штат — оклады (авторасчёт со вкладки 2)",
+        "unit": "чел",
+        "qty": 10,
+        "price": 0,
+        "period": "мес",
+        "costType": "OPEX",
+        "auto": "fot",
+        "correct": true,
+        "studentMark": null
+      },
+      {
+        "id": 17,
+        "correct": false,
+        "studentMark": false,
+        "category": "Хостинг и связь",
+        "name": "Лицензия ФСБ на СКЗИ (обслуживание)",
+        "unit": "лиц",
+        "qty": 1,
+        "price": 45000,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 18,
+        "correct": false,
+        "studentMark": false,
+        "category": "Хостинг и связь",
+        "name": "Подписка SIEM/SOC-мониторинг (внешний провайдер)",
+        "unit": "лиц",
+        "qty": 1,
+        "price": 38000,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 19,
+        "correct": false,
+        "studentMark": false,
+        "category": "Трудовые ресурсы (ГПХ)",
+        "name": "Услуги внешнего аудитора ИБ (категорирование КИИ, 187-ФЗ)",
+        "unit": "усл",
+        "qty": 1,
+        "price": 60000,
+        "period": "разово",
+        "costType": "OPEX"
+      },
+      {
+        "id": 20,
+        "correct": false,
+        "studentMark": false,
+        "category": "Хостинг и связь",
+        "name": "Абонемент справочно-правовой системы для паспорта безопасности (ПП №1006)",
+        "unit": "лиц",
+        "qty": 1,
+        "price": 5500,
+        "period": "мес",
+        "costType": "OPEX"
+      },
+      {
+        "id": 21,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Автомобиль директора (представительский класс)",
+        "unit": "шт",
+        "qty": 1,
+        "price": 3500000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 22,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Кофемашина для офиса",
+        "unit": "шт",
+        "qty": 1,
+        "price": 45000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 23,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Массажный стол с вибро-массажёрами",
+        "unit": "шт",
+        "qty": 1,
+        "price": 60000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 24,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Кулер водонагревательный",
+        "unit": "шт",
+        "qty": 1,
+        "price": 15000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 25,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Офисный супер МФЦ",
+        "unit": "шт",
+        "qty": 1,
+        "price": 350000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 26,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Мебель мягкая для офиса фирмы",
+        "unit": "компл",
+        "qty": 1,
+        "price": 180000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 27,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Мебель для АРМ сотрудников",
+        "unit": "компл",
+        "qty": 1,
+        "price": 120000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 28,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Компьютеры АРМ (3 штуки)",
+        "unit": "шт",
+        "qty": 3,
+        "price": 70000,
+        "period": "разово",
+        "costType": "CAPEX"
+      },
+      {
+        "id": 29,
+        "correct": false,
+        "studentMark": false,
+        "category": "Основные средства",
+        "name": "Плоттер-принтер формата А0",
+        "unit": "шт",
+        "qty": 1,
+        "price": 280000,
+        "period": "разово",
+        "costType": "CAPEX"
+      }
+    ],
+    "employees": [
+      {
+        "id": 1,
+        "correct": true,
+        "studentMark": true,
+        "name": "Эскизов В.И.",
+        "position": "Главный инженер",
+        "qualification": "высшее, стаж 10 лет",
+        "eduLevel": "Магистр",
+        "ratePerHour": 830,
+        "loadFactor": 0.5
+      },
+      {
+        "id": 2,
+        "correct": false,
+        "studentMark": false,
+        "name": "Разумовский К.В.",
+        "position": "ИБ-аналитик/аудитор",
+        "qualification": "высшее, CISA (роль портфеля III — не нужна на монтаже ИТСО)",
+        "eduLevel": "Магистр",
+        "ratePerHour": 1300,
+        "loadFactor": 0.4
+      },
+      {
+        "id": 3,
+        "correct": true,
+        "studentMark": true,
+        "name": "Монтажников С.А.",
+        "position": "Монтажник",
+        "qualification": "среднее, допуск III",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 550,
+        "loadFactor": 0.8
+      },
+      {
+        "id": 4,
+        "correct": false,
+        "studentMark": false,
+        "name": "Романов Д.А.",
+        "position": "Инженер-интегратор ПО/ИБ",
+        "qualification": "высшее, сертификации вендора (роль портфеля II)",
+        "eduLevel": "Специалист",
+        "ratePerHour": 1100,
+        "loadFactor": 0.4
+      },
+      {
+        "id": 5,
+        "correct": true,
+        "studentMark": true,
+        "name": "Наладчиков Ф.И.",
+        "position": "Наладчик",
+        "qualification": "высшее, обучение ПО",
+        "eduLevel": "Специалист",
+        "ratePerHour": 700,
+        "loadFactor": 0.7
+      },
+      {
+        "id": 6,
+        "correct": false,
+        "studentMark": false,
+        "name": "Учителева М.И.",
+        "position": "Специалист по обучению",
+        "qualification": "высшее (роль портфеля III — security awareness)",
+        "eduLevel": "Специалист",
+        "ratePerHour": 700,
+        "loadFactor": 0.3
+      },
+      {
+        "id": 7,
+        "correct": true,
+        "studentMark": true,
+        "name": "Бригадиров Н.П.",
+        "position": "Ведущий монтажник",
+        "qualification": "среднее спец., допуск IV, опыт 7 лет, руководство бригадой",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 750,
+        "loadFactor": 0.8
+      },
+      {
+        "id": 8,
+        "correct": false,
+        "studentMark": false,
+        "name": "Психологиня В.А.",
+        "position": "Психолог фирмы",
+        "qualification": "высшее психологическое (роль не относится к проекту ИБ ни в одном портфеле)",
+        "eduLevel": "Специалист",
+        "ratePerHour": 600,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 9,
+        "correct": true,
+        "studentMark": true,
+        "name": "Прорабов Д.С.",
+        "position": "Главный монтажник",
+        "qualification": "высшее техническое, допуск V, опыт 12 лет, ведение сложных интегрированных объектов",
+        "eduLevel": "Специалист",
+        "ratePerHour": 950,
+        "loadFactor": 0.7,
+        "understudyId": 3
+      },
+      {
+        "id": 10,
+        "correct": false,
+        "studentMark": false,
+        "name": "Массажников О.Ю.",
+        "position": "Массажист директора",
+        "qualification": "сертификат массажиста (роль не относится к проекту ИБ ни в одном портфеле)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 500,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 11,
+        "correct": true,
+        "studentMark": true,
+        "name": "Настройщиков А.Л.",
+        "position": "Ведущий наладчик",
+        "qualification": "высшее, сертификации нескольких вендоров, опыт 6 лет",
+        "eduLevel": "Специалист",
+        "ratePerHour": 900,
+        "loadFactor": 0.7
+      },
+      {
+        "id": 12,
+        "correct": false,
+        "studentMark": false,
+        "name": "Заправщиков В.С.",
+        "position": "Заправщик картриджа принтера фирмы",
+        "qualification": "без спец. образования (роль не относится к проекту ИБ ни в одном портфеле)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 300,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 13,
+        "correct": true,
+        "studentMark": true,
+        "name": "Пусконаладов В.Г.",
+        "position": "Главный наладчик",
+        "qualification": "высшее, сертификации по всем профильным системам, опыт 10 лет, приёмка сложных объектов",
+        "eduLevel": "Магистр",
+        "ratePerHour": 1150,
+        "loadFactor": 0.6,
+        "understudyId": 5
+      },
+      {
+        "id": 14,
+        "correct": false,
+        "studentMark": false,
+        "name": "Кофеманов С.Н.",
+        "position": "Кофе-приготовитель фирмы",
+        "qualification": "без спец. образования (роль не относится к проекту ИБ ни в одном портфеле)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 350,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 15,
+        "correct": true,
+        "studentMark": true,
+        "name": "Электриков Р.М.",
+        "position": "Электромонтажник",
+        "qualification": "среднее проф., допуск по электробезопасности гр. III",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 650,
+        "loadFactor": 0.7
+      },
+      {
+        "id": 16,
+        "correct": false,
+        "studentMark": false,
+        "name": "Охранников С.Б.",
+        "position": "Охранник фирмы",
+        "qualification": "лицензия ЧОП (роль не относится к проекту ИБ ни в одном портфеле — офис не требует штатной охраны для выполнения проекта)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 450,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 17,
+        "correct": true,
+        "studentMark": true,
+        "name": "Кодеров И.В.",
+        "position": "Программист",
+        "qualification": "среднее-высшее, настройка и установка ПО управления системами ИТСО",
+        "eduLevel": "Специалист",
+        "ratePerHour": 700,
+        "loadFactor": 0.4
+      },
+      {
+        "id": 18,
+        "correct": false,
+        "studentMark": false,
+        "name": "Помощников И.В.",
+        "position": "Помощник директора",
+        "qualification": "среднее спец., делопроизводство (роль не относится к проекту ИБ ни в одном портфеле — административные функции уже покрыты директором и главным бухгалтером)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 500,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 19,
+        "correct": true,
+        "studentMark": true,
+        "name": "Чертёжников А.С.",
+        "position": "Инженер-чертёжник (AutoCAD)",
+        "qualification": "высшее, AutoCAD",
+        "eduLevel": "Специалист",
+        "ratePerHour": 750,
+        "loadFactor": 0.5
+      },
+      {
+        "id": 20,
+        "correct": false,
+        "studentMark": false,
+        "name": "Водителев П.С.",
+        "position": "Водитель фирмы",
+        "qualification": "права кат. B, C (роль не относится к проекту ИБ ни в одном портфеле — разъезды по проекту уже учтены в трудозатратах монтажников/инженеров)",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 400,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 21,
+        "correct": true,
+        "studentMark": true,
+        "name": "Сметова О.П.",
+        "position": "Бухгалтер-сметчик",
+        "qualification": "высшее, сметное дело",
+        "eduLevel": "Специалист",
+        "ratePerHour": 600,
+        "loadFactor": 0.5
+      },
+      {
+        "id": 22,
+        "correct": false,
+        "studentMark": false,
+        "name": "Сроков П.Н.",
+        "position": "Менеджер проекта",
+        "qualification": "должность присвоена по стажу без аттестации по управлению проектами — фактически ведёт только документооборот и переписку с Заказчиком",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 600,
+        "loadFactor": 0.4
+      },
+      {
+        "id": 23,
+        "correct": true,
+        "studentMark": true,
+        "name": "Директоров С.П.",
+        "position": "Генеральный директор",
+        "qualification": "высшее, MBA",
+        "eduLevel": "Магистр",
+        "ratePerHour": 1200,
+        "loadFactor": 0.2
+      },
+      {
+        "id": 24,
+        "correct": true,
+        "studentMark": true,
+        "name": "Главнова О.И.",
+        "position": "Главный бухгалтер",
+        "qualification": "высшее, аттестат профбухгалтера",
+        "eduLevel": "Специалист",
+        "ratePerHour": 750,
+        "loadFactor": 0.3
+      },
+      {
+        "id": 25,
+        "correct": true,
+        "studentMark": true,
+        "name": "Помощников В.Е.",
+        "position": "Специалист-монтажник",
+        "qualification": "среднее спец., допуск II",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 500,
+        "loadFactor": 0.8
+      },
+      {
+        "id": 26,
+        "correct": true,
+        "studentMark": true,
+        "name": "Складников Е.П.",
+        "position": "Зав.складом",
+        "qualification": "среднее спец., 1С:Склад",
+        "eduLevel": "Среднее образ-е",
+        "ratePerHour": 450,
+        "loadFactor": 0.3
+      },
+      {
+        "id": 27,
+        "correct": true,
+        "studentMark": true,
+        "name": "Менеджеров С.А.",
+        "position": "Менеджер проекта",
+        "qualification": "высшее, сертификация PMI/PMP, опыт управления проектами ИБ от 5 лет",
+        "eduLevel": "Магистр",
+        "ratePerHour": 950,
+        "loadFactor": 0.6
+      }
+    ],
+    "auditThreats": [
+      {
+        "id": 1,
+        "correctDo": true,
+        "correctAfter": false,
+        "studentMarkDo": true,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-06",
+        "cat": "Физические угрозы имуществу",
+        "name": "Повреждение или хищение кабельных линий связи/электропитания",
+        "profile": "Комплексный проект ИТСО «под ключ»",
+        "dP1Do": 5,
+        "dI1Do": 4,
+        "dP2Do": 4,
+        "dI2Do": 4,
+        "dP3Do": 5,
+        "dI3Do": 5,
+        "dP1After": 2,
+        "dI1After": 2,
+        "dP2After": 1,
+        "dI2After": 1,
+        "dP3After": 2,
+        "dI3After": 1
+      },
+      {
+        "id": 2,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ТЕР-05",
+        "cat": "Угрозы жизни, здоровью, террористические",
+        "name": "Массовые беспорядки на прилегающей территории",
+        "profile": "СКУД (система контроля и управления доступом)"
+      },
+      {
+        "id": 3,
+        "correctDo": true,
+        "correctAfter": false,
+        "studentMarkDo": true,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-02",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Затопление (протечка, прорыв водопровода/канализации)",
+        "profile": "Комплексный проект ИТСО «под ключ»",
+        "dP1Do": 4,
+        "dI1Do": 4,
+        "dP2Do": 5,
+        "dI2Do": 3,
+        "dP3Do": 4,
+        "dI3Do": 4,
+        "dP1After": 4,
+        "dI1After": 2,
+        "dP2After": 3,
+        "dI2After": 3,
+        "dP3After": 3,
+        "dI3After": 2
+      },
+      {
+        "id": 4,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-05",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Утечка бытового/технического газа",
+        "profile": "Пожарная сигнализация"
+      },
+      {
+        "id": 5,
+        "correctDo": true,
+        "correctAfter": false,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-04",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Стихийное бедствие (ураган, паводок, землетрясение)",
+        "profile": "Комплексный проект ИТСО «под ключ»"
+      },
+      {
+        "id": 6,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-04",
+        "cat": "Физические угрозы имуществу",
+        "name": "Вандализм, умышленная порча имущества",
+        "profile": "СОТ (система видеонаблюдения)"
+      },
+      {
+        "id": 7,
+        "correctDo": true,
+        "correctAfter": false,
+        "studentMarkDo": true,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-06",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Обрушение конструктивных элементов здания",
+        "profile": "Комплексный проект ИТСО «под ключ»",
+        "dP1Do": 4,
+        "dI1Do": 3,
+        "dP2Do": 4,
+        "dI2Do": 3,
+        "dP3Do": 4,
+        "dI3Do": 4,
+        "dP1After": 3,
+        "dI1After": 1,
+        "dP2After": 3,
+        "dI2After": 2,
+        "dP3After": 3,
+        "dI3After": 1
+      },
+      {
+        "id": 8,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-АСУ-03",
+        "cat": "Промышленные системы / КИИ",
+        "name": "Физическое повреждение производственного оборудования как способ атаки",
+        "profile": "СОТ (система видеонаблюдения)"
+      },
+      {
+        "id": 9,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-01",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Пожар вследствие неисправности проводки/оборудования",
+        "profile": "Пожарная сигнализация"
+      },
+      {
+        "id": 10,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПЕРС-05",
+        "cat": "Персонал (инсайдер, человеческий фактор)",
+        "name": "Несоблюдение пропускного и внутриобъектового режима",
+        "profile": "СКУД (система контроля и управления доступом)"
+      },
+      {
+        "id": 11,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-03",
+        "cat": "Физические угрозы имуществу",
+        "name": "Проникновение через технологические/слабозащищённые проёмы",
+        "profile": "Охранная сигнализация"
+      },
+      {
+        "id": 12,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-01",
+        "cat": "Физические угрозы имуществу",
+        "name": "Кража (хищение) имущества, оборудования, носителей",
+        "profile": "СКУД (система контроля и управления доступом)"
+      },
+      {
+        "id": 13,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-05",
+        "cat": "Физические угрозы имуществу",
+        "name": "Умышленный поджог",
+        "profile": "Пожарная сигнализация"
+      },
+      {
+        "id": 14,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ФИЗ-02",
+        "cat": "Физические угрозы имуществу",
+        "name": "Взлом дверей, окон, ограждения периметра",
+        "profile": "Охранная сигнализация"
+      },
+      {
+        "id": 15,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ИБ-06",
+        "cat": "Информационно-технические (кибер)",
+        "name": "Несанкционированный доступ через компрометацию пароля",
+        "profile": "IAM / MFA / SSO"
+      },
+      {
+        "id": 16,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ОРГ-06",
+        "cat": "Организационно-административные",
+        "name": "Отсутствие обучения персонала действиям при угрозах",
+        "profile": "Программа обучения персонала (security awareness)"
+      },
+      {
+        "id": 17,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ИБ-25",
+        "cat": "Информационно-технические (кибер)",
+        "name": "Слепые зоны логирования",
+        "profile": "SIEM / SOC-мониторинг"
+      },
+      {
+        "id": 18,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ИБ-14",
+        "cat": "Информационно-технические (кибер)",
+        "name": "Компрометация облачной инфраструктуры",
+        "profile": "Аудит / пентест информационной безопасности"
+      },
+      {
+        "id": 19,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ИБ-10",
+        "cat": "Информационно-технические (кибер)",
+        "name": "Компрометация контейнеризированных сред",
+        "profile": "Аудит / пентест информационной безопасности"
+      },
+      {
+        "id": 20,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПРИР-03",
+        "cat": "Природные и техногенные угрозы",
+        "name": "Аварийное отключение электроснабжения",
+        "profile": "Резервное копирование и восстановление (Backup/DR)"
+      },
+      {
+        "id": 21,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ПЕРС-03",
+        "cat": "Персонал (инсайдер, человеческий фактор)",
+        "name": "Социальная инженерия",
+        "profile": "Программа обучения персонала (security awareness)"
+      },
+      {
+        "id": 22,
+        "correctDo": false,
+        "correctAfter": true,
+        "studentMarkDo": null,
+        "studentMarkAfter": true,
+        "code": "У-ИБ-12",
+        "cat": "Информационно-технические (кибер)",
+        "name": "Мошенничество с использованием deepfake",
+        "profile": "Программа обучения персонала (security awareness)"
+      }
+    ],
+    "resourcesLocked": true,
+    "staffLocked": true,
+    "resResult": {
+      "correct": 28,
+      "wrong": 0,
+      "total": 28,
+      "errorPercent": 0
+    },
+    "staffResult": {
+      "correct": 27,
+      "wrong": 0,
+      "total": 27,
+      "errorPercent": 0
+    },
+    "auditDoLocked": true,
+    "auditDoResult": {
+      "correct": 21,
+      "wrong": 1,
+      "total": 22,
+      "errorPercent": 4.545454545454546
+    },
+    "auditDoReportNote": "при аудите ИБ ДО исполнения проекта допущено 1 ошибочных отметок из 22 (4.5%).",
+    "auditAfterLocked": true,
+    "auditAfterResult": {
+      "correct": 18,
+      "wrong": 4,
+      "total": 22,
+      "errorPercent": 18.181818181818183
+    },
+    "auditAfterReportNote": "при аудите ИБ ПОСЛЕ исполнения проекта допущено 4 ошибочных отметок из 22 (18.2%).",
+    "delphiExperts": {
+      "e1": "петров",
+      "e2": "иванов",
+      "e3": "сидоров"
+    },
+    "taskNotesLocked": true,
+    "taskNotesResult": {
+      "correct": 49,
+      "wrong": 0,
+      "total": 49,
+      "accuracy": 100
+    },
+    "taskNotesReportNote": "верность определения выходных документов по задачам проекта: 100.0% (49 из 49) — порог 40% достигнут.",
+    "taskVerifLocked": true,
+    "taskVerifResult": {
+      "correct": 18,
+      "wrong": 0,
+      "total": 18,
+      "accuracy": 100
+    },
+    "taskVerifReportNote": "верность определения видов проверочных работ по задачам проекта: 100.0% (18 из 18) — порог 40% достигнут.",
+    "objectScale": "medium",
+    "componentQty": {
+      "Контроллер СКУД (1-2 двери)": 16,
+      "Считыватель карт / биометрический": 16,
+      "Электромагнитный / электромеханический замок": 16,
+      "IP-камера": 16,
+      "Дымовой / тепловой извещатель": 16,
+      "Оповещатель (сирена + световое табло)": 16,
+      "ИК-извещатель (объёмный)": 16,
+      "Магнитоконтакт": 16,
+      "Радиоволновый извещатель (Барьер-100/300/500)": 16,
+      "Активный ИК-барьер": 16
+    },
+    "componentQtyLocked": true,
+    "componentQtyResult": {
+      "correct": 10,
+      "wrong": 0,
+      "total": 10,
+      "accuracy": 100
+    },
+    "componentQtyReportNote": "верность оценки количества мелкоштучных комплектующих (допуск ±40% от ориентира по СП 5.13130.2009 и масштабу объекта): 100.0% (10 из 10) — порог 40% достигнут.",
+    "tasks": [
+      {
+        "id": 1001,
+        "name": "Выезд и обследование объекта",
+        "duration": 0.5,
+        "stage": "I",
+        "employeeId": 1,
+        "predecessors": [],
+        "materials": [],
+        "progress": 100,
+        "fixed": true,
+        "studentNote": "Акт первичного обследования объекта (с фотофиксацией)"
+      },
+      {
+        "id": 1002,
+        "name": "Исследование объекта (гибридной (интегрированной) системы ИТСО) и подготовка эскиза проекта",
+        "duration": 0.5,
+        "stage": "I",
+        "employeeId": 1,
+        "requiredPosition": [
+          "Главный инженер"
+        ],
+        "predecessors": [
+          1001
+        ],
+        "materials": [],
+        "progress": 100,
+        "fixed": true,
+        "studentNote": "Эскизный проект — эскиз системы"
+      },
+      {
+        "id": 1005,
+        "name": "Разработка ТЗ на систему гибридной (интегрированной) системы ИТСО",
+        "duration": 2,
+        "stage": "I",
+        "employeeId": 1,
+        "requiredPosition": [
+          "Главный инженер"
+        ],
+        "predecessors": [
+          1002
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          1
+        ],
+        "studentNote": "Техническое задание (ТЗ) на систему"
+      },
+      {
+        "id": 1003,
+        "name": "Чертёж проекта в AutoCAD",
+        "duration": 3,
+        "stage": "I",
+        "employeeId": 19,
+        "requiredPosition": [
+          "Инженер-чертёжник (AutoCAD)"
+        ],
+        "predecessors": [
+          1005
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          19
+        ],
+        "studentNote": "Рабочий чертёж проекта в AutoCAD"
+      },
+      {
+        "id": 1004,
+        "name": "Локальная смета по чертежу",
+        "duration": 2,
+        "stage": "I",
+        "employeeId": 21,
+        "requiredPosition": [
+          "Бухгалтер-сметчик"
+        ],
+        "predecessors": [
+          1003
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          21
+        ],
+        "studentNote": "Локальная смета по чертежу"
+      },
+      {
+        "id": 1006,
+        "name": "Аудит комплектующих по проекту с запасами на складе фирмы",
+        "duration": 1,
+        "stage": "I",
+        "employeeId": 26,
+        "requiredPosition": [
+          "Зав.складом"
+        ],
+        "predecessors": [
+          1002
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          26
+        ],
+        "studentNote": "Ведомость остатков комплектующих на складе (дефицитная ведомость)"
+      },
+      {
+        "id": 1007,
+        "name": "Дозаказ недостающих комплектующих у вендоров",
+        "duration": 3,
+        "stage": "I",
+        "employeeId": 26,
+        "requiredPosition": [
+          "Зав.складом"
+        ],
+        "predecessors": [
+          1006,
+          1004
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          26,
+          24
+        ],
+        "studentNote": "Заявка/счёт поставщику на дозаказ комплектующих"
+      },
+      {
+        "id": 1008,
+        "name": "Уточнение цены проекта по трём уровням (бюджетная/средняя/дорогая) — созвон с заказчиком",
+        "duration": 0,
+        "stage": "I",
+        "employeeId": 24,
+        "employeeIds": [
+          24,
+          23
+        ],
+        "requiredPosition": [
+          "Генеральный директор",
+          "Главный бухгалтер"
+        ],
+        "predecessors": [
+          1004
+        ],
+        "materials": [],
+        "progress": 100,
+        "studentNote": "Коммерческое предложение с тремя уровнями цены (бюджетная/средняя/дорогая)"
+      },
+      {
+        "id": 1009,
+        "name": "Согласование и подписание чертежей и проекта монтажа с заказчиком",
+        "duration": 2,
+        "stage": "I",
+        "employeeId": 23,
+        "requiredPosition": [
+          "Генеральный директор"
+        ],
+        "predecessors": [
+          1003,
+          1008
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          23
+        ],
+        "studentNote": "Протокол согласования проекта, подписанный заказчиком"
+      },
+      {
+        "id": 1010,
+        "name": "Согласование % аванса на оплату с заказчиком",
+        "duration": 0,
+        "stage": "I",
+        "employeeId": 23,
+        "requiredPosition": [
+          "Генеральный директор"
+        ],
+        "predecessors": [
+          1008
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          23,
+          1
+        ],
+        "studentNote": "Протокол согласования размера аванса"
+      },
+      {
+        "id": 1011,
+        "name": "Выставление счёта заказчику (оценка срока)",
+        "duration": 0,
+        "stage": "I",
+        "employeeId": 24,
+        "requiredPosition": [
+          "Главный бухгалтер"
+        ],
+        "predecessors": [
+          1009,
+          1010,
+          1007
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          24
+        ],
+        "studentNote": "Счёт на оплату (авансовый счёт) заказчику"
+      },
+      {
+        "id": 1012,
+        "name": "Ожидание поступления аванса по Договору (оценка срока, без трудозатрат)",
+        "duration": 2,
+        "stage": "I",
+        "employeeId": null,
+        "predecessors": [
+          1011
+        ],
+        "materials": [],
+        "progress": 100,
+        "studentNote": "Платёжное поручение / выписка банка о поступлении аванса"
+      },
+      {
+        "id": 1013,
+        "name": "Инициализация проекта «гибридной (интегрированной) системы ИТСО» после зачисления авансовой суммы по Договору",
+        "duration": 0,
+        "stage": "I",
+        "employeeId": 23,
+        "requiredPosition": [
+          "Генеральный директор"
+        ],
+        "predecessors": [
+          1012
+        ],
+        "materials": [],
+        "progress": 100,
+        "employeeIds": [
+          23
+        ],
+        "studentNote": "Приказ/протокол об инициализации проекта (старт монтажных/внедренческих работ)"
+      },
+      {
+        "id": 2001,
+        "name": "Разметка трасс кабельных линий и мест крепления оборудования",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 7,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          1013
+        ],
+        "materials": [],
+        "refDoc": "Фото разметки",
+        "code": "II.1",
+        "studentNote": "Фото разметки",
+        "employeeIds": [
+          7
+        ]
+      },
+      {
+        "id": 2002,
+        "name": "Штробление стен, перекрытий, сверление отверстий",
+        "duration": 3,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2001
+        ],
+        "materials": [],
+        "refDoc": "Акт скрытых работ",
+        "code": "II.2",
+        "studentNote": "Акт скрытых работ"
+      },
+      {
+        "id": 2003,
+        "name": "Установка кабель-каналов, коробов, труб",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2002
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.3",
+        "studentNote": "Фото, акт"
+      },
+      {
+        "id": 2004,
+        "name": "Прокладка кабелей и проводов (силовых, сигнальных, интерфейсных)",
+        "duration": 3,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2003
+        ],
+        "materials": [],
+        "refDoc": "Акт прокладки",
+        "code": "II.4",
+        "studentNote": "Акт прокладки"
+      },
+      {
+        "id": 2005,
+        "name": "Монтаж несущих конструкций, кронштейнов, стоек",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2004
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.5",
+        "studentNote": "Фото, акт"
+      },
+      {
+        "id": 2006,
+        "name": "Установка контроллеров / приёмно-контрольных приборов, блоков питания",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2005
+        ],
+        "materials": [],
+        "refDoc": "Акт установки",
+        "code": "II.6",
+        "studentNote": "Акт установки",
+        "studentVerification": "Проверка надёжности крепления и полярности подключения блока питания к контроллеру"
+      },
+      {
+        "id": 2007,
+        "name": "Установка считывателей / карт-ридеров, замков, кнопок выхода, турникетов",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2006
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.7",
+        "studentNote": "Фото, акт"
+      },
+      {
+        "id": 2008,
+        "name": "Установка видеокамер и кронштейнов видеонаблюдения",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2007
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.8",
+        "studentNote": "Фото, акт"
+      },
+      {
+        "id": 2009,
+        "name": "Установка извещателей (дымовых, тепловых, ИК, магнитоконтактных)",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2008
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.9",
+        "studentNote": "Фото, акт"
+      },
+      {
+        "id": 2010,
+        "name": "Подключение силового питания (автоматы, УЗО, ИБП)",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 15,
+        "requiredPosition": [
+          "Электромонтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2009
+        ],
+        "materials": [],
+        "refDoc": "Схема подключения",
+        "code": "II.10",
+        "studentNote": "Схема подключения",
+        "studentVerification": "Проверка правильности срабатывания автоматов защиты и УЗО нажатием кнопки «Test»"
+      },
+      {
+        "id": 2011,
+        "name": "Подключение кабелей к оборудованию (обжим, коммутация)",
+        "duration": 2,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2010
+        ],
+        "materials": [],
+        "refDoc": "Фото, акт",
+        "code": "II.11",
+        "studentNote": "Фото, акт",
+        "studentVerification": "Проверка качества обжима разъёмов (RJ-45/BNC/клеммы) — жила не выдёргивается из-под контакта"
+      },
+      {
+        "id": 2012,
+        "name": "Укладка кабельных запасов (не менее 5 м на вводе)",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2011
+        ],
+        "materials": [],
+        "refDoc": "Фото",
+        "code": "II.12",
+        "studentNote": "Фото"
+      },
+      {
+        "id": 2013,
+        "name": "Маркировка кабелей и проводов",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2012
+        ],
+        "materials": [],
+        "refDoc": "Фото маркировки",
+        "code": "II.13",
+        "studentNote": "Фото маркировки",
+        "studentVerification": "Визуальная проверка читаемости и сохранности маркировки кабелей после монтажа"
+      },
+      {
+        "id": 2014,
+        "name": "Заделка штроб, отверстий, восстановление отделки",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2013
+        ],
+        "materials": [],
+        "refDoc": "Фото",
+        "code": "II.14",
+        "studentNote": "Фото"
+      },
+      {
+        "id": 2015,
+        "name": "Уборка монтажного мусора",
+        "duration": 1,
+        "stage": "II",
+        "employeeId": 9,
+        "requiredPosition": [
+          "Главный монтажник"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2014
+        ],
+        "materials": [],
+        "refDoc": "Акт уборки",
+        "code": "II.15",
+        "studentNote": "Акт уборки"
+      },
+      {
+        "id": 2016,
+        "name": "Проверка целостности кабельных линий (прозвонка)",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2015
+        ],
+        "materials": [],
+        "refDoc": "Протокол прозвонки",
+        "code": "III.1",
+        "studentNote": "Протокол прозвонки",
+        "studentVerification": "Прозвонка кабельных линий мультиметром — целостность жилы, отсутствие короткого замыкания"
+      },
+      {
+        "id": 2017,
+        "name": "Проверка наличия и качества питания на всех точках",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2016
+        ],
+        "materials": [],
+        "refDoc": "Акт замеров",
+        "code": "III.2",
+        "studentNote": "Акт замеров",
+        "studentVerification": "Измерение напряжения питания вольтметром на каждой точке подключения оборудования"
+      },
+      {
+        "id": 2018,
+        "name": "Настройка и программирование контроллеров, приборов",
+        "duration": 2,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2017
+        ],
+        "materials": [],
+        "refDoc": "Конфигурационный файл",
+        "code": "III.3",
+        "studentNote": "Конфигурационный файл",
+        "studentVerification": "Проверка соответствия загруженной конфигурации контроллера проектным параметрам"
+      },
+      {
+        "id": 2019,
+        "name": "Установка и настройка ПО управления системой",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 17,
+        "requiredPosition": [
+          "Программист"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2018
+        ],
+        "materials": [],
+        "refDoc": "Скриншоты, лицензии",
+        "code": "III.4",
+        "studentNote": "Скриншоты, лицензии"
+      },
+      {
+        "id": 2020,
+        "name": "Регистрация пользователей / карт доступа, раздача прав",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2019
+        ],
+        "materials": [],
+        "refDoc": "База пользователей",
+        "code": "III.5",
+        "studentNote": "База пользователей"
+      },
+      {
+        "id": 2021,
+        "name": "Проверка работоспособности каждого устройства (поштучно)",
+        "duration": 2,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2020
+        ],
+        "materials": [],
+        "refDoc": "Акт проверки",
+        "code": "III.6",
+        "studentNote": "Акт проверки",
+        "studentVerification": "Функциональная поштучная проверка каждого устройства подачей тестового сигнала"
+      },
+      {
+        "id": 2022,
+        "name": "Проверка срабатывания датчиков, извещателей",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2021
+        ],
+        "materials": [],
+        "refDoc": "Акт проверки",
+        "code": "III.7",
+        "studentNote": "Акт проверки",
+        "studentVerification": "Имитация тревожного события с контролем срабатывания датчика/извещателя"
+      },
+      {
+        "id": 2023,
+        "name": "Настройка сценариев реакции системы на события",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2022
+        ],
+        "materials": [],
+        "refDoc": "Таблица сценариев",
+        "code": "III.8",
+        "studentNote": "Таблица сценариев"
+      },
+      {
+        "id": 2024,
+        "name": "Проверка интеграции с другими системами (только гибрид)",
+        "duration": 2,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2023
+        ],
+        "materials": [],
+        "refDoc": "Акт интеграции",
+        "code": "III.9",
+        "studentNote": "Акт интеграции",
+        "studentVerification": "Комплексная проверка корректности обмена сигналами между подсистемами гибрида"
+      },
+      {
+        "id": 2025,
+        "name": "Настройка резервирования и аварийного питания",
+        "duration": 1,
+        "stage": "III",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2024
+        ],
+        "materials": [],
+        "refDoc": "Акт проверки ИБП",
+        "code": "III.10",
+        "studentNote": "Акт проверки ИБП",
+        "studentVerification": "Проверка автоматического перехода на резервное питание (АКБ) при имитации пропадания сети 220В"
+      },
+      {
+        "id": 2026,
+        "name": "Проверка сопротивления изоляции кабельных линий",
+        "duration": 1,
+        "stage": "IV",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2025
+        ],
+        "materials": [],
+        "refDoc": "Протокол измерений",
+        "code": "IV.1",
+        "studentNote": "Протокол измерений",
+        "studentVerification": "Измерение сопротивления изоляции кабельных линий (мегомметром, норма ≥0,5 МОм)"
+      },
+      {
+        "id": 2027,
+        "name": "Проверка заземления и контуров защитного заземления",
+        "duration": 1,
+        "stage": "IV",
+        "employeeId": null,
+        "requiredPosition": null,
+        "externalRole": true,
+        "predecessors": [
+          2026
+        ],
+        "materials": [],
+        "refDoc": "Протокол",
+        "code": "IV.2",
+        "studentNote": "Протокол",
+        "studentVerification": "Измерение сопротивления заземляющего устройства / контура защитного заземления (норма ≤4 Ом)"
+      },
+      {
+        "id": 2028,
+        "name": "Проверка работоспособности при пониженном/повышенном напряжении",
+        "duration": 1,
+        "stage": "IV",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2027
+        ],
+        "materials": [],
+        "refDoc": "Протокол",
+        "code": "IV.3",
+        "studentNote": "Протокол",
+        "studentVerification": "Испытание работоспособности при пониженном (0,85·Uном) и повышенном (1,1·Uном) напряжении сети"
+      },
+      {
+        "id": 2029,
+        "name": "Проверка чувствительности датчиков и зон покрытия",
+        "duration": 1,
+        "stage": "IV",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2028
+        ],
+        "materials": [],
+        "refDoc": "Протокол, схема",
+        "code": "IV.4",
+        "studentNote": "Протокол, схема",
+        "studentVerification": "Проверка чувствительности датчиков и фактических зон обнаружения/покрытия"
+      },
+      {
+        "id": 2030,
+        "name": "Проверка уровня освещённости (для видеокамер)",
+        "duration": 0.5,
+        "stage": "IV",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2029
+        ],
+        "materials": [],
+        "refDoc": "Люксметр, протокол",
+        "code": "IV.5",
+        "studentNote": "Люксметр, протокол",
+        "studentVerification": "Измерение уровня освещённости люксметром в зоне обзора видеокамеры"
+      },
+      {
+        "id": 2031,
+        "name": "Проверка скорости реакции системы на тревогу",
+        "duration": 0.5,
+        "stage": "IV",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2030
+        ],
+        "materials": [],
+        "refDoc": "Протокол замеров",
+        "code": "IV.6",
+        "studentNote": "Протокол замеров",
+        "studentVerification": "Замер времени реакции системы от события до сигнала тревоги секундомером"
+      },
+      {
+        "id": 2032,
+        "name": "Контрольные и приёмо-сдаточные испытания всей системы",
+        "duration": 2,
+        "stage": "V",
+        "employeeId": null,
+        "requiredPosition": null,
+        "externalRole": true,
+        "predecessors": [
+          2031
+        ],
+        "materials": [],
+        "refDoc": "Протокол испытаний",
+        "code": "V.1",
+        "studentNote": "Протокол испытаний",
+        "studentVerification": "Комплексные приёмо-сдаточные испытания всей системы в присутствии комиссии"
+      },
+      {
+        "id": 2033,
+        "name": "Составление исполнительной документации (акты, схемы)",
+        "duration": 2,
+        "stage": "V",
+        "employeeId": 1,
+        "requiredPosition": [
+          "Главный инженер"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2032
+        ],
+        "materials": [],
+        "refDoc": "Исполнительная документация",
+        "code": "V.2",
+        "studentNote": "Исполнительная документация"
+      },
+      {
+        "id": 2034,
+        "name": "Обучение персонала Заказчика эксплуатации системы",
+        "duration": 1,
+        "stage": "V",
+        "employeeId": 13,
+        "requiredPosition": [
+          "Главный наладчик"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2033
+        ],
+        "materials": [],
+        "refDoc": "Протокол обучения",
+        "code": "V.3",
+        "studentNote": "Протокол обучения"
+      },
+      {
+        "id": 2035,
+        "name": "Передача паролей, ключей, лицензий Заказчику",
+        "duration": 1,
+        "stage": "V",
+        "employeeId": 27,
+        "requiredPosition": [
+          "Менеджер проекта"
+        ],
+        "externalRole": false,
+        "predecessors": [
+          2034
+        ],
+        "materials": [],
+        "refDoc": "Акт передачи",
+        "code": "V.4",
+        "studentNote": "Акт передачи"
+      },
+      {
+        "id": 2036,
+        "name": "Подписание акта ввода в эксплуатацию",
+        "duration": 1,
+        "stage": "V",
+        "employeeId": null,
+        "requiredPosition": null,
+        "externalRole": true,
+        "predecessors": [
+          2035
+        ],
+        "materials": [],
+        "refDoc": "Акт ввода в эксплуатацию",
+        "code": "V.5",
+        "studentNote": "Акт ввода в эксплуатацию"
+      }
+    ],
+    "drawings": [
+      {
+        "name": "План этажа",
+        "url": ""
+      }
+    ],
+    "summary": {
+      "totalLabor": 609336.0000000002,
+      "totalMaterial": 2641121.66,
+      "overheads": 3273969.8533333335,
+      "profit": 978664.127,
+      "total": 3250457.66,
+      "totalWithVAT": 9153771.801206667,
+      "componentsAndTaskMaterial": 2468338,
+      "auxMaterials": 172783.66,
+      "totalComponents": 2468338,
+      "priceBeforeVAT": 7503091.640333334,
+      "vatRate": 22,
+      "vatAmount": 1650680.1608733335
+    },
+    "budget": {
+      "payroll": 609336,
+      "taxes": 141336,
+      "rent": 3122261.52,
+      "transport": 26000,
+      "other": 125708.33333333333,
+      "totalBudget": 6524427.513333334,
+      "margin": 2629344.2878733333,
+      "components": 2641121.66,
+      "stages": 609336,
+      "accumulationPct": 35,
+      "accumulation": 920270.5007556666
+    },
+    "client": {
+      "firmName": "ООО «Безопасные системы»",
+      "name": "Петров Сергей Александрович",
+      "phone": "+7 916 555-12-34",
+      "address": "г. Ставрополь, Шпаковское шоссе, 3",
+      "details": "Объект: Автосалон «АвтоМир». Характеристики и особые требования уточняются на визите инженера-проектировщика.",
+      "visitDate": "2026-07-10 10:00"
+    },
+    "contract": {
+      "firmINN": "",
+      "firmOGRN": "",
+      "firmAddr": "",
+      "firmBank": "",
+      "firmPhone": "",
+      "custINN": "",
+      "custPassport": "",
+      "advancePct": 70,
+      "warrantyMonths": 24,
+      "accumPct": 35
+    },
+    "reflections": {},
+    "staffReportNote": "при подборе персонала фирмы допущено 0 ошибочных штатных единиц из 27 (0.0%).",
+    "resourcesReportNote": "при подборе ресурсов фирмы допущено 0 ошибочных позиций из 28 (0.0%).",
+    "sketch": {
+      "type": "hybrid",
+      "description": "6 купольных камер внутри, 2 уличные камеры, NVR в котельной, кабельные трассы по потолку 1-го этажа, ИБП на 2 часа."
+    },
+    "competencyTests": {
+      "0": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-12",
+            "question": "Какой документ устанавливает минимальные требования к числу и квалификации персонала для лицензируемой деятельности по технической защите конфиденциальной информации?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Какой допустимый порог ошибочности подбора персонала и ресурсов принят в практикуме на Старте 0?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Что из перечисленного НЕ относится к технико-экономическому обоснованию подбора персонала на Старте 0?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Профстандарт «Специалист по технической защите информации» (06.034) детализирует трудовые функции по уровням квалификации:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Перерасход по бюджету фирмы на Старте 0 возникает в первую очередь из-за:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Оклад нанятого, но избыточного для профиля проекта сотрудника входит в ФОТ (формула 1), но при этом:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Состав ресурсов фирмы (CAPEX/OPEX) на Старте 0 пересобирается:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Какой норматив действует одинаково и для подбора персонала, и для набора ресурсов фирмы на Старте 0?",
+            "correct": true
+          }
+        ],
+        "correctCount": 8,
+        "total": 8,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "1": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-12",
+            "question": "Формула (1) ФОТ = Cч × 160 × k — что означает множитель k?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "К какому типу затрат относятся аренда офиса и хостинг связи?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Учебная норма срока полезного использования (амортизации) капитальных вложений в практикуме:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Что из перечисленного — типичный признак ресурса-«ловушки» из ДРУГОГО портфеля на занятии 1?",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Почему деление ресурсов на CAPEX и OPEX важно для итоговой аналитики затрат?",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Какой порог ошибочности подбора ресурсов фирмы допустим на занятии 1 (как и на Старте 0)?",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Что произойдёт с плановой себестоимостью проекта, если в состав ресурсов ошибочно попадёт лишнее основное средство?",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Из каких трёх множителей складывается ФОТ сотрудника на проекте?",
+            "correct": true
+          }
+        ],
+        "correctCount": 8,
+        "total": 8,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "2": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-2.1",
+            "question": "Коэффициент 1,302 в формуле (2) стоимости труда по задаче учитывает:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.1",
+            "question": "«Примечание» (выходной документ задачи) на занятии 2 показывает:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.1",
+            "question": "Метод технического контроля (верификации) на занятии 2:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.1",
+            "question": "Пример пары методов контроля, которые нельзя путать между собой (по теории занятия 2):",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Полная структура задач проекта на занятии 2 строится с привязкой к:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Комплектующие проекта на занятии 2 подбираются по:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Итоговая сумма по выбранному уровню цены комплектующих связывается со сметой на:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Стоимость труда по задаче (формула 2), если исполнителей несколько, считается по:",
+            "correct": true
+          }
+        ],
+        "correctCount": 8,
+        "total": 8,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "3": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "УК-2",
+            "question": "Формула (3) ΔTпотери = Tреал − Tкп в терминах УК-2 бакалавриата иллюстрирует, что выбор оптимального решения по срокам должен учитывать:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Если у перегруженного сотрудника нет свободного коллеги той же специальности в штатном расписании (Старт 0), реалистичный срок, исходя из имеющихся ресурсов и ограничений:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Оптимальный способ решения задачи «сократить срок проекта», согласно УК-2 бакалавриата, должен выбираться:",
+            "correct": true
+          },
+          {
+            "code": "УК-2",
+            "question": "Разница между идеальным критическим путём и реалистичным сроком (занятие 3) показывает, что круг задач и способы их решения нужно определять:",
+            "correct": true
+          }
+        ],
+        "correctCount": 4,
+        "total": 4,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "4": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-12",
+            "question": "Формула (4) Ц = (Cсеб + M) × (1 + Cндс) — ставка НДС по НК РФ, ст. 164, с 1 января 2026 года составляет:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Накладные расходы в смете, согласно методике практикума, должны быть:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Основные средства (CAPEX) входят в себестоимость проекта:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "От какой величины считаются плановые накопления фирмы?",
+            "correct": true
+          }
+        ],
+        "correctCount": 4,
+        "total": 4,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "5": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "УК-9",
+            "question": "Формула (5) Нпр = Нмес × (Tпр / 30) пересчитывает накладные расходы:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Маржинальность проекта — это:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Превышение реальных накладных расходов над ориентиром для выбранного уровня цены обычно означает:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Капитальные вложения (CAPEX) входят в бюджет проекта:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Плановый бюджет фирмы по проекту на занятии 5 собирается из:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Регулярные (месячные) статьи накладных расходов нельзя засчитывать проекту:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Учебная база дней в месяце, используемая в формуле (5), равна:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-12",
+            "question": "Сопоставление плановой себестоимости с ценой Договора на занятии 5 даёт:",
+            "correct": true
+          }
+        ],
+        "correctCount": 8,
+        "total": 8,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "6": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-10",
+            "question": "Согласно ст. 91 ТК РФ, нормальная продолжительность рабочего времени не превышает:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-10",
+            "question": "В таблице загрузки красным помечается нагрузка выше:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-10",
+            "question": "Формула (6) L = H / T — что означает T?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-10",
+            "question": "Перегрузка, вызванная ошибкой подбора исполнителя (задача не по его квалификации), устраняется:",
+            "correct": true
+          }
+        ],
+        "correctCount": 4,
+        "total": 4,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "7": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-2.2",
+            "question": "Формула (7) ΔT = Sнаивн. − Tкп — что такое Sнаивн.?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.2",
+            "question": "Задачи вне критического пути имеют:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.2",
+            "question": "Fast-tracking как способ сжатия расписания — это:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.2",
+            "question": "Кнопка «Распараллелить задачи» на занятии 7 реализует:",
+            "correct": true
+          },
+          {
+            "code": "УК-1",
+            "question": "Любая задержка задачи на критическом пути:",
+            "correct": true
+          },
+          {
+            "code": "УК-1",
+            "question": "При каком условии кнопка «Распараллелить задачи» вообще может сработать?",
+            "correct": true
+          },
+          {
+            "code": "УК-1",
+            "question": "Выигрыш от оптимизации расписания (формула 7) сопоставляет:",
+            "correct": true
+          },
+          {
+            "code": "УК-1",
+            "question": "Выработка стратегии сжатия расписания на занятии 7 требует прежде всего:",
+            "correct": true
+          }
+        ],
+        "correctCount": 8,
+        "total": 8,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "8": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "ОПК-2.4",
+            "question": "Балл риска угрозы (формула 8) R = P × I рассчитывается по шкале:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.4",
+            "question": "Разделение угроз на актуальные и неактуальные для конкретного проекта опирается на:",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.4",
+            "question": "Что именно доказывает снижение суммарного балла риска между аудитом ДО и ПОСЛЕ?",
+            "correct": true
+          },
+          {
+            "code": "ОПК-2.4",
+            "question": "Учебное упрощение метода Дельфи в практикуме, в отличие от классического варианта:",
+            "correct": true
+          }
+        ],
+        "correctCount": 4,
+        "total": 4,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      },
+      "9": {
+        "direction": "10.03.01",
+        "perQuestion": [
+          {
+            "code": "УК-9",
+            "question": "Формула (9) ROSI = ((Rдо − Rпосле) − C) / C × 100% — что такое C?",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Отрицательное значение ROSI означает:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Сумма ошибок подбора персонала и ресурсов за практикум делится на статьи OPEX и CAPEX, потому что:",
+            "correct": true
+          },
+          {
+            "code": "УК-9",
+            "question": "Какие два показателя из занятия 8 нужны для расчёта числителя формулы ROSI?",
+            "correct": true
+          }
+        ],
+        "correctCount": 4,
+        "total": 4,
+        "grade": 4,
+        "gradeWord": "хорошо",
+        "viaShortcut": true
+      }
+    },
+    "qualCheckResults": {
+      "I": {
+        "correct": 11,
+        "wrong": 0,
+        "total": 11,
+        "errorPercent": 0
+      },
+      "II": {
+        "correct": 15,
+        "wrong": 0,
+        "total": 15,
+        "errorPercent": 0
+      },
+      "III": {
+        "correct": 10,
+        "wrong": 0,
+        "total": 10,
+        "errorPercent": 0
+      },
+      "IV": {
+        "correct": 5,
+        "wrong": 0,
+        "total": 5,
+        "errorPercent": 0
+      },
+      "V": {
+        "correct": 3,
+        "wrong": 0,
+        "total": 3,
+        "errorPercent": 0
+      }
+    },
+    "lastOptimizationLog": {
+      "entries": [
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Прорабов Д.С.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -4166.400000000001
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Бригадиров Н.П.",
+          "to": "Монтажников С.А.",
+          "laborDelta": -2083.2
+        },
+        {
+          "taskId": 2001,
+          "task": "Разметка трасс кабельных линий и мест крепления оборудования",
+          "from": "Монтажников С.А.",
+          "to": "Бригадиров Н.П.",
+          "laborDelta": 2083.2
+        }
+      ],
+      "beforeLength": 65,
+      "afterLength": 65,
+      "daysSaved": 0,
+      "overheadSaved": 0,
+      "laborExtra": -2083.2000000000007,
+      "netEffect": 2083.2000000000007,
+      "reassignedTaskIds": [
+        2001
+      ]
+    },
+    "studentInfo": {
+      "name": "игорь 2",
+      "group": "ниб-241"
+    }
+  }
+}

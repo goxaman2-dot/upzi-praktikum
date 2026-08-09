@@ -436,6 +436,14 @@ font-size: 14px; margin-top: 4px; background: var(--gr-panel2); color: var(--gr-
 .gate-card.gate-armed { border-color: var(--gr-gold); box-shadow: 0 0 0 3px rgba(232,178,74,0.28); }
 .gate-card h3 { font-size: 16px; color: var(--gr-text); margin-bottom: 10px; }
 .gate-card .gate-hint { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--gr-line2); font-size: 12.5px; color: var(--gr-gold); font-weight: 600; text-align: center; }
+/* ДОБАВЛЕНО (2026-08-09, по просьбе преподавателя — обязательное создание файла проекта после
+   первой рулетки, см. openCampaignFileGate()): та же визуальная база, что у .gate-card, но БЕЗ
+   cursor:pointer/клика-по-всей-карточке — здесь взаимодействие через явные кнопки/поле ввода, а
+   не «нажми ещё раз, чтобы продолжить». */
+.cf-gate-card { background: var(--gr-panel); border: 1.5px solid var(--gr-gold); border-radius: 14px; padding: 26px 30px; max-width: 560px; width: 100%; max-height: 84vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.cf-gate-card h3 { font-size: 17px; color: var(--gr-text); margin-bottom: 12px; }
+.cf-gate-card p { font-size: 13.5px; color: var(--gr-muted2); line-height: 1.5; margin-bottom: 10px; }
+.cf-gate-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 /* ДОБАВЛЕНО (2026-07-26, по просьбе преподавателя): попап выбора направления подготовки и попап
    теста на усвоенные компетенции — показываются после второго клика по гейт-карточке, перед
    фактическим переходом дальше (см. proceedAfterGate()/openDirectionPopup()/openCompetencyTest()). */
@@ -1469,7 +1477,18 @@ input:disabled, select:disabled { opacity: 0.45; }
 <div id="sideDynamic"><p style="color:var(--gr-dim); font-size:13px;">Загрузите шаблон или импортируйте JSON</p></div>
 </div>
 </div>
-</div>
+<!-- ИСПРАВЛЕНО (2026-08-09, найдено по жалобе преподавателя «почему так много кнопок Сохранить»):
+     здесь ранее стоял ЛИШНИЙ закрывающий </div> — из-за него #mainApp закрывался прямо тут (сразу
+     после .content), а нижний футер с кнопкой «Сохранить» и его же настоящий закрывающий тег (ниже)
+     оказывались уже СНАРУЖИ #mainApp, прямо внутри #app как самостоятельный лишний элемент. Такой
+     элемент никогда не участвует в переключении .visible ни одного экрана — он был виден
+     БЕЗУСЛОВНО на КАЖДОЙ странице практикума (заставка, концепция, рулетка, личный кабинет, Старт 0,
+     занятия) одновременно с любой другой, «правильно» показанной кнопкой сохранения на этом же
+     экране — именно это и увидел преподаватель на скриншоте Старта 0 (два одинаковых «💾 Сохранить
+     проект» подряд). Подтверждено вживую (Chrome, querySelectorAll('button') + разбор parentElement-
+     цепочки): до фикса #mainApp.children.length === 5 (без футера), футер — прямой потомок #app.
+     После удаления лишнего </div> футер снова стал 6-м потомком #mainApp и показывается только
+     когда виден #mainApp, как и было задумано изначально. -->
 <div style="padding:14px 24px; border-top:1px solid var(--gr-line); background:var(--gr-panel2); display:flex; justify-content:center;">
 <button class="btn btn-success" style="font-size:15px; padding:12px 32px;" onclick="saveProjectCheckpoint()">💾 Сохранить проект на текущей отметке</button>
 </div>
@@ -1994,10 +2013,21 @@ function confirmRouletteAndContinue() {
     projectStatuses[idx] = 'unlocked';
     if (idx === 0) projectRuns = [false, false, false];
     currentProjectIndex = -1;
+    // ДОБАВЛЕНО (2026-08-09, по прямой просьбе преподавателя — «после первой рулетки тут же
+    // заставить студента создать файл проекта»): гейт показывается ТОЛЬКО после ПЕРВОЙ рулетки
+    // (idx===0) и только один раз за сессию — см. openCampaignFileGate()/campaignFileCreated.
+    if (idx === 0 && !campaignFileCreated) {
+        openCampaignFileGate(idx);
+        return;
+    }
+    proceedToDashboardAfterRoulette(idx);
+}
+function proceedToDashboardAfterRoulette(idx) {
     renderDashboard();
     document.getElementById('dashboardScreen').classList.add('visible');
     renderVesselWidget();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    autoSaveCampaignFile('рулетка проекта №' + (idx + 1) + ' разыграна');
 }
 
 // Открывает экран рулетки для розыгрыша ОДНОГО конкретного портфеля (idx 0-2) — вызывается либо
@@ -2247,6 +2277,7 @@ async function submitProjectReport() {
         alert('⚠️ Не удалось сформировать DOCX-отчёт (' + err.message + '), но переход к следующему проекту всё равно выполняется — при необходимости распечатайте отчёт позже.');
     }
     projectStatuses[currentProjectIndex] = 'done';
+    autoSaveCampaignFile('проект №' + (currentProjectIndex + 1) + ' сдан');
     const doneName = assignedProjects[currentProjectIndex].name;
     const finishedNum = currentProjectIndex + 1;
     const nextIdx = currentProjectIndex + 1;
@@ -2360,6 +2391,25 @@ let clientData = { firmName: '', name: '', phone: '', address: '', details: '', 
 // (только один раз за сессию, при первом сохранении, если ещё не задано) и затем само переносится
 // в файл при каждом экспорте и восстанавливается при импорте — повторно вводить не нужно.
 let studentIdentity = '';
+// ДОБАВЛЕНО (2026-08-09, по прямой просьбе преподавателя — «после первой рулетки тут же заставить
+// студента создать файл проекта, чтобы он ПОПОЛНЯЛСЯ занятиями от 1 до 9 автоматически»): практикум
+// растягивается на несколько учебных пар (~18 занятий по графику сессии — см. CLAUDE.md), а
+// компьютер в классе каждую пару достаётся студенту РАЗНЫЙ — единственный переносимый носитель
+// прогресса — личный JSON-файл на флешке. Раньше сохранение было целиком добровольным (кнопка
+// «💾», студент мог забыть/не понять зачем) — теперь сразу после ПЕРВОЙ рулетки (только она, не
+// вторая/третья — дальше используется тот же самый файл) показывается обязательная модалка
+// (openCampaignFileGate) — личный кабинет не откроется, пока файл не создан.
+// FS_ACCESS_SUPPORTED — File System Access API (showSaveFilePicker), Chrome/Edge/Opera, НЕ
+// поддерживается Firefox/Safari. Если поддерживается — campaignFileHandle хранит выбранный
+// студентом файл, и дальше КАЖДОЕ автосохранение молча ЗАМЕНЯЕТ именно его (без повторных
+// диалогов «Сохранить как», без размножения файлов «(1)/(2)/(3)», см. реальный пример такого
+// файла, присланный преподавателем). Если API не поддерживается — используется откат на обычное
+// скачивание (см. autoSaveCampaignFile()), тогда каждое автосохранение — новый файл, это честно
+// объясняется студенту в самой модалке.
+let campaignFileHandle = null;
+let campaignFileCreated = false;
+let campaignAutoSaveInFlight = false;
+const FS_ACCESS_SUPPORTED = (typeof window !== 'undefined') && ('showSaveFilePicker' in window);
 // ДОБАВЛЕНО (2026-07-26, по просьбе преподавателя): кнопка «🗂 Личный кабинет» рядом с шапкой
 // фирмы была убрана (переход в личный кабинет и так доступен через нумерацию страниц/дашборд),
 // а её место заняла кнопка «✏️ Изменить» — при клике по ней в поле названия фирмы по умолчанию
@@ -3500,6 +3550,7 @@ const typeDisplayEl = document.getElementById('projectTypeDisplay');
 if (typeDisplayEl) typeDisplayEl.innerText = (assignedProject && assignedProject.name) || TYPE_RU[state.projectType] || 'тип проекта не определён';
 document.querySelector('.lesson-tab[data-lesson="1"]').classList.remove('locked');
 recalcAll();
+autoSaveCampaignFile('Старт 0 завершён, открыто занятие 1');
 }
 function skipWizard() {
 clientData.firmName = document.getElementById('firmInput').value.trim() || 'ООО «Тест»';
@@ -8479,15 +8530,17 @@ exportJSON();
 // момент сохранения — например, использовал «⏭️ Пропустить»), файл честно останется тестовым при
 // повторной загрузке — задним числом кампанию не подделать, только добросовестно перенести то, что
 // реально было.
-function exportJSON() {
-// ДОБАВЛЕНО (2026-08-09): спрашиваем ФИО студента ЛЕНИВО — только если ещё не задано в этой сессии
-// (и не восстановлено ранее из уже загруженного файла). Пустой ввод/отмена не блокируют сохранение —
-// студент просто получит файл без имени в названии, как раньше, лишь бы не мешать самому сохранению.
+// РЕФАКТОРИНГ (2026-08-09, по просьбе преподавателя — «файл должен пополняться автоматически»):
+// логика exportJSON() разбита на переиспользуемые части, чтобы новый механизм автосохранения
+// (autoSaveCampaignFile(), см. ниже) мог собрать тот же payload и тот же файл, не дублируя код.
+// buildCampaignPayload() — собирает объект состояния кампании целиком (спрашивает ФИО ЛЕНИВО,
+// только если оно ещё не задано в этой сессии — пустой ввод/отмена не блокируют сохранение).
+function buildCampaignPayload() {
 if (!studentIdentity) {
 const entered = prompt('Введите ваше ФИО — оно попадёт в имя файла и поможет не перепутать файлы в компьютерном классе (можно пропустить):', '');
 if (entered && entered.trim()) studentIdentity = entered.trim();
 }
-const payload = {
+return {
 __practicumSave: true,
 version: 2,
 savedAt: new Date().toISOString(),
@@ -8502,24 +8555,164 @@ chestFocusPicked: chestFocusPicked,
 clientData: clientData,
 state: state
 };
+}
+// campaignFileMeta() — имя файла и человекочитаемое описание текущей стадии (Старт 0 / занятие N).
+function campaignFileMeta() {
+const namePrefix = studentIdentity ? (studentIdentity.replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') + '_') : '';
+const projNum = currentProjectIndex >= 0 ? (currentProjectIndex + 1) : 'test';
+// если сохранение происходит ещё на Старте 0 (state.tasks пуст — занятия 1-9 ещё не открывались),
+// в имени файла и в тексте alert честно пишем «старт0», а не «lesson_1» — иначе файл выглядел бы
+// так, будто студент уже начал занятие 1, хотя это не так.
+const atStart0 = !(state.tasks && state.tasks.length > 0);
+const lessonLabel = atStart0 ? 'старт0' : ('lesson_' + currentLesson);
+return { namePrefix, projNum, atStart0, lessonLabel, filename: `${namePrefix}project${projNum}_${lessonLabel}.json` };
+}
+// downloadCampaignFile() — классическое скачивание через <a download> (единственный универсальный
+// способ, работает в любом браузере, но каждый вызов — НОВЫЙ файл в папке загрузок).
+function downloadCampaignFile(payload, filename) {
 const data = JSON.stringify(payload, null, 2);
 const blob = new Blob([data], { type: 'application/json' });
 const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-// ФИО — в начало имени файла (санитизировано под безопасные для имени файла символы), чтобы на
-// флешке с десятком файлов за 18 недель сразу было видно, чей это файл и от какого занятия.
-const namePrefix = studentIdentity ? (studentIdentity.replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') + '_') : '';
-const projNum = currentProjectIndex >= 0 ? (currentProjectIndex + 1) : 'test';
-// ДОБАВЛЕНО (2026-08-09): если сохранение происходит ещё на Старте 0 (state.tasks пуст — занятия
-// 1-9 ещё не открывались), в имени файла и в тексте alert честно пишем «старт0», а не «lesson_1» —
-// иначе файл выглядел бы так, будто студент уже начал занятие 1, хотя это не так.
-const atStart0 = !(state.tasks && state.tasks.length > 0);
-const lessonLabel = atStart0 ? 'старт0' : ('lesson_' + currentLesson);
-a.download = `${namePrefix}project${projNum}_${lessonLabel}.json`;
+a.download = filename;
 a.click();
-const stageMsg = atStart0 ? 'Старт 0 (подбор персонала/ресурсов, воронка визита к заказчику ещё не завершены)' : ('занятие ' + currentLesson);
+}
+// writeCampaignFileToHandle() — современный способ (File System Access API): молча ПЕРЕЗАПИСЫВАЕТ
+// уже выбранный студентом файл (campaignFileHandle) без диалога и без нового файла на диске.
+async function writeCampaignFileToHandle(payload) {
+if (!campaignFileHandle) return false;
+try {
+const writable = await campaignFileHandle.createWritable();
+await writable.write(JSON.stringify(payload, null, 2));
+await writable.close();
+return true;
+} catch (err) {
+console.error('Не удалось записать файл проекта в выбранный хендл:', err);
+return false;
+}
+}
+function exportJSON() {
+const payload = buildCampaignPayload();
+const meta = campaignFileMeta();
+downloadCampaignFile(payload, meta.filename);
+const stageMsg = meta.atStart0 ? 'Старт 0 (подбор персонала/ресурсов, воронка визита к заказчику ещё не завершены)' : ('занятие ' + currentLesson);
 const whoMsg = studentIdentity ? (' Сохранено под именем «' + studentIdentity + '».') : ' ФИО не указано — при следующей загрузке файл не будет опознан как ваш, это может смутить, если файлы студентов окажутся в одной папке.';
-alert(`✅ JSON экспортирован! (Проект №${projNum === 'test' ? '— тестовый режим' : projNum}, ${stageMsg}).${whoMsg} Этот файл содержит ВЕСЬ прогресс кампании (не только текущий шаг) — загрузите его кнопкой «📂 Загрузить ранее созданный проект» на экране рулетки в следующий раз, чтобы продолжить именно с этого места, включая доступ к рулетке следующих проектов.`);
+alert(`✅ JSON экспортирован! (Проект №${meta.projNum === 'test' ? '— тестовый режим' : meta.projNum}, ${stageMsg}).${whoMsg} Этот файл содержит ВЕСЬ прогресс кампании (не только текущий шаг) — загрузите его кнопкой «📂 Загрузить ранее созданный проект» на экране рулетки в следующий раз, чтобы продолжить именно с этого места, включая доступ к рулетке следующих проектов.`);
+}
+// ДОБАВЛЕНО (2026-08-09): молчаливое автосохранение — вызывается САМИМ практикумом (не по клику
+// студента) на каждой границе прогресса (см. места вызова: goToProject(), nextLesson(),
+// submitProjectReport(), proceedToDashboardAfterRoulette()). Работает ТОЛЬКО после того, как
+// студент прошёл обязательную модалку openCampaignFileGate() (campaignFileCreated===true) — до
+// этого момента вызывается «в холостую» (return) на случай, если где-то в коде вызов произойдёт
+// раньше гейта. НЕ показывает блокирующий alert() (иначе каждый переход между занятиями требовал
+// бы клика «ОК») — только лёгкий, сам исчезающий тост в углу экрана.
+async function autoSaveCampaignFile(reason) {
+if (!campaignFileCreated) return;
+if (campaignAutoSaveInFlight) return;
+campaignAutoSaveInFlight = true;
+try {
+const payload = buildCampaignPayload();
+if (campaignFileHandle) {
+const ok = await writeCampaignFileToHandle(payload);
+showCampaignAutoSaveToast(ok
+? ('✅ Файл проекта обновлён' + (reason ? ' — ' + reason : '') + '.')
+: '⚠️ Не удалось автоматически обновить файл проекта — сохраните вручную кнопкой «💾».');
+} else {
+const meta = campaignFileMeta();
+downloadCampaignFile(payload, meta.filename);
+showCampaignAutoSaveToast('💾 Скачан обновлённый файл проекта' + (reason ? ' (' + reason + ')' : '') + ' — замените им предыдущий на флешке.');
+}
+} finally {
+campaignAutoSaveInFlight = false;
+}
+}
+function showCampaignAutoSaveToast(msg) {
+const old = document.getElementById('cfToast');
+if (old) old.remove();
+const el = document.createElement('div');
+el.id = 'cfToast';
+el.textContent = msg;
+el.style.cssText = 'position:fixed; bottom:22px; left:22px; z-index:99999; max-width:320px; background:#0f172a; color:#4ade80; border:1.5px solid #4ade80; border-radius:10px; padding:10px 16px; font-family:"IBM Plex Sans",Arial,sans-serif; font-size:12.5px; font-weight:600; line-height:1.4; box-shadow:0 10px 28px rgba(0,0,0,.45); opacity:0; transition:opacity .25s ease;';
+document.body.appendChild(el);
+requestAnimationFrame(() => { el.style.opacity = '1'; });
+setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { if (el.parentNode) el.remove(); }, 320); }, 3200);
+}
+// ============================================================
+// 7.1 ОБЯЗАТЕЛЬНОЕ СОЗДАНИЕ ФАЙЛА ПРОЕКТА ПОСЛЕ ПЕРВОЙ РУЛЕТКИ
+// ============================================================
+// ДОБАВЛЕНО (2026-08-09): показывается ТОЛЬКО после ПЕРВОЙ рулетки (idx===0) и только один раз за
+// сессию (campaignFileCreated) — дальше используется тот же самый файл/хендл для всех трёх
+// проектов кампании, повторно создавать файл под проект №2/3 не нужно (весь payload и так содержит
+// все три слота assignedProjects/projectStatuses разом).
+function openCampaignFileGate(idx) {
+const old = document.getElementById('cfGateOverlay');
+if (old) old.remove();
+const overlay = document.createElement('div');
+overlay.className = 'gate-overlay';
+overlay.id = 'cfGateOverlay';
+const card = document.createElement('div');
+card.className = 'cf-gate-card';
+card.innerHTML = '<h3>📁 Создайте файл своего проекта</h3>'
++ '<p>Практикум растягивается на несколько учебных пар — каждый раз в классе будет ДРУГОЙ компьютер. Единственный способ не потерять прогресс — личный файл на вашей флешке. Дальше он будет ПОПОЛНЯТЬСЯ сам, по мере прохождения занятий — вплоть до самого конца практикума.</p>'
++ '<label style="font-size:12.5px; color:var(--gr-muted2); display:block; margin-bottom:4px;">Ваше ФИО (попадёт в имя файла):</label>'
++ '<input type="text" id="cfNameInput" placeholder="Иванов Иван Иванович" value="' + (studentIdentity ? studentIdentity.replace(/"/g, '&quot;') : '') + '" style="width:100%; box-sizing:border-box; padding:9px 11px; border-radius:8px; border:1px solid var(--gr-line2); background:var(--gr-panel2); color:var(--gr-text); font-size:13.5px; margin-bottom:16px;">'
++ '<div class="cf-gate-actions" id="cfGateActions"></div>'
++ '<p style="margin-top:16px; font-size:11.5px; color:var(--gr-dim);">' + (FS_ACCESS_SUPPORTED
+? 'Ваш браузер поддерживает автообновление ОДНОГО файла без повторных диалогов «Сохранить как».'
+: 'Ваш браузер (Firefox/Safari) не умеет обновлять один и тот же файл автоматически — при каждом занятии практикум сам предложит скачать обновлённую версию; сохраняйте её всегда в одну и ту же папку и заменяйте старый файл.') + '</p>';
+overlay.appendChild(card);
+document.body.appendChild(overlay);
+const actions = document.getElementById('cfGateActions');
+if (FS_ACCESS_SUPPORTED) {
+const btnModern = document.createElement('button');
+btnModern.className = 'btn btn-success';
+btnModern.style.cssText = 'font-size:14.5px; padding:11px 20px; width:100%;';
+btnModern.textContent = '📁 Создать файл на флешке/диске (рекомендуется)';
+btnModern.onclick = function() { createCampaignFileViaPicker(idx); };
+actions.appendChild(btnModern);
+}
+const btnClassic = document.createElement('button');
+btnClassic.className = 'btn btn-outline';
+btnClassic.style.cssText = 'font-size:14px; padding:10px 18px; width:100%;';
+btnClassic.textContent = FS_ACCESS_SUPPORTED ? '💾 Или просто скачать файл' : '💾 Скачать файл проекта';
+btnClassic.onclick = function() { createCampaignFileViaDownload(idx); };
+actions.appendChild(btnClassic);
+}
+async function createCampaignFileViaPicker(idx) {
+const nameInput = document.getElementById('cfNameInput');
+if (nameInput && nameInput.value.trim()) studentIdentity = nameInput.value.trim();
+const meta = campaignFileMeta();
+try {
+const handle = await window.showSaveFilePicker({
+suggestedName: meta.filename,
+types: [{ description: 'Файл проекта практикума', accept: { 'application/json': ['.json'] } }]
+});
+campaignFileHandle = handle;
+const payload = buildCampaignPayload();
+const ok = await writeCampaignFileToHandle(payload);
+if (!ok) { alert('⚠️ Не удалось записать файл — попробуйте ещё раз или используйте кнопку «Скачать файл».'); return; }
+campaignFileCreated = true;
+const overlay = document.getElementById('cfGateOverlay');
+if (overlay) overlay.remove();
+alert('✅ Файл проекта создан! Дальше он будет обновляться автоматически при переходе между занятиями — отдельно ничего скачивать не нужно.');
+proceedToDashboardAfterRoulette(idx);
+} catch (err) {
+if (err && err.name === 'AbortError') return; // студент закрыл системный диалог выбора файла — остаёмся в модалке
+console.error('Ошибка создания файла через File System Access API:', err);
+alert('⚠️ Не удалось создать файл этим способом (' + (err && err.message ? err.message : err) + '). Попробуйте кнопку «Скачать файл» ниже.');
+}
+}
+function createCampaignFileViaDownload(idx) {
+const nameInput = document.getElementById('cfNameInput');
+if (nameInput && nameInput.value.trim()) studentIdentity = nameInput.value.trim();
+const payload = buildCampaignPayload();
+const meta = campaignFileMeta();
+downloadCampaignFile(payload, meta.filename);
+campaignFileCreated = true;
+const overlay = document.getElementById('cfGateOverlay');
+if (overlay) overlay.remove();
+alert('✅ Файл проекта скачан! Сохраните его на флешку. Дальше при каждом переходе между занятиями практикум сам будет предлагать скачать ОБНОВЛЁННУЮ версию — заменяйте ею предыдущий файл (в этом браузере нет способа обновлять один и тот же файл без повторного скачивания).');
+proceedToDashboardAfterRoulette(idx);
 }
 
 // Загрузка проекта, ранее сохранённого кнопкой «Сохранить проект на текущей отметке»
@@ -8780,6 +8973,7 @@ if (currentLesson >= 9) { submitProjectReport(); return; }
 const nextTab = document.querySelector('.lesson-tab[data-lesson="' + (currentLesson + 1) + '"]');
 if (nextTab) nextTab.classList.remove('locked');
 gotoLesson(currentLesson + 1);
+autoSaveCampaignFile('открыто занятие ' + (currentLesson));
 }
 
 // ============================================================
