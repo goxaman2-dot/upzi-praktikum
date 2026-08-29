@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проверка сдачи УПЗИ</title>
+<style>
+:root{
+  --bg:#f3f1ea; --paper:#ffffff; --ink:#2a2620; --dim:#7a7266; --line:#ddd6c8;
+  --accent:#8a5a3b; --ok:#2e7d46; --bad:#c23b3b; --warn:#b8860b; --info:#2a5f8a;
+  --ok-bg:#e9f6ec; --bad-bg:#fbebeb; --warn-bg:#fdf3e0; --info-bg:#eaf3fa;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Georgia','Times New Roman',serif;line-height:1.5;}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
+header.top{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:22px 26px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+h1{margin:0 0 6px;font-size:24px;letter-spacing:.2px;}
+.subtitle{color:var(--dim);font-size:14px;margin-bottom:14px;}
+.notice{background:var(--warn-bg);border:1px solid #e8d19a;border-radius:8px;padding:12px 16px;font-size:13.5px;color:#6b5217;margin-top:10px;}
+.notice b{color:#4d3a10;}
+.meta-line{font-size:12.5px;color:var(--dim);margin-top:8px;}
+.dropzone{border:2px dashed var(--line);border-radius:10px;padding:34px;text-align:center;background:var(--paper);cursor:pointer;transition:.15s;font-size:15px;}
+.dropzone:hover, .dropzone.drag{border-color:var(--accent);background:#fbf7f1;}
+.dropzone input{display:none;}
+.dropzone .icon{font-size:34px;display:block;margin-bottom:10px;}
+section.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-top:18px;box-shadow:0 2px 6px rgba(0,0,0,.03);}
+section.card h2{margin:0 0 4px;font-size:18px;border-bottom:2px solid var(--line);padding-bottom:8px;}
+section.card .hint{color:var(--dim);font-size:12.5px;margin:6px 0 14px;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;}
+th{background:#f7f4ec;font-weight:600;font-size:12.5px;color:#55503f;text-transform:uppercase;letter-spacing:.03em;}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+tr.diff td{background:var(--bad-bg);}
+tr.ok td{}
+.tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600;}
+.tag-ok{background:var(--ok-bg);color:var(--ok);}
+.tag-bad{background:var(--bad-bg);color:var(--bad);}
+.tag-warn{background:var(--warn-bg);color:var(--warn);}
+.tag-info{background:var(--info-bg);color:var(--info);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+.headbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:6px;}
+.headbox .item{background:#f9f7f1;border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+.headbox .item label{display:block;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.headbox .item span{font-size:14.5px;font-weight:600;}
+.overhead-note{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:8px;}
+.empty-note{color:var(--dim);font-size:13px;font-style:italic;padding:8px 0;}
+.small{font-size:12px;color:var(--dim);}
+.err-box{background:var(--bad-bg);border:1px solid #eab8b8;border-radius:8px;padding:14px 18px;color:#7a2323;font-size:14px;}
+footer.foot{text-align:center;color:var(--dim);font-size:12px;margin-top:34px;}
+.badge-lvl{display:inline-block;padding:1px 8px;border-radius:10px;background:#eee7d8;font-size:12px;margin-left:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>📋 Проверка сдачи практикума УПЗИ</h1>
+  <div class="subtitle">Инструмент для преподавателя — открывается локально, ничего никуда не отправляет. Загруженный JSON обрабатывается только в этой вкладке браузера.</div>
+  <div class="notice">
+    <b>Что делает этот инструмент:</b> принимает JSON, который студент выгружает кнопкой «Экспорт JSON» в практикуме, и <b>пересчитывает смету и бюджет заново по формулам самого практикума</b> (а не смотрит на итоговые цифры из файла на веру), чтобы преподаватель мог быстро увидеть расхождения.
+    <br><b>Чем он НЕ является:</b> это не защита от фальсификации файла — студент, который откроет JSON текстовым редактором, может вписать в него что угодно, включая «правильные» пересчитанные числа. Инструмент рассчитан на быструю ручную проверку добросовестных сдач, а не на выявление подделок.
+  </div>
+  <div class="meta-line" id="versionLine"></div>
+</header>
+
+<div class="dropzone" id="dropzone">
+  <span class="icon">📂</span>
+  <div><b>Перетащите сюда JSON-файл сдачи студента</b> или нажмите, чтобы выбрать файл</div>
+  <div class="small" style="margin-top:6px;">Принимаются оба формата: с обёрткой кампании (<code>__practicumSave</code>) и «голый» <code>state</code> (старые файлы).</div>
+  <input type="file" id="fileInput" accept=".json,application/json">
+</div>
+
+<div id="errorArea"></div>
+<div id="results"></div>
+
+<footer class="foot">Проверка выполняется полностью в браузере (JavaScript), без сети и без сервера.</footer>
+</div>
+
+<script>
+document.getElementById('versionLine').textContent =
+  'Инструмент собран и согласован с кодом index.html практикума по состоянию на 29.08.2026 ' +
+  '(дата последнего изменения файла на момент сборки verify_upzi_real.html). ' +
+  'При последующих правках формул сметы/бюджета/ловушек в практикуме этот файл нужно пересобрать заново — ' +
+  'иначе он будет проверять по устаревшим формулам.';
+
+// ============================================================================
+// СПРАВОЧНЫЕ ДАННЫЕ — скопированы буквально из index.html практикума (не пересочинены заново),
+// чтобы пересчёт комплектующих совпадал с реальным кодом стенда до копейки.
+// ============================================================================
+const COMPONENTS_20 = {
+    skud: [
+        { name:"Контроллер СКУД (1-2 двери)", budget:3000, middle:15000, vip:45000, unitKind:'mass' },
+        { name:"Считыватель карт / биометрический", budget:1500, middle:6000, vip:25000, unitKind:'mass' },
+        { name:"Электромагнитный / электромеханический замок", budget:2500, middle:6000, vip:15000, unitKind:'mass' },
+        { name:"Турникет (трипод / полноростовой — верхний уровень)", budget:45000, middle:120000, vip:550000, unitKind:'hub' },
+        { name:"ПО управления СКУД (сервер, лицензия)", budget:0, middle:25000, vip:120000, unitKind:'fixed' },
+    ],
+    video: [
+        { name:"IP-камера", budget:6000, middle:8000, vip:35000, unitKind:'mass' },
+        { name:"Видеорегистратор (NVR)", budget:12000, middle:45000, vip:150000, unitKind:'hub' },
+        { name:"ПО видеоаналитики (лицензия/канал)", budget:0, middle:5090, vip:25000, unitKind:'fixed' },
+        { name:"ИБП для системы видеонаблюдения", budget:5000, middle:8000, vip:20000, unitKind:'hub' },
+    ],
+    fire: [
+        { name:"ППКП (прибор приёмно-контрольный пожарный)", budget:8000, middle:35000, vip:150000, unitKind:'hub' },
+        { name:"Дымовой / тепловой извещатель", budget:350, middle:900, vip:2500, unitKind:'mass' },
+        { name:"Оповещатель (сирена + световое табло)", budget:700, middle:2000, vip:6000, unitKind:'mass' },
+        { name:"Модуль управления эвакуацией", budget:5000, middle:20000, vip:80000, unitKind:'hub' },
+    ],
+    security: [
+        { name:"ПКП (прибор приёмно-контрольный охранный)", budget:3875, middle:12000, vip:45000, unitKind:'hub' },
+        { name:"ИК-извещатель (объёмный)", budget:415, middle:1153, vip:3500, unitKind:'mass' },
+        { name:"Магнитоконтакт", budget:150, middle:400, vip:1200, unitKind:'mass' },
+        { name:"Комплект радиоканальный начального уровня (Астра-Р)", budget:3450, middle:null, vip:null, unitKind:'fixed' },
+    ],
+    perimeter: [
+        { name:"Радиоволновый извещатель (Барьер-100/300/500)", budget:24000, middle:47000, vip:90000, unitKind:'mass' },
+        { name:"Активный ИК-барьер", budget:8000, middle:20000, vip:60000, unitKind:'mass' },
+        { name:"Быстроразворачиваемый комплекс охраны периметра", budget:null, middle:null, vip:600000, unitKind:'fixed' },
+        { name:"ПО видеоаналитики периметра (лицензия)", budget:0, middle:15000, vip:60000, unitKind:'fixed' },
+    ],
+    hybrid: [
+        { name:"PSIM-платформа интеграции подсистем", budget:50000, middle:200000, vip:800000 },
+        { name:"Доп. лицензии интеграции протоколов", budget:10000, middle:40000, vip:150000 },
+    ],
+    ngfw: [
+        { name:"Аппаратный NGFW, малый офис", budget:213000, middle:null, vip:null },
+        { name:"NGFW, средний бизнес (250-500 польз.)", budget:null, middle:700000, vip:null },
+        { name:"NGFW, крупная инфраструктура / ЦОД", budget:null, middle:null, vip:2500000 },
+    ],
+    dlp: [
+        { name:"DLP, малый пакет (до 50 польз./год)", budget:150000, middle:null, vip:null },
+        { name:"DLP, средний бизнес (лицензия Standard)", budget:null, middle:900000, vip:null },
+        { name:"DLP, Enterprise (крупный бизнес)", budget:null, middle:null, vip:3000000 },
+    ],
+    iam: [
+        { name:"IAM Base (малый бизнес)", budget:400000, middle:null, vip:null },
+        { name:"IAM, средний бизнес (IDM 6.0)", budget:null, middle:1200000, vip:null },
+        { name:"IAM/IGA, Enterprise (Identity Security Platform)", budget:null, middle:null, vip:3000000 },
+    ],
+    siem: [
+        { name:"SIEM, стартовый уровень", budget:500000, middle:null, vip:null },
+        { name:"SIEM All-in-One (250-500 узлов)", budget:null, middle:1500000, vip:null },
+        { name:"SIEM Enterprise (1000+ узлов)", budget:null, middle:null, vip:5000000 },
+    ],
+    edr: [
+        { name:"EDR, 100 узлов/год", budget:300000, middle:null, vip:null },
+        { name:"EDR, средний парк (Expert)", budget:null, middle:600000, vip:null },
+        { name:"XDR Enterprise (полный стек)", budget:null, middle:null, vip:2000000 },
+    ],
+    vpn: [
+        { name:"VPN-шлюз, малый офис", budget:220000, middle:null, vip:null },
+        { name:"VPN-шлюз, средний бизнес", budget:null, middle:450000, vip:null },
+        { name:"VPN-шлюз, ЦОД (до 10 Гбит)", budget:null, middle:null, vip:1500000 },
+    ],
+    backup: [
+        { name:"РК, малый объём (1 ТБ)", budget:86250, middle:null, vip:null },
+        { name:"РК, средний бизнес (Стандартная редакция, ≈25-30 лицензий)", budget:null, middle:250000, vip:null },
+        { name:"РК, Enterprise/DR (Расширенная редакция, объём по проекту)", budget:null, middle:null, vip:800000 },
+    ],
+    crypto: [
+        { name:"СКЗИ, 1 рабочее место (годовая лицензия)", budget:1850, middle:null, vip:null },
+        { name:"СКЗИ, сервер", budget:null, middle:70000, vip:null },
+        { name:"СКЗИ, TLS-сервер (до 1000 подключений)", budget:null, middle:null, vip:85000 },
+    ],
+    policy: [
+        { name:"Типовой комплект ОРД (шаблонный)", budget:80000, middle:null, vip:null },
+        { name:"Индивидуальный комплект ОРД под 17/21/239 приказы", budget:null, middle:250000, vip:null },
+        { name:"Комплект ОРД + регламенты SOC/due diligence", budget:null, middle:null, vip:700000 },
+    ],
+    kii: [
+        { name:"Категорирование, 1 система", budget:150000, middle:null, vip:null },
+        { name:"Категорирование, 3-5 систем", budget:null, middle:400000, vip:null },
+        { name:"Комплексное категорирование холдинга + реестр ФСТЭК", budget:null, middle:null, vip:1200000 },
+    ],
+    pdn: [
+        { name:"Малый бизнес (1 ИСПДн)", budget:60000, middle:null, vip:null },
+        { name:"Средний бизнес (неск. ИСПДн)", budget:null, middle:200000, vip:null },
+        { name:"Крупная организация (аудит + СКЗИ + ОРД)", budget:null, middle:null, vip:600000 },
+    ],
+    passport: [
+        { name:"Паспорт антитеррористической защищённости, типовой", budget:25000, middle:null, vip:null },
+        { name:"Паспорт + согласование в ведомствах", budget:null, middle:60000, vip:null },
+        { name:"Паспорт для сложного объекта (ТЦ/промкомплекс)", budget:null, middle:null, vip:150000 },
+    ],
+    audit: [
+        { name:"Базовый аудит ИБ (малый бизнес)", budget:85000, middle:null, vip:null },
+        { name:"Полный аудит ИБ (средний бизнес, 50-500 чел.)", budget:null, middle:500000, vip:null },
+        { name:"Комплексный аудит + due diligence (крупный бизнес)", budget:null, middle:null, vip:1500000 },
+    ],
+    training: [
+        { name:"Онлайн-курс на сотрудника", budget:3900, middle:null, vip:null },
+        { name:"Очный тренинг + фишинг-симуляция на сотрудника", budget:null, middle:5000, vip:null },
+        { name:"Комплексная программа с киберполигоном на сотрудника", budget:null, middle:null, vip:15000 },
+    ],
+};
+COMPONENTS_20.hybrid = [...COMPONENTS_20.skud, ...COMPONENTS_20.video, ...COMPONENTS_20.fire, ...COMPONENTS_20.security, ...COMPONENTS_20.perimeter, ...COMPONENTS_20.hybrid];
+
+const COMPONENT_QTY_REF = {
+    mass: { small: 6, medium: 16, large: 130 },
+    hub: { small: 1, medium: 2, large: 6 },
+    fixed: { small: 1, medium: 1, large: 1 }
+};
+const AUX_MATERIALS_PCT = 0.07;
+const INSURANCE_RATE = 0.302;
+const CAPEX_AMORT_MONTHS = 36;
+const OVERHEAD_BENCHMARK = { budget: 25, middle: 35, vip: 60 };
+const profitPct = 15;
+const vatRate = 22;
+
+// Портфели фирмы (портфель I = ИТСО), нужен только чтобы решить, применять ли auxMaterialsSum
+const ITSO_CODES = ['skud','video','fire','security','perimeter','hybrid'];
+function portfolioOfCode(code){ return ITSO_CODES.includes(code) ? 'I' : 'other'; }
+
+function componentQtyReference(item, scale) {
+    if (!item || !item.unitKind) return 1;
+    const sc = (scale === 'small' || scale === 'large') ? scale : 'medium';
+    const row = COMPONENT_QTY_REF[item.unitKind];
+    return row ? (row[sc] || row.medium) : 1;
+}
+function componentEffectiveQty(it, scale, componentQty) {
+    if (!it || !it.unitKind || it.unitKind !== 'mass') return componentQtyReference(it, scale);
+    const v = componentQty ? componentQty[it.name] : undefined;
+    return (typeof v === 'number' && v > 0) ? v : 1;
+}
+function componentsTotal(projectType, level, scale, componentQty) {
+    const items = COMPONENTS_20[projectType] || [];
+    const key = level === 'budget' ? 'budget' : (level === 'vip' ? 'vip' : 'middle');
+    const sc = scale || 'medium';
+    return items.reduce((s, it) => {
+        if (typeof it[key] !== 'number') return s;
+        const qty = it.unitKind ? componentEffectiveQty(it, sc, componentQty) : 1;
+        return s + it[key] * qty;
+    }, 0);
+}
+function auxMaterialsSum(projectType, level, scale, componentQty) {
+    if (portfolioOfCode(projectType) !== 'I') return 0;
+    return componentsTotal(projectType, level, scale, componentQty) * AUX_MATERIALS_PCT;
+}
+
+// ============================================================================
+// РАСПИСАНИЕ (computeSchedule) — буквальная копия логики практикума
+// ============================================================================
+function computeSchedule(tasks) {
+    const byId = {};
+    (tasks||[]).forEach(t => { byId[t.id] = t; });
+    const startOf = {}, endOf = {};
+    const visiting = new Set();
+    function endOfTask(id) {
+        if (endOf[id] !== undefined) return endOf[id];
+        const t = byId[id];
+        if (!t || visiting.has(id)) return 0;
+        visiting.add(id);
+        const preds = (t.predecessors || []).filter(pid => byId[pid] && pid !== id);
+        const start = preds.length ? Math.max(...preds.map(endOfTask)) : 0;
+        startOf[id] = start;
+        endOf[id] = start + t.duration;
+        visiting.delete(id);
+        return endOf[id];
+    }
+    (tasks||[]).forEach(t => endOfTask(t.id));
+    const criticalPathLength = (tasks||[]).length ? Math.max(...tasks.map(t => endOf[t.id] || 0)) : 0;
+    const naiveSum = (tasks||[]).reduce((s, t) => s + t.duration, 0);
+    return { startOf, endOf, criticalPathLength, naiveSum };
+}
+
+function getTaskEmployeeIds(t) {
+    if (Array.isArray(t.employeeIds) && t.employeeIds.length) return t.employeeIds;
+    return t.employeeId ? [t.employeeId] : [];
+}
+function getEmployeeRate(employees, id) {
+    const e = (employees||[]).find(emp => emp.id === id);
+    return e ? e.ratePerHour : 0;
+}
+function taskLaborCost(t, employees) {
+    const totalHours = t.duration * 8;
+    const gross = getTaskEmployeeIds(t).reduce((sum, id) => sum + totalHours * getEmployeeRate(employees, id), 0);
+    return gross * (1 + INSURANCE_RATE);
+}
+function payrollMonth(employees) {
+    return (employees||[]).filter(e => e.studentMark).reduce((s, e) => s + (e.ratePerHour || 0) * 160 * (e.loadFactor || 0), 0);
+}
+function payrollMonthFull(employees) {
+    return payrollMonth(employees) * (1 + INSURANCE_RATE);
+}
+function resVal(r, employees) {
+    return r.auto === 'fot' ? payrollMonthFull(employees) : (r.qty || 0) * (r.price || 0);
+}
+function calcTaskCost(task) {
+    const laborCost = taskLaborCost(task, GST_EMP);
+    let materialCost = 0;
+    if (task.materials) {
+        task.materials.forEach(m => {
+            const price = GST_LEVEL === 'budget' ? m.priceBudget : (GST_LEVEL === 'vip' ? m.priceVip : m.priceMiddle);
+            materialCost += m.qty * (price || 0);
+        });
+    }
+    return { laborCost, materialCost, total: laborCost + materialCost };
+}
+// небольшие модульные переменные-заглушки, чтобы calcTaskCost не таскал их параметром через все вызовы
+let GST_EMP = [], GST_LEVEL = 'middle';
+
+function fmtMoney(n) {
+    if (n === null || n === undefined || Number.isNaN(n)) return '—';
+    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+}
+function fmtPct(n, digits) {
+    if (n === null || n === undefined || Number.isNaN(n)) return '—';
+    return n.toFixed(digits === undefined ? 1 : digits) + '%';
+}
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// допуск на расхождение сумм (копейки/округления) — 1 рубль или 0.05% от величины, что больше
+function isClose(a, b) {
+    if (a === null || a === undefined || b === null || b === undefined) return null; // нет данных — не сравниваем
+    if (Number.isNaN(a) || Number.isNaN(b)) return false;
+    const tol = Math.max(1, Math.abs(b) * 0.0005);
+    return Math.abs(a - b) <= tol;
+}
+
+function compareRow(label, fileVal, calcVal, isMoney) {
+    const cmp = isClose(fileVal, calcVal);
+    const cls = cmp === null ? '' : (cmp ? 'ok' : 'diff');
+    const tag = cmp === null ? '<span class="tag tag-warn">нет данных</span>' : (cmp ? '<span class="tag tag-ok">✓ совпадает</span>' : '<span class="tag tag-bad">✗ расхождение</span>');
+    const fmt = isMoney ? fmtMoney : (x => (x===null||x===undefined) ? '—' : (Math.round(x*100)/100).toLocaleString('ru-RU'));
+    return `<tr class="${cls}"><td>${esc(label)}</td><td class="num">${fmt(fileVal)}</td><td class="num">${fmt(calcVal)}</td><td>${tag}</td></tr>`;
+}
+
+// ============================================================================
+// ОСНОВНАЯ ЛОГИКА ЗАГРУЗКИ И ОТОБРАЖЕНИЯ
+// ============================================================================
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+    e.preventDefault(); dropzone.classList.remove('drag');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+        document.getElementById('errorArea').innerHTML = '';
+        document.getElementById('results').innerHTML = '';
+        let data;
+        try { data = JSON.parse(ev.target.result); }
+        catch (err) {
+            showError('Не удалось разобрать файл как JSON: ' + err.message);
+            return;
+        }
+        try { processData(data, file.name); }
+        catch (err) {
+            console.error(err);
+            showError('Ошибка при обработке файла: ' + err.message + '\n\nВозможно, формат сохранения практикума изменился с момента сборки этого инструмента — см. примечание в шапке страницы.');
+        }
+    };
+    reader.onerror = () => showError('Не удалось прочитать файл.');
+    reader.readAsText(file, 'utf-8');
+}
+
+function showError(msg) {
+    document.getElementById('errorArea').innerHTML = `<div class="err-box">⚠️ ${esc(msg).replace(/\n/g,'<br>')}</div>`;
+}
+
+function processData(raw, filename) {
+    let payload = raw, state;
+    if (raw && raw.__practicumSave && raw.state) {
+        state = raw.state;
+    } else if (raw && raw.state && !raw.__practicumSave) {
+        // на всякий случай — обёртка есть, но без явного флага
+        state = raw.state;
+        payload = raw;
+    } else if (raw && (raw.tasks || raw.summary || raw.firmResources)) {
+        // «голый» state без обёртки (старый формат)
+        state = raw;
+        payload = { state: raw };
+    } else {
+        throw new Error('В файле не найден ни __practicumSave+state, ни узнаваемая структура state (нет ни tasks, ни summary, ни firmResources).');
+    }
+    if (!state) throw new Error('Не удалось найти объект state в файле.');
+
+    GST_EMP = state.employees || [];
+    GST_LEVEL = state.priceLevel || 'middle';
+
+    let html = '';
+    html += renderHeader(payload, state, filename);
+    html += renderEstimate(state);
+    html += renderBudget(state);
+    html += renderComponentQty(state);
+    html += renderTraps(state);
+    html += renderCompetency(state);
+    document.getElementById('results').innerHTML = html;
+}
+
+function renderHeader(payload, state, filename) {
+    const fio = payload.studentIdentity || (state.studentInfo && state.studentInfo.name) || '—';
+    const proj = (payload.assignedProjects && payload.currentProjectIndex >= 0) ? payload.assignedProjects[payload.currentProjectIndex] : null;
+    const projName = proj ? (proj.name + ' (код: ' + proj.code + ')') : (state.projectType ? state.projectType : '—');
+    const chest = proj ? proj.chestTitle : '—';
+    const objName = proj && proj.object ? proj.object.name + ', ' + (proj.object.addr || '') : '—';
+    const scale = state.objectScale || (proj && proj.object && proj.object.scale) || 'medium';
+    const lesson = (payload.currentLesson !== undefined) ? payload.currentLesson : '—';
+    const atStart0 = !(state.tasks && state.tasks.length > 0);
+    const lessonLabel = atStart0 ? 'Старт 0' : ('занятие ' + lesson);
+    const savedAt = payload.savedAt ? new Date(payload.savedAt).toLocaleString('ru-RU') : '—';
+    const priceLevelRu = { budget: 'бюджетный', middle: 'средний', vip: 'дорогой (VIP)' }[state.priceLevel] || state.priceLevel || '—';
+
+    return `
+<section class="card">
+  <h2>Шапка сдачи</h2>
+  <div class="headbox">
+    <div class="item"><label>Студент</label><span>${esc(fio)}</span></div>
+    <div class="item"><label>Файл</label><span style="font-size:12px;font-weight:400;">${esc(filename)}</span></div>
+    <div class="item"><label>Сохранено на</label><span>${esc(lessonLabel)}</span></div>
+    <div class="item"><label>Дата сохранения</label><span style="font-size:13px;">${esc(savedAt)}</span></div>
+    <div class="item"><label>Тип проекта (портфель)</label><span>${esc(projName)}</span></div>
+    <div class="item"><label>Портфель проектов</label><span style="font-size:13px;">${esc(chest)}</span></div>
+    <div class="item"><label>Объект</label><span style="font-size:13px;">${esc(objName)}</span></div>
+    <div class="item"><label>Масштаб объекта</label><span>${esc(scale)}</span></div>
+    <div class="item"><label>Уровень цены комплектующих</label><span>${esc(priceLevelRu)}</span></div>
+  </div>
+</section>`;
+}
+
+function renderEstimate(state) {
+    if (!state.summary || !state.tasks) return '';
+    const tasks = state.tasks || [], employees = state.employees || [], firmResources = state.firmResources || [];
+    const contrSched = computeSchedule(tasks);
+
+    let totalLabor = 0, totalMaterial = 0;
+    tasks.forEach(t => { const c = calcTaskCost(t); totalLabor += c.laborCost; totalMaterial += c.materialCost; });
+
+    const componentsSum = componentsTotal(state.projectType, state.priceLevel, state.objectScale, state.componentQty);
+    const auxMatSum = auxMaterialsSum(state.projectType, state.priceLevel, state.objectScale, state.componentQty);
+    const totalMaterialAll = totalMaterial + componentsSum + auxMatSum;
+    const total = totalLabor + totalMaterialAll;
+
+    const ovhDays = contrSched.criticalPathLength || 0;
+    const ovhMonthly = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r, employees), 0);
+    const ovhOneTime = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r, employees), 0);
+    const ovhCapexFull = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'CAPEX').reduce((s, r) => s + resVal(r, employees), 0);
+    const ovhCapexMonthly = ovhCapexFull / CAPEX_AMORT_MONTHS;
+    const ovhMonthlyProrated = ovhMonthly * (ovhDays / 30);
+    const ovhCapexProrated = ovhCapexMonthly * (ovhDays / 30);
+    const ovhTotal = ovhMonthlyProrated + ovhOneTime + ovhCapexProrated;
+
+    const overheadPct = total ? (ovhTotal / total * 100) : 0;
+    const profit = (total + ovhTotal) * (profitPct / 100);
+    const priceBeforeVAT = total + ovhTotal + profit;
+    const vatAmount = priceBeforeVAT * (vatRate / 100);
+    const totalWithVAT = priceBeforeVAT + vatAmount;
+
+    const overheadBenchmarkPct = OVERHEAD_BENCHMARK[state.priceLevel] || 35;
+    const overheadGapPts = overheadPct - overheadBenchmarkPct;
+
+    const s = state.summary;
+    let rows = '';
+    rows += compareRow('Труд (с начислениями 30,2%) — totalLabor', s.totalLabor, totalLabor, true);
+    rows += compareRow('Комплектующие проекта — totalComponents', s.totalComponents, componentsSum, true);
+    rows += compareRow('Вспомогательные материалы/крепёж — auxMaterials', s.auxMaterials, auxMatSum, true);
+    rows += compareRow('Материалы всего (комплектующие+крепёж+материалы задач) — totalMaterial', s.totalMaterial, totalMaterialAll, true);
+    rows += compareRow('ИТОГО прямые затраты — total', s.total, total, true);
+    rows += compareRow('Накладные расходы (амортизация CAPEX 36 мес + OPEX по сроку проекта) — overheads', s.overheads, ovhTotal, true);
+    rows += compareRow('Прибыль (15% от прямых+накладных) — profit', s.profit, profit, true);
+    rows += compareRow('Цена без НДС — priceBeforeVAT', s.priceBeforeVAT, priceBeforeVAT, true);
+    rows += compareRow('НДС (22%) — vatAmount', s.vatAmount, vatAmount, true);
+    rows += compareRow('Цена Договора с НДС — totalWithVAT', s.totalWithVAT, totalWithVAT, true);
+
+    const contract = state.contract || {};
+    let contractRows = '';
+    if (typeof contract.advancePct === 'number') {
+        const advance = totalWithVAT * (contract.advancePct / 100);
+        contractRows += `<tr><td>Аванс (${contract.advancePct}% от цены Договора)</td><td class="num">${fmtMoney(advance)}</td></tr>`;
+    }
+    if (typeof contract.accumPct === 'number') {
+        const accumSum = profit * (contract.accumPct / 100);
+        contractRows += `<tr><td>Плановые накопления фирмы (${contract.accumPct}% <b>от прибыли</b>, не от выручки)</td><td class="num">${fmtMoney(accumSum)}</td></tr>`;
+    }
+
+    const overheadClass = Math.abs(overheadGapPts) <= 5 ? 'info-bg' : (overheadGapPts > 0 ? 'warn-bg' : 'info-bg');
+    const overheadColor = Math.abs(overheadGapPts) <= 5 ? 'var(--info)' : (overheadGapPts > 0 ? 'var(--warn)' : 'var(--info)');
+
+    return `
+<section class="card">
+  <h2>Занятие 4 — Локальная смета / Договор</h2>
+  <div class="hint">Пересчитано заново по формулам практикума: амортизация CAPEX на 36 месяцев, пропорция OPEX по фактическому сроку проекта (критический путь = ${ovhDays.toFixed(1)} дн), прибыль 15% от (прямые+накладные), НДС 22%.</div>
+  <table>
+    <thead><tr><th>Показатель</th><th style="text-align:right;">В файле</th><th style="text-align:right;">Пересчитано</th><th>Статус</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  ${contractRows ? `<table style="margin-top:14px;"><tbody>${contractRows}</tbody></table>` : ''}
+  <div class="overhead-note" style="background:var(--${overheadClass});color:${overheadColor};border:1px solid ${overheadColor};">
+    <b>Накладные расходы: ${fmtPct(overheadPct)} от прямых затрат</b> — ориентир по рынку для уровня «${state.priceLevel || 'middle'}»: <b>${overheadBenchmarkPct}%</b>
+    (расхождение: ${overheadGapPts >= 0 ? '+' : ''}${overheadGapPts.toFixed(1)} п.п.).
+    Это <u>информационный сигнал</u>, а не ошибка: если пересчитанный % заметно выше ориентира — возможно, у студента среди отмеченных ресурсов фирмы (занятие 1) остались лишние/чужеродные или изношенные CAPEX-позиции (например, дорогой автомобиль директора, б/у оборудование). Стоит заглянуть в состав отмеченных ресурсов фирмы.
+  </div>
+</section>`;
+}
+
+function renderBudget(state) {
+    if (!state.budget || !state.tasks) return '';
+    const tasks = state.tasks || [], employees = state.employees || [], firmResources = state.firmResources || [];
+    const plSched = computeSchedule(tasks);
+
+    const plCompBase = componentsTotal(state.projectType, state.priceLevel, state.objectScale, state.componentQty);
+    const plHardwareSum = auxMaterialsSum(state.projectType, state.priceLevel, state.objectScale, state.componentQty);
+    const plCompTotal = plCompBase + plHardwareSum;
+
+    const PL_STAGES = [
+        { stages: ['I'] }, { stages: ['II'] }, { stages: ['III','IV'] }, { stages: ['V'] }
+    ];
+    let plStagesTotal = 0;
+    PL_STAGES.forEach(g => {
+        tasks.filter(t => g.stages.includes(t.stage)).forEach(t => { plStagesTotal += calcTaskCost(t).total; });
+    });
+
+    const plEmpCost = {};
+    tasks.forEach(t => {
+        const eids = getTaskEmployeeIds(t);
+        if (!eids.length) return;
+        const share = taskLaborCost(t, employees) / eids.length;
+        eids.forEach(eid => { plEmpCost[eid] = (plEmpCost[eid] || 0) + share; });
+    });
+    const plEmpTotal = Object.values(plEmpCost).reduce((a,b) => a+b, 0);
+
+    const plProjectDays = plSched.criticalPathLength || 0;
+    const plOpexM = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'мес').reduce((s, r) => s + resVal(r, employees), 0);
+    const plOpexMProrated = plOpexM * (plProjectDays / 30);
+    const plOpexO = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'OPEX' && r.period === 'разово').reduce((s, r) => s + resVal(r, employees), 0);
+    const plCapexFull = firmResources.filter(r => (r.studentMark || r.auto === 'fot') && r.costType === 'CAPEX').reduce((s, r) => s + resVal(r, employees), 0);
+    const plCapexProrated = (plCapexFull / CAPEX_AMORT_MONTHS) * (plProjectDays / 30);
+    const plOverheadTotal = plOpexMProrated + plOpexO + plCapexProrated;
+
+    const plOverheadBenchmarkPct = OVERHEAD_BENCHMARK[state.priceLevel] || 35;
+    const plOverheadPct = plStagesTotal ? (plOverheadTotal / plStagesTotal * 100) : 0;
+    const plOverheadGapPts = plOverheadPct - plOverheadBenchmarkPct;
+
+    const plGrandTotal = plCompTotal + plStagesTotal + plOverheadTotal;
+    const plContractPrice = state.summary ? (state.summary.totalWithVAT || 0) : 0;
+    const plMargin = plContractPrice - plGrandTotal;
+    const plAccumPct = (state.contract && state.contract.accumPct) || 35;
+    const plAccumSum = plMargin * (plAccumPct / 100);
+    const plTaxes = plEmpTotal * INSURANCE_RATE / (1 + INSURANCE_RATE);
+
+    const b = state.budget;
+    let rows = '';
+    rows += compareRow('Персонал (payroll) — сумма труда по задачам', b.payroll, plEmpTotal, true);
+    rows += compareRow('Страховые взносы в составе труда (taxes, справочно)', b.taxes, plTaxes, true);
+    rows += compareRow('Накладные — OPEX помесячно, пропорция по сроку (rent)', b.rent, plOpexMProrated, true);
+    rows += compareRow('Накладные — OPEX разово (transport)', b.transport, plOpexO, true);
+    rows += compareRow('Накладные — CAPEX амортизация (other)', b.other, plCapexProrated, true);
+    rows += compareRow('Комплектующие + крепёж (components)', b.components, plCompTotal, true);
+    rows += compareRow('Труд+материалы задач по этапам (stages)', b.stages, plStagesTotal, true);
+    rows += compareRow('ИТОГО плановый бюджет фирмы — totalBudget', b.totalBudget, plGrandTotal, true);
+    rows += compareRow('Маржа (цена Договора − бюджет) — margin', b.margin, plMargin, true);
+    rows += compareRow('Накопления (% от маржи) — accumulation', b.accumulation, plAccumSum, true);
+
+    const overheadClass = Math.abs(plOverheadGapPts) <= 5 ? 'info-bg' : (plOverheadGapPts > 0 ? 'warn-bg' : 'info-bg');
+    const overheadColor = Math.abs(plOverheadGapPts) <= 5 ? 'var(--info)' : (plOverheadGapPts > 0 ? 'var(--warn)' : 'var(--info)');
+
+    return `
+<section class="card">
+  <h2>Занятие 5 — План бюджета фирмы</h2>
+  <div class="hint">Независимая формула (проектный срок = ${plProjectDays.toFixed(1)} дн). Небольшое расхождение margin/accumulation с занятием 4 возможно и предусмотрено самим практикумом (бюджет считается «снизу вверх», смета — «сверху вниз»); расхождение в разы или знак минус там, где не ожидается, — уже повод присмотреться.</div>
+  <table>
+    <thead><tr><th>Показатель</th><th style="text-align:right;">В файле</th><th style="text-align:right;">Пересчитано</th><th>Статус</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="overhead-note" style="background:var(--${overheadClass});color:${overheadColor};border:1px solid ${overheadColor};">
+    <b>Накладные (бюджет): ${fmtPct(plOverheadPct)} от труда+материалов этапов</b> — ориентир: <b>${plOverheadBenchmarkPct}%</b> (расхождение ${plOverheadGapPts >= 0 ? '+' : ''}${plOverheadGapPts.toFixed(1)} п.п.). Информационный сигнал, см. пояснение в блоке занятия 4 выше.
+  </div>
+</section>`;
+}
+
+function renderComponentQty(state) {
+    if (!state.componentQty && !state.componentQtyResult) return '';
+    const items = (COMPONENTS_20[state.projectType] || []).filter(it => it.unitKind === 'mass');
+    if (!items.length) return '<section class="card"><h2>Занятие 2 — Кол-во комплектующих (шт.)</h2><div class="empty-note">Для этого типа проекта нет мелкоштучных позиций (unitKind:mass) — ловушка неприменима.</div></section>';
+    let correct = 0, rows = '';
+    items.forEach(it => {
+        const refVal = componentQtyReference(it, state.objectScale);
+        const lo = refVal * 0.6, hi = refVal * 1.4;
+        const studentVal = state.componentQty ? state.componentQty[it.name] : undefined;
+        const ok = typeof studentVal === 'number' && studentVal > 0 && studentVal >= lo && studentVal <= hi;
+        if (ok) correct++;
+        rows += `<tr class="${ok?'':'diff'}"><td>${esc(it.name)}</td><td class="num">${studentVal ?? '—'}</td><td class="num">${refVal} (допуск ${Math.ceil(lo)}–${Math.floor(hi)})</td><td>${ok?'<span class="tag tag-ok">✓ в допуске ±40%</span>':'<span class="tag tag-bad">✗ вне допуска</span>'}</td></tr>`;
+    });
+    const accuracy = items.length ? (correct/items.length*100) : 0;
+    const savedR = state.componentQtyResult;
+    let compareLine = '';
+    if (savedR) {
+        const match = savedR.correct === correct && savedR.total === items.length;
+        compareLine = `<div class="meta-line" style="margin-top:10px;">В файле сохранено: ${savedR.correct}/${savedR.total} верно (${fmtPct(savedR.accuracy)}). Пересчитано независимо: ${correct}/${items.length} (${fmtPct(accuracy)}). ${match ? '<span class="tag tag-ok">✓ совпадает</span>' : '<span class="tag tag-bad">✗ расхождение — проверьте вручную</span>'}</div>`;
+    }
+    return `
+<section class="card">
+  <h2>Занятие 2 — Кол-во комплектующих (ловушка, допуск ±40%)</h2>
+  <div class="hint">Эталон — COMPONENT_QTY_REF по масштабу объекта «${esc(state.objectScale || 'medium')}», допуск 0.6×–1.4× от эталона (не точное совпадение).</div>
+  <table>
+    <thead><tr><th>Позиция</th><th style="text-align:right;">Введено студентом</th><th style="text-align:right;">Эталон (допуск)</th><th>Статус</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  ${compareLine}
+</section>`;
+}
+
+function renderTraps(state) {
+    const defs = [
+        { key: 'staffResult', title: 'Старт 0 — Подбор персонала фирмы', errKey: 'errorPercent' },
+        { key: 'resResult', title: 'Занятие 1 — Ресурсы фирмы', errKey: 'errorPercent' },
+        { key: 'auditDoResult', title: 'Занятие 8 — Оценка риска ДО проекта', errKey: 'errorPercent' },
+        { key: 'auditAfterResult', title: 'Занятие 8 — Оценка риска ПОСЛЕ проекта', errKey: 'errorPercent' },
+        { key: 'taskNotesResult', title: 'Занятие 2 — Примечание (выходной документ задачи)', errKey: 'accuracy' },
+        { key: 'taskVerifResult', title: 'Занятие 2 — Вид проверочных работ', errKey: 'accuracy' },
+    ];
+    let cards = '';
+    defs.forEach(d => {
+        const r = state[d.key];
+        if (!r) return;
+        const errVal = r[d.errKey];
+        const good = (d.errKey === 'errorPercent') ? (errVal === 0) : (errVal === 100);
+        cards += `
+<div class="item" style="grid-column:span 1;">
+  <label>${esc(d.title)}</label>
+  <span>${r.correct}/${r.total} верно ${good ? '<span class="tag tag-ok">✓</span>' : '<span class="tag tag-warn">'+fmtPct(errVal)+(d.errKey==='errorPercent'?' ошибок':' точность')+'</span>'}</span>
+</div>`;
+    });
+    if (!state.qualCheckResults) {
+    } else {
+        ['I','II','III','IV','V'].forEach(stage => {
+            const r = state.qualCheckResults[stage];
+            if (!r) return;
+            const good = r.errorPercent === 0;
+            cards += `
+<div class="item">
+  <label>Квалификация исполнителей, этап ${stage}</label>
+  <span>${r.correct}/${r.total} верно ${good ? '<span class="tag tag-ok">✓</span>' : '<span class="tag tag-warn">'+fmtPct(r.errorPercent)+' ошибок</span>'}</span>
+</div>`;
+        });
+    }
+    if (!cards) return '<section class="card"><h2>Ловушки правильности</h2><div class="empty-note">В этом файле не сохранено ни одного из известных счётчиков-ловушек (staffResult, resResult, qualCheckResults, auditDoResult, auditAfterResult, taskNotesResult, taskVerifResult) — вероятно, студент сохранился на очень раннем этапе.</div></section>';
+    return `
+<section class="card">
+  <h2>Ловушки правильности (как сохранено в файле)</h2>
+  <div class="hint">Эти значения показаны как сохранены студентом (в файле уже лежит результат проверки самого практикума) — здесь НЕ пересчитываются заново, т.к. требуют полного дублирования логики подбора персонала/аудита. Отображаются только те счётчики, что реально присутствуют в файле.</div>
+  <div class="headbox">${cards}</div>
+</section>`;
+}
+
+function renderCompetency(state) {
+    if (!state.competencyTests) return '';
+    const stages = Object.keys(state.competencyTests).sort((a,b)=>Number(a)-Number(b));
+    if (!stages.length) return '';
+    let rows = '';
+    stages.forEach(stageKey => {
+        const ct = state.competencyTests[stageKey];
+        if (!ct) return;
+        const label = stageKey === '0' ? 'Старт 0' : ('Занятие ' + stageKey);
+        const pct = ct.total ? Math.round(ct.correctCount/ct.total*100) : null;
+        rows += `<tr><td>${esc(label)}</td><td class="num">${ct.correctCount}/${ct.total}</td><td class="num">${pct !== null ? pct+'%' : '—'}</td><td>${esc(ct.grade)} (${esc(ct.gradeWord)})</td><td>${ct.viaShortcut ? '<span class="tag tag-warn">через тестовый шорткат</span>' : '<span class="tag tag-ok">пройден самостоятельно</span>'}</td></tr>`;
+    });
+    return `
+<section class="card">
+  <h2>Компетентностные тесты по этапам</h2>
+  <div class="hint">Единственная метрика, покрывающая все этапы 0-9. Значения — как сохранены практикумом; отметка «через тестовый шорткат» означает, что оценка выставлена принудительно (например, режим преподавателя), а не по реальным ответам студента.</div>
+  <table>
+    <thead><tr><th>Этап</th><th style="text-align:right;">Верно/всего</th><th style="text-align:right;">%</th><th>Оценка</th><th>Как пройден</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+</section>`;
+}
+</script>
+</body>
+</html>
