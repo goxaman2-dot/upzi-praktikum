@@ -326,7 +326,7 @@ function md(src){
     let m;
     if ((m = l.match(/^(#{1,4})\s+(.*)$/))){ out += `<h${m[1].length + 1}>` + inline(m[2]) + `</h${m[1].length + 1}>`; i++; continue; }
     if (/^\s*[-*•]\s+/.test(l)){ out += '<ul>'; while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*[-*•]\s+/, '')) + '</li>'; i++; } out += '</ul>'; continue; }
-    if (/^\s*\d+[.)]\s+/.test(l)){ out += '<ol>'; while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*\d+[.)]\s+/, '')) + '</li>'; i++; } out += '</ol>'; continue; }
+    if (/^\s*\d+[.)]\s+/.test(l)){ const start = parseInt(l.trim(), 10) || 1; out += '<ol start="' + start + '">'; while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*\d+[.)]\s+/, '')) + '</li>'; i++; } out += '</ol>'; continue; }
     if (!l.trim()){ i++; continue; }
     let para = [l]; i++;
     while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|\s*[-*•]\s|\s*\d+[.)]\s|\s*\|)/.test(lines[i]) && !/^\u0000/.test(lines[i].trim())){ para.push(lines[i]); i++; }
