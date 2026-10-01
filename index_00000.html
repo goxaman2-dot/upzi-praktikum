@@ -3516,52 +3516,19 @@ e.preventDefault();
 el.click();
 });
 
-// Слушатель секретной последовательности 0-0-0-2-5 (пять клавиш подряд, без модификаторов, за 3 с).
-(function() {
-var seq = [];
-var target = ['0', '0', '0', '2', '5'];
-document.addEventListener('keydown', function(e) {
-if (e.ctrlKey || e.altKey || e.metaKey) { seq = []; return; }
-var d = null;
-if (e.code === 'Digit0' || e.code === 'Numpad0' || e.key === '0') d = '0';
-else if (e.code === 'Digit2' || e.code === 'Numpad2' || e.key === '2') d = '2';
-else if (e.code === 'Digit5' || e.code === 'Numpad5' || e.key === '5') d = '5';
-if (d === null) { seq = []; return; }
-seq.push({ k: d, t: Date.now() });
-if (seq.length > 5) seq = seq.slice(-5);
-// отбрасываем клавиши старше 3 секунд
-seq = seq.filter(function(x) { return Date.now() - x.t <= 3000; });
-if (seq.length === 5 && seq.every(function(x, i) { return x.k === target[i]; })) {
-seq = [];
-teacherInject25Errors();
-}
-});
-})();
+// Слушатель секретной последовательности 0-0-0-2-5 УДАЛЁН (студенческая версия index_00000.html):
+// эта комбинация запускала teacherInject25Errors() — автозаполнение практикума заведомо
+// ошибочными решениями для демонстрации преподавателю. Сама функция ниже оставлена нетронутой
+// на случай, если понадобится вызвать её вручную из консоли разработчика на преподавательской
+// копии файла, но клавиатурного триггера для студентов в этой версии больше нет.
 
-// Секретный вызов подсказки только для преподавателя — ДВА независимых способа сразу.
-// СПОСОБ 1 (основной): БЫСТРО нажать «0» ПЯТЬ РАЗ ПОДРЯД без модификаторов, за 1.5 секунды —
-// не перехватывается системными сочетаниями macOS/Windows, в отличие от комбинаций с Ctrl/Cmd.
-// СПОСОБ 2 (запасной): Control + Option/Alt + Shift + 0.
-(function() {
-var zeroPressTimes = [];
-document.addEventListener('keydown', function(e) {
-if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === '0' || e.code === 'Digit0')) {
-e.preventDefault();
-teacherRevealCorrectAnswers();
-zeroPressTimes = [];
-return;
-}
-if (!e.ctrlKey && !e.altKey && !e.metaKey && (e.code === 'Digit0' || e.code === 'Numpad0' || e.key === '0')) {
-var now = Date.now();
-zeroPressTimes.push(now);
-zeroPressTimes = zeroPressTimes.filter(function(t) { return now - t <= 1500; });
-if (zeroPressTimes.length >= 5) {
-zeroPressTimes = [];
-teacherRevealCorrectAnswers();
-}
-}
-});
-})();
+// Секретный вызов подсказки правильных ответов (teacherRevealCorrectAnswers) УДАЛЁН (студенческая
+// версия index_00000.html): оба способа вызова («0» пять раз подряд и Ctrl+Alt+Shift+0)
+// напрямую проставляли эталонные ответы во всех незафиксированных блоках практикума — это
+// единственный из всех скрытых кодов, который давал ГОТОВЫЙ правильный ответ, а не просто
+// пропускал/фальсифицировал шаг, поэтому в версии для раздачи студентам недопустим.
+// Функция teacherRevealCorrectAnswers() ниже оставлена нетронутой для ручного вызова из консоли
+// на преподавательской копии, но клавиатурного триггера для студентов больше нет.
 
 function goToProject() {
 document.getElementById('startScreen').classList.remove('visible');
@@ -4030,8 +3997,6 @@ auditAfterLocked: false,
 auditAfterResult: null,
 auditAfterReportNote: null,
 delphiExperts: { e1: '', e2: '', e3: '' },
-// ДОБАВЛЕНО (2026-10-01): оценки синтетической панели нейросетей (занятие 8), [phase][provider]
-aiDelphi: { Do: {}, After: {} },
 taskNotesLocked: false,
 taskNotesResult: null,
 taskNotesReportNote: null,
@@ -4073,28 +4038,15 @@ let currentLesson = 1;
 let ganttInstance = null;
 
 // ============================================================
-// СЕКРЕТНАЯ ПОДСКАЗКА ПРЕПОДАВАТЕЛЯ (стр. 14 / занятие 8 «Аудит ИБ заказчика»)
-// ============================================================
-// Набрать на клавиатуре 0-0-0-8-0 (когда открыта стр. 14) — включает/выключает показ эталона
-// прямо в таблицах аудита ДО/ПОСЛЕ (t.correctDo/t.correctAfter), чтобы во время занятия можно
-// было быстро сверить отметки студента, не листая отдельно threat_db_защищено.xlsx. Секрет —
-// не показывается никакими подсказками в интерфейсе намеренно (по просьбе преподавателя).
+// СЕКРЕТНАЯ ПОДСКАЗКА ПРЕПОДАВАТЕЛЯ (стр. 14 / занятие 8 «Аудит ИБ заказчика») — УДАЛЕНА
+// (студенческая версия index_00000.html): клавиатурный триггер 0-0-0-8-0, который включал показ
+// эталонных бейджей «✓ эталон / ✗ ловушка» прямо в таблицах аудита ДО/ПОСЛЕ, убран по прямому
+// решению преподавателя — риск обнаружения студентами (аудитория ИБ, многолетняя эксплуатация
+// файла) оценён выше 51%. Переменные teacherHintMode/teacherHintKeyBuffer и код отображения
+// бейджей (см. ~строка 5677) оставлены как есть: teacherHintMode теперь навсегда false, поэтому
+// подсказка нигде не показывается, но остальная логика страницы не тронута.
 let teacherHintMode = false;
 let teacherHintKeyBuffer = [];
-document.addEventListener('keydown', function(e) {
-const tag = (document.activeElement && document.activeElement.tagName) || '';
-if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // не мешаем вводу чисел в поля
-if (!/^[0-9]$/.test(e.key)) return;
-teacherHintKeyBuffer.push(e.key);
-if (teacherHintKeyBuffer.length > 5) teacherHintKeyBuffer.shift();
-if (teacherHintKeyBuffer.join('') === '00080') {
-teacherHintKeyBuffer = [];
-if (currentLesson === 8) {
-teacherHintMode = !teacherHintMode;
-recalcAll();
-}
-}
-});
 
 // ============================================================
 // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -4458,9 +4410,6 @@ if (typeof state.auditAfterReportNote === 'undefined') state.auditAfterReportNot
 // «Оценка_риска_Дельфи» в threat_db_защищено.xlsx; поля самих угроз (dP1Do..dIAgreeAfter)
 // не мигрируются отдельно — их отсутствие эквивалентно null/undefined в расчётах.
 if (!state.delphiExperts) state.delphiExperts = { e1: '', e2: '', e3: '' };
-if (!state.aiDelphi) state.aiDelphi = { Do: {}, After: {} };
-if (!state.aiDelphi.Do) state.aiDelphi.Do = {};
-if (!state.aiDelphi.After) state.aiDelphi.After = {};
 if (typeof state.taskNotesLocked === 'undefined') state.taskNotesLocked = false;
 if (typeof state.taskNotesResult === 'undefined') state.taskNotesResult = null;
 if (typeof state.taskNotesReportNote === 'undefined') state.taskNotesReportNote = null;
@@ -5785,7 +5734,6 @@ ${delphiTableHead}
 </table>
 </div>
 <p style="margin:8px 0 20px; color:var(--gr-dim); font-size:12.5px;">Источник методики — лист «Оценка_риска_Дельфи», threat_db_защищено.xlsx. Классический метод Дельфи предполагает 7+ анонимных экспертов и несколько туров через фасилитатора; версия с 2-3 очными экспертами — учебное упрощение для аудиторной работы.</p>
-${aiDelphiPanelHtml('Do', delphiScored)}
 ` : `
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px; opacity:.45;">Балльная оценка риска методом Дельфи — ДО внедрения проекта</div>
 <p style="margin-bottom:10px; color:var(--gr-dim); font-size:13px; font-style:italic;">Доступно после фиксации аудита ДО (см. выше).</p>
@@ -5841,7 +5789,6 @@ ${delphiTableHead}
 <div class="summary-card" style="background:rgba(57,255,157,0.1); border-color:var(--gr-green);"><label>Снижение риска</label><span>${delphiReduction.toFixed(1)}%</span></div>
 </div>
 <p style="margin:8px 0 4px; color:var(--gr-dim); font-size:12.5px;">Снижение суммарного балла риска (ДО → ПОСЛЕ) — это и есть технико-экономическое обоснование целесообразности внедрённого проекта ИБ, по той же логике, что рост доходозащищённости/бюджетозащищённости в исходных методических материалах курса.</p>
-${aiDelphiPanelHtml('After', delphiScored)}
 ` : `
 <div style="font-size:16px; font-weight:600; color:var(--gr-text); margin:28px 0 6px; opacity:.45;">Балльная оценка риска методом Дельфи — ПОСЛЕ внедрения проекта</div>
 <p style="margin-bottom:10px; color:var(--gr-dim); font-size:13px; font-style:italic;">Доступно после фиксации аудита ПОСЛЕ (см. выше).</p>
@@ -6840,15 +6787,6 @@ function applyUniversalShortcutOnPage() {
     // там нечего; код на этих страницах просто ничего не делает (тихо, без alert — не мешает набору).
 }
 let pageKeySeq = [];
-document.addEventListener('keydown', function(e) {
-    if (document.getElementById('testOverlay') || document.getElementById('gateOverlay') || document.getElementById('dirOverlay')) return;
-    pageKeySeq.push(e.key);
-    if (pageKeySeq.length > UNIVERSAL_TEST_CODE.length) pageKeySeq.shift();
-    if (pageKeySeq.join('') === UNIVERSAL_TEST_CODE) {
-        pageKeySeq = [];
-        applyUniversalShortcutOnPage();
-    }
-});
 function openCompetencyTest(stageKey, direction, proceedFn) {
     const entries = (COMPETENCY_TESTS[stageKey] && COMPETENCY_TESTS[stageKey][direction]) || [];
     testKeySeq = [];
@@ -6888,23 +6826,8 @@ function openCompetencyTest(stageKey, direction, proceedFn) {
     }
     card.querySelectorAll('input[type="radio"]').forEach(function(inp) { inp.addEventListener('change', checkAllAnswered); });
     document.getElementById('testSubmitBtn').onclick = function() {
-        document.removeEventListener('keydown', keyHandler);
         gradeCompetencyTest(stageKey, direction, entries, proceedFn, null);
     };
-
-    // Скрытый клавиатурный тестовый шорткат (по просьбе преподавателя, аналог кнопки «Пропустить
-    // воронку (для теста)»): последовательность цифровых клавиш, набранная на клавиатуре пока открыт
-    // тест, мгновенно засчитывает его на оценку «хорошо» без реальных ответов. ОДИН код на все этапы
-    // без исключений — 0-0-0-7-5 (см. историю смены кодов в комментарии у UNIVERSAL_TEST_CODE выше).
-    function keyHandler(e) {
-        testKeySeq.push(e.key);
-        if (testKeySeq.length > UNIVERSAL_TEST_CODE.length) testKeySeq.shift();
-        if (testKeySeq.join('') === UNIVERSAL_TEST_CODE) {
-            document.removeEventListener('keydown', keyHandler);
-            gradeCompetencyTest(stageKey, direction, entries, proceedFn, 4);
-        }
-    }
-    document.addEventListener('keydown', keyHandler);
 }
 
 function gradeCompetencyTest(stageKey, direction, entries, proceedFn, forcedGrade) {
@@ -7543,315 +7466,6 @@ const agreeP = typeof manualP === 'number' ? manualP : avgP;
 const agreeI = typeof manualI === 'number' ? manualI : avgI;
 const risk = (typeof agreeP === 'number' && typeof agreeI === 'number') ? agreeP * agreeI : null;
 return { ps, is, deltaP, deltaI, needRound2, avgP, avgI, agreeP, agreeI, risk };
-}
-
-// ============================================================
-// ДОБАВЛЕНО (2026-10-01): СИНТЕТИЧЕСКАЯ ЭКСПЕРТНАЯ ПАНЕЛЬ (НЕЙРОСЕТИ) — занятие 8, метод Дельфи.
-// По просьбе преподавателя: рядом с 2-3 экспертами-людьми независимо оценивают те же угрозы
-// нейросети (Claude, Qwen, DeepSeek, Gemini, GigaChat). Оценки ИИ НЕ входят в согласованную
-// оценку людей и не меняют балл риска практикума — это отдельная панель сравнения: медиана ИИ,
-// расхождение «человек − ИИ» по каждой угрозе и коэффициент конкордации Кендалла W для людей,
-// для ИИ и для объединённой панели.
-// Ключи нейросетей хранятся НЕ здесь, а в прокси на Cloudflare (папка ai-proxy/ репозитория):
-// после развёртывания прокси вставьте его адрес в AI_PROXY_URL.
-// Эталон аудита (correctDo/correctAfter) в задание нейросетям не передаётся — они оценивают
-// только угрозы, которые студент УЖЕ отметил сам, поэтому ловушка аудита не раскрывается.
-// Кнопка запроса активна только после того, как минимум 2 эксперта-человека оценили все угрозы
-// (независимость экспертов: студент не должен подстраиваться под ответ машины).
-// ============================================================
-const AI_PROXY_URL = ''; // ← вставить адрес Cloudflare Worker, например 'https://upzi-ai.<имя>.workers.dev'
-const AI_PROVIDERS = [
-  { id: 'claude', name: 'Claude' },
-  { id: 'qwen', name: 'Qwen' },
-  { id: 'deepseek', name: 'DeepSeek' },
-  { id: 'gemini', name: 'Gemini' },
-  { id: 'gigachat', name: 'GigaChat' }
-];
-let aiProxyStatus = null;      // ответ GET /status: какие нейросети настроены у преподавателя
-let aiProxyStatusError = '';
-let aiProxyStatusPending = false;
-let aiDelphiSelected = { claude: true, qwen: true, deepseek: true, gemini: true, gigachat: true };
-let aiDelphiBusy = { Do: false, After: false };
-let aiDelphiRuntime = {};      // [phase][provider] = 'loading' | 'ok' | текст ошибки (только в этой сессии)
-
-function aiAccessCode() { try { return sessionStorage.getItem('upzi_ai_code') || ''; } catch (e) { return ''; } }
-function setAiAccessCode(v) { try { sessionStorage.setItem('upzi_ai_code', String(v || '').trim()); } catch (e) {} aiProxyStatus = null; aiCheckProxy(); }
-function aiEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-function toggleAiProvider(id) { aiDelphiSelected[id] = !aiDelphiSelected[id]; renderCurrentLesson(); }
-
-async function aiCheckProxy() {
-  if (!AI_PROXY_URL || aiProxyStatusPending) return;
-  aiProxyStatusPending = true;
-  try {
-    const r = await fetch(AI_PROXY_URL.replace(/\/+$/, '') + '/status', { headers: { 'X-Access-Code': aiAccessCode() } });
-    aiProxyStatus = await r.json();
-    aiProxyStatusError = '';
-  } catch (e) {
-    aiProxyStatus = null;
-    aiProxyStatusError = 'прокси не отвечает (нет интернета или адрес указан неверно)';
-  } finally {
-    aiProxyStatusPending = false;
-    if (typeof currentLesson !== 'undefined' && currentLesson === 8) renderCurrentLesson();
-  }
-}
-
-async function aiCall(provider, system, prompt) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 120000);
-  try {
-    const r = await fetch(AI_PROXY_URL.replace(/\/+$/, '') + '/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Code': aiAccessCode() },
-      body: JSON.stringify({ provider, system, prompt, maxTokens: 3000 }),
-      signal: ctrl.signal
-    });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
-    return { text: j.text || '', model: j.model || '' };
-  } catch (e) {
-    throw new Error(e.name === 'AbortError' ? 'нейросеть не ответила за 2 минуты' : (e.message || 'запрос заблокирован сетью'));
-  } finally { clearTimeout(timer); }
-}
-
-function aiParseScores(text) {
-  let s = String(text || '').replace(/```(?:json)?/gi, '');
-  const a = s.indexOf('{'), b = s.lastIndexOf('}');
-  if (a < 0 || b < a) throw new Error('ответ без JSON');
-  s = s.slice(a, b + 1);
-  let j;
-  try { j = JSON.parse(s); } catch (e) { j = JSON.parse(s.replace(/,\s*([}\]])/g, '$1')); }
-  const list = Array.isArray(j) ? j : (j.scores || j.threats || j.items || []);
-  if (!Array.isArray(list) || !list.length) throw new Error('в ответе нет списка оценок');
-  return list;
-}
-
-// Угрозы, по которым минимум 2 эксперта-человека выставили и P, и I в данной фазе.
-function aiHumanReady(phase, threats) {
-  if (!threats.length) return false;
-  return threats.every(t => {
-    let n = 0;
-    for (let k = 1; k <= 3; k++) if (typeof t['dP' + k + phase] === 'number' && typeof t['dI' + k + phase] === 'number') n++;
-    return n >= 2;
-  });
-}
-
-function aiBuildPrompt(phase, threats) {
-  const typeName = (typeof TYPE_RU !== 'undefined' && TYPE_RU[state.projectType]) || state.projectType;
-  const scale = (typeof OBJECT_SCALE_RU !== 'undefined' && OBJECT_SCALE_RU[state.objectScale]) || state.objectScale;
-  const addr = (state.client && state.client.address) || '';
-  const phaseText = phase === 'Do'
-    ? 'Оценка ДО внедрения проекта: защитных мер, которые даёт проект, у заказчика ещё нет.'
-    : 'Оценка ПОСЛЕ внедрения проекта: система «' + typeName + '» смонтирована, настроена и принята заказчиком; оцените остаточный риск с учётом этих мер.';
-  const lines = threats.map(t => '- ' + t.code + ' | ' + t.name + (t.cat ? ' | категория: ' + t.cat : '')).join('\n');
-  return 'Проект информационной безопасности: «' + typeName + '». Объект заказчика: масштаб — ' + scale + (addr ? ', адрес — ' + addr : '') + '.\n' +
-    phaseText + '\n\n' +
-    'Оцените каждую угрозу из списка по двум независимым шкалам от 1 до 5 (только целые числа):\n' +
-    'P — вероятность реализации угрозы для этого объекта (1 — маловероятно, 5 — почти неизбежно);\n' +
-    'I — тяжесть последствий для заказчика, если угроза реализуется (1 — незначительно, 5 — критично).\n' +
-    'P и I — разные измерения: угроза может быть вероятной, но малозначимой, и наоборот.\n\n' +
-    'Угрозы (код | название):\n' + lines + '\n\n' +
-    'Ответьте строго JSON без пояснений вокруг: {"scores":[{"code":"<код угрозы>","P":<1-5>,"I":<1-5>,"why":"<обоснование до 25 слов>"}]} — по одной записи на каждую угрозу из списка.';
-}
-const AI_SYSTEM = 'Ты независимый эксперт по информационной безопасности, участник экспертной оценки риска методом Дельфи. Оценивай самостоятельно, без оглядки на других экспертов. Отвечай только валидным JSON.';
-
-async function aiDelphiRun(phase) {
-  const threats = state.auditThreats.filter(t => t.studentMarkDo);
-  if (!AI_PROXY_URL) { alert('Прокси нейросетей ещё не подключён: преподавателю нужно вставить его адрес в AI_PROXY_URL (см. ai-proxy/README.md).'); return; }
-  if (!aiHumanReady(phase, threats)) { alert('Необходимо: сначала минимум 2 эксперта-человека должны оценить P и I по всем угрозам таблицы. Нейросети подключаются после людей, чтобы ваши оценки остались независимыми.'); return; }
-  const configured = (aiProxyStatus && aiProxyStatus.providers) || {};
-  const ids = AI_PROVIDERS.map(p => p.id).filter(id => aiDelphiSelected[id] && configured[id] && configured[id].configured);
-  if (!ids.length) { alert('Не выбрана ни одна доступная нейросеть.'); return; }
-  aiDelphiBusy[phase] = true;
-  aiDelphiRuntime[phase] = aiDelphiRuntime[phase] || {};
-  ids.forEach(id => { aiDelphiRuntime[phase][id] = 'loading'; });
-  renderCurrentLesson();
-  const prompt = aiBuildPrompt(phase, threats);
-  await Promise.all(ids.map(async id => {
-    try {
-      const res = await aiCall(id, AI_SYSTEM, prompt);
-      const list = aiParseScores(res.text);
-      const byCode = {};
-      list.forEach(x => {
-        const code = String(x.code || x.id || '').trim();
-        const P = Math.round(Number(x.P != null ? x.P : x.p));
-        const I = Math.round(Number(x.I != null ? x.I : x.i));
-        if (code && P >= 1 && P <= 5 && I >= 1 && I <= 5) byCode[code] = { P, I, why: String(x.why || x.reason || '').slice(0, 300) };
-      });
-      const out = {};
-      threats.forEach(t => { if (byCode[t.code]) out[t.id] = byCode[t.code]; });
-      if (!Object.keys(out).length) throw new Error('коды угроз в ответе не совпали со списком');
-      state.aiDelphi[phase][id] = { scores: out, model: res.model, at: new Date().toLocaleString('ru-RU') };
-      aiDelphiRuntime[phase][id] = 'ok';
-    } catch (e) {
-      aiDelphiRuntime[phase][id] = e.message || 'ошибка';
-    }
-  }));
-  aiDelphiBusy[phase] = false;
-  recalcAll();
-}
-function aiDelphiClear(phase) {
-  if (!confirm('Удалить оценки нейросетей для этой таблицы?')) return;
-  state.aiDelphi[phase] = {};
-  aiDelphiRuntime[phase] = {};
-  recalcAll();
-}
-
-function aiMedian(arr) {
-  const a = arr.slice().sort((x, y) => x - y);
-  if (!a.length) return null;
-  const m = Math.floor(a.length / 2);
-  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
-}
-// Ранги с усреднением для связанных значений (больший риск — больший ранг).
-function aiRanks(values) {
-  const idx = values.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
-  const ranks = new Array(values.length);
-  const ties = [];
-  for (let s = 0; s < idx.length;) {
-    let e = s;
-    while (e + 1 < idx.length && idx[e + 1].v === idx[s].v) e++;
-    const r = (s + e) / 2 + 1;
-    for (let k = s; k <= e; k++) ranks[idx[k].i] = r;
-    if (e > s) ties.push(e - s + 1);
-    s = e + 1;
-  }
-  return { ranks, ties };
-}
-// Регуляризованная верхняя неполная гамма-функция Q(a,x) — для p-значения критерия χ².
-function aiGammaQ(a, x) {
-  if (x <= 0) return 1;
-  const lnG = (z) => { const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]; let y = z, t = z + 5.5; t -= (z + 0.5) * Math.log(t); let s = 1.000000000190015; for (let j = 0; j < 6; j++) s += c[j] / ++y; return -t + Math.log(2.5066282746310005 * s / z); };
-  if (x < a + 1) {
-    let sum = 1 / a, del = sum, ap = a;
-    for (let n = 0; n < 200; n++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-10) break; }
-    return 1 - sum * Math.exp(-x + a * Math.log(x) - lnG(a));
-  }
-  let b = x + 1 - a, c = 1e300, d = 1 / b, h = d;
-  for (let i = 1; i < 200; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-10) break; }
-  return Math.exp(-x + a * Math.log(x) - lnG(a)) * h;
-}
-// Коэффициент конкордации Кендалла W с поправкой на связанные ранги.
-// judges — массив массивов баллов риска (по одному массиву на эксперта, длина n = число угроз).
-function aiKendallW(judges) {
-  const m = judges.length, n = judges.length ? judges[0].length : 0;
-  if (m < 2 || n < 3) return null;
-  let T = 0;
-  const R = new Array(n).fill(0);
-  judges.forEach(scores => {
-    const { ranks, ties } = aiRanks(scores);
-    ranks.forEach((r, i) => { R[i] += r; });
-    ties.forEach(t => { T += t * t * t - t; });
-  });
-  const mean = m * (n + 1) / 2;
-  const S = R.reduce((s, r) => s + (r - mean) * (r - mean), 0);
-  const denom = m * m * (n * n * n - n) - m * T;
-  if (denom <= 0) return { W: null, m, n, reason: 'все оценки одинаковы' };
-  const W = 12 * S / denom;
-  const chi2 = m * (n - 1) * W;
-  const p = aiGammaQ((n - 1) / 2, chi2 / 2);
-  return { W, chi2, df: n - 1, p, m, n };
-}
-function aiWVerdict(k) {
-  if (!k) return '<span style="color:var(--gr-dim);">нужно ≥ 3 угроз и ≥ 2 эксперта</span>';
-  if (k.W === null) return '<span style="color:var(--gr-dim);">' + k.reason + '</span>';
-  const lvl = k.W >= 0.7 ? 'высокая' : (k.W >= 0.3 ? 'умеренная' : 'слабая');
-  const sig = k.p < 0.05 ? 'значима (p < 0,05)' : 'не значима (p ≥ 0,05)';
-  return '<strong>W = ' + k.W.toFixed(2).replace('.', ',') + '</strong> — ' + lvl + ' согласованность; χ² = ' + k.chi2.toFixed(2).replace('.', ',') + ', df = ' + k.df + ', ' + sig + ' (m = ' + k.m + ', n = ' + k.n + ')';
-}
-
-function aiDelphiStats(phase, threats) {
-  const providers = AI_PROVIDERS.filter(p => state.aiDelphi[phase][p.id] && state.aiDelphi[phase][p.id].scores);
-  const rows = threats.map(t => {
-    const ai = providers.map(p => state.aiDelphi[phase][p.id].scores[t.id]).filter(Boolean);
-    const medP = aiMedian(ai.map(x => x.P)), medI = aiMedian(ai.map(x => x.I));
-    const aiRisk = (medP !== null && medI !== null) ? medP * medI : null;
-    const human = delphiRowCalc(t, phase).risk;
-    return { t, medP, medI, aiRisk, human, delta: (aiRisk !== null && typeof human === 'number') ? human - aiRisk : null };
-  });
-  const humanJudges = [1, 2, 3].map(k => threats.map(t => (typeof t['dP' + k + phase] === 'number' && typeof t['dI' + k + phase] === 'number') ? t['dP' + k + phase] * t['dI' + k + phase] : null))
-    .filter(arr => arr.every(v => v !== null));
-  const aiJudges = providers.map(p => threats.map(t => { const s = state.aiDelphi[phase][p.id].scores[t.id]; return s ? s.P * s.I : null; }))
-    .filter(arr => arr.every(v => v !== null));
-  const deltas = rows.filter(r => r.delta !== null).map(r => Math.abs(r.delta));
-  return {
-    providers, rows,
-    wHuman: aiKendallW(humanJudges), wAi: aiKendallW(aiJudges), wAll: aiKendallW(humanJudges.concat(aiJudges)),
-    meanAbsDelta: deltas.length ? deltas.reduce((a, b) => a + b, 0) / deltas.length : null,
-    bigGaps: rows.filter(r => r.delta !== null && Math.abs(r.delta) >= 5).length,
-    sumHuman: rows.reduce((s, r) => s + (typeof r.human === 'number' ? r.human : 0), 0),
-    sumAi: rows.reduce((s, r) => s + (r.aiRisk || 0), 0)
-  };
-}
-
-function aiDelphiPanelHtml(phase, threats) {
-  if (!state.aiDelphi) state.aiDelphi = { Do: {}, After: {} };
-  if (AI_PROXY_URL && !aiProxyStatus && !aiProxyStatusError && !aiProxyStatusPending) setTimeout(aiCheckProxy, 0);
-  const title = phase === 'Do' ? 'ДО внедрения' : 'ПОСЛЕ внедрения';
-  const box = (inner) => `<div style="margin:6px 0 22px; padding:14px 16px; border:1px solid var(--gr-cyan); border-radius:10px; background:rgba(0,200,255,0.04);">
-<div style="font-size:15px; font-weight:600; color:var(--gr-text); margin-bottom:6px;">🤖 Синтетическая экспертная панель (нейросети) — ${title}</div>${inner}</div>`;
-  if (!threats.length) return '';
-  if (!AI_PROXY_URL) return box('<p style="margin:0; color:var(--gr-dim); font-size:12.5px; font-style:italic;">Панель нейросетей не подключена: преподавателю нужно развернуть прокси (папка ai-proxy/ в репозитории) и вставить его адрес в AI_PROXY_URL.</p>');
-
-  const st = aiProxyStatus;
-  const needCode = st && st.accessCodeRequired && !st.accessCodeOk;
-  const codeField = (st && st.accessCodeRequired) ? `<div style="margin:6px 0 10px; font-size:12.5px;">Код доступа от преподавателя: <input type="password" style="width:140px; padding:4px;" value="${aiEsc(aiAccessCode())}" onchange="setAiAccessCode(this.value)" /> ${needCode ? '<span style="color:var(--gr-red);">код не принят</span>' : '<span style="color:var(--gr-green);">✓</span>'}</div>` : '';
-  const rt = aiDelphiRuntime[phase] || {};
-  const chips = AI_PROVIDERS.map(p => {
-    const conf = st && st.providers && st.providers[p.id] && st.providers[p.id].configured;
-    const r = rt[p.id];
-    const has = state.aiDelphi[phase][p.id];
-    let dot = 'var(--gr-dim)', txt = conf ? 'готова' : 'нет ключа у преподавателя';
-    if (r === 'loading') { dot = 'var(--gr-gold)'; txt = 'оценивает…'; }
-    else if (r && r !== 'ok') { dot = 'var(--gr-red)'; txt = 'ошибка: ' + r; }
-    else if (has) { dot = 'var(--gr-green)'; txt = 'оценки получены'; }
-    else if (conf) dot = 'var(--gr-cyan)';
-    return `<label style="display:inline-flex; align-items:center; gap:6px; margin:0 8px 6px 0; padding:5px 10px; border:1px solid var(--gr-line); border-radius:8px; font-size:12.5px; ${conf ? 'cursor:pointer;' : 'opacity:.5;'}" title="${aiEsc(txt)}">
-<input type="checkbox" ${aiDelphiSelected[p.id] && conf ? 'checked' : ''} ${conf ? '' : 'disabled'} onchange="toggleAiProvider('${p.id}')" />
-<span style="width:8px; height:8px; border-radius:50%; background:${dot}; display:inline-block;"></span><b>${p.name}</b><small style="color:var(--gr-dim); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${aiEsc(txt)}</small></label>`;
-  }).join('');
-  const statusLine = aiProxyStatusError ? `<p style="margin:0 0 8px; color:var(--gr-red); font-size:12.5px;">⚠️ ${aiEsc(aiProxyStatusError)} <button class="btn btn-outline btn-sm" onclick="aiProxyStatusError=''; aiCheckProxy();">Проверить снова</button></p>`
-    : (!st ? '<p style="margin:0 0 8px; color:var(--gr-dim); font-size:12.5px;">Проверка связи с прокси…</p>' : '');
-  const ready = aiHumanReady(phase, threats);
-  const anyConf = st && st.providers && AI_PROVIDERS.some(p => st.providers[p.id] && st.providers[p.id].configured && aiDelphiSelected[p.id]);
-  const canRun = ready && anyConf && !needCode && !aiDelphiBusy[phase];
-  const hasAny = Object.keys(state.aiDelphi[phase]).length > 0;
-  const actions = `<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:8px 0;">
-<button class="btn btn-primary btn-sm" onclick="aiDelphiRun('${phase}')" ${canRun ? '' : 'disabled'}>${aiDelphiBusy[phase] ? '⏳ Нейросети оценивают…' : (hasAny ? '🔁 Запросить оценки ИИ заново' : '🤖 Получить оценки нейросетей')}</button>
-${hasAny ? `<button class="btn btn-outline btn-sm" onclick="aiDelphiClear('${phase}')">🗑 Удалить оценки ИИ</button>` : ''}</div>
-${!ready ? '<p style="margin:0 0 6px; color:#F2CB7A; font-size:12.5px;">Необходимо: сначала минимум 2 эксперта-человека должны выставить P и I по всем угрозам таблицы выше. Нейросети подключаются после людей, чтобы ваши оценки остались независимыми.</p>' : ''}`;
-
-  let results = '';
-  if (hasAny) {
-    const s = aiDelphiStats(phase, threats);
-    const head = s.providers.map(p => `<th colspan="2">${p.name}</th>`).join('');
-    const sub = s.providers.map(() => '<th>P</th><th>I</th>').join('');
-    const body = s.rows.map((r, i) => {
-      const cells = s.providers.map(p => { const x = state.aiDelphi[phase][p.id].scores[r.t.id]; return x ? `<td style="text-align:center;" title="${aiEsc(x.why)}">${x.P}</td><td style="text-align:center;" title="${aiEsc(x.why)}">${x.I}</td>` : '<td>—</td><td>—</td>'; }).join('');
-      const dCol = r.delta === null ? 'var(--gr-dim)' : (Math.abs(r.delta) >= 5 ? 'var(--gr-red)' : 'var(--gr-text)');
-      return `<tr><td style="text-align:center; color:var(--gr-dim); font-size:11.5px;">${i + 1}</td><td style="font-family:monospace; font-size:11px; color:var(--gr-dim); white-space:nowrap;">${r.t.code}</td>${cells}
-<td style="text-align:center;">${r.medP !== null ? r.medP : '—'}</td><td style="text-align:center;">${r.medI !== null ? r.medI : '—'}</td>
-<td style="text-align:center; font-weight:700;">${r.aiRisk !== null ? r.aiRisk.toFixed(1) : '—'}</td>
-<td style="text-align:center; font-weight:700;">${typeof r.human === 'number' ? r.human.toFixed(1) : '—'}</td>
-<td style="text-align:center; font-weight:700; color:${dCol};">${r.delta !== null ? (r.delta > 0 ? '+' : '') + r.delta.toFixed(1) : '—'}</td></tr>`;
-    }).join('');
-    results = `<div class="table-scroll"><table style="min-width:${520 + s.providers.length * 90}px;">
-<thead><tr><th>№</th><th>Код</th>${head}<th colspan="2">Медиана ИИ</th><th>Риск ИИ</th><th>Риск людей</th><th>Δ люди − ИИ</th></tr>
-<tr><th></th><th></th>${sub}<th>P</th><th>I</th><th></th><th></th><th></th></tr></thead>
-<tbody>${body}</tbody>
-<tfoot><tr style="font-weight:700; background:var(--gr-panel2);"><td colspan="${4 + s.providers.length * 2}">Суммарный балл риска</td><td style="text-align:center;">${s.sumAi.toFixed(1)}</td><td style="text-align:center;">${s.sumHuman.toFixed(1)}</td><td style="text-align:center;">${(s.sumHuman - s.sumAi > 0 ? '+' : '') + (s.sumHuman - s.sumAi).toFixed(1)}</td></tr></tfoot>
-</table></div>
-<p style="margin:6px 0 4px; color:var(--gr-dim); font-size:12px;">Наведите курсор на оценку нейросети, чтобы увидеть её обоснование. Красным выделено расхождение ≥ 5 баллов риска — такие угрозы стоит обсудить в группе: кто прав и почему.</p>
-<div style="margin-top:10px; font-size:13px; line-height:1.7;">
-<div>Согласованность экспертов-людей: ${aiWVerdict(s.wHuman)}</div>
-<div>Согласованность нейросетей: ${aiWVerdict(s.wAi)}</div>
-<div>Согласованность объединённой панели: ${aiWVerdict(s.wAll)}</div>
-<div>Среднее расхождение |люди − ИИ|: <strong>${s.meanAbsDelta !== null ? s.meanAbsDelta.toFixed(1).replace('.', ',') : '—'}</strong> балла риска; угроз с расхождением ≥ 5: <strong>${s.bigGaps}</strong> из ${s.rows.length}.</div>
-</div>
-<p style="margin:8px 0 0; color:var(--gr-dim); font-size:12px;">W Кендалла считается по рангам баллов риска (P × I) каждого эксперта, с поправкой на одинаковые ранги; значимость — по критерию χ² с n − 1 степенями свободы. При малом числе угроз (n &lt; 7) критерий χ² даёт лишь приближённую оценку. Оценки нейросетей не входят в согласованную оценку людей и не меняют балл риска проекта.</p>
-${s.providers.map(p => { const d = state.aiDelphi[phase][p.id]; return `<span style="font-size:11px; color:var(--gr-dim); margin-right:12px;">${p.name}: ${aiEsc(d.model || '')} · ${aiEsc(d.at || '')}</span>`; }).join('')}`;
-  }
-  return box(`<p style="margin:0 0 8px; color:var(--gr-muted2); font-size:12.5px;">Нейросети выступают независимыми «синтетическими экспертами»: каждая получает тот же список угроз и ту же шкалу P/I, не видя ваших оценок. Их результат сопоставляется с оценкой людей, но не заменяет её.</p>
-${statusLine}${codeField}<div>${chips}</div>${actions}${results}`);
 }
 
 // ============================================================
