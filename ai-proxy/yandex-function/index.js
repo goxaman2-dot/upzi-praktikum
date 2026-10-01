@@ -8,7 +8,8 @@
 //   ACCESS_CODE    — тот же код доступа, что и в Cloudflare-прокси
 //   GIGACHAT_AUTH  — «Ключ авторизации» GigaChat API (Base64)
 //   FOLDER_ID      — идентификатор каталога Yandex Cloud (для YandexGPT)
-// Необязательные: GIGACHAT_SCOPE, GIGACHAT_MODEL, YANDEX_MODEL (по умолчанию yandexgpt),
+// Необязательные: GIGACHAT_SCOPE, GIGACHAT_MODEL (по умолчанию GigaChat-2-Max; старое имя «GigaChat» сервер отклоняет), YANDEX_MODEL (по умолчанию yandexgpt),
+//   GIGACHAT_API_URL — адрес API генерации (по умолчанию https://api.giga.chat/v1);
 //   MINTSIFRY_CA_URL — адрес PEM-сертификата Минцифры, если стандартный адрес изменится;
 //   MINTSIFRY_CA_PEM — сам текст сертификата (если автозагрузка с портала Госуслуг не работает).
 // Для YandexGPT к функции привязывается сервисный аккаунт с ролью ai.languageModels.user:
@@ -16,6 +17,7 @@
 // =====================================================================
 'use strict';
 const https = require('https');
+const http2 = require('http2');
 const crypto = require('crypto');
 
 const MAX_TOKENS = 8000;
@@ -42,7 +44,7 @@ function request(url, { method = 'GET', headers = {}, body = null, ca = null, ti
     // (chunked) и обрывает соединение через 60 с («socket hang up»).
     const h = Object.assign({ 'User-Agent': 'upzi-ai-proxy/1.0' }, headers);
     if (body !== null && body !== undefined) h['Content-Length'] = Buffer.byteLength(body);
-    const opts = { method, headers: h, timeout, family: 4 };   // только IPv4
+    const opts = { method, headers: h, timeout, family: 4, ALPNProtocols: ['http/1.1'] };   // только IPv4, протокол объявлен явно
     if (ca) opts.ca = ca;
     const host = new URL(url).host, t0 = Date.now();
     console.log('→', method, host, new URL(url).pathname);
@@ -57,6 +59,60 @@ function request(url, { method = 'GET', headers = {}, body = null, ca = null, ti
     if (body) r.write(body);
     r.end();
   });
+}
+
+// Тот же запрос по HTTP/2 — запасной путь, если сервер закрывает соединение HTTP/1.1 без ответа.
+function request2(url, { method = 'POST', headers = {}, body = null, ca = null, timeout = 110000 } = {}) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url), t0 = Date.now();
+    console.log('→ h2', method, u.host, u.pathname);
+    const client = http2.connect(u.origin, { ca, family: 4 });
+    client.on('error', e => { console.error('✗ h2', u.host, e.message); reject(new Error(e.message + ' [h2 ' + u.host + ']')); });
+    const h = { ':method': method, ':path': u.pathname + u.search, 'user-agent': 'upzi-ai-proxy/1.0' };
+    Object.keys(headers).forEach(k => { h[k.toLowerCase()] = headers[k]; });
+    if (body) h['content-length'] = Buffer.byteLength(body);
+    const req = client.request(h);
+    req.setTimeout(timeout, () => { try { req.close(http2.constants.NGHTTP2_CANCEL); } catch (e) {} client.destroy(); reject(new Error('нет ответа за ' + Math.round(timeout / 1000) + ' с [h2]')); });
+    let status = 0; const chunks = [];
+    req.on('response', hd => { status = hd[':status']; });
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => { client.close(); console.log('← h2', status, u.host, (Date.now() - t0) + ' мс'); resolve({ status, text: Buffer.concat(chunks).toString('utf8') }); });
+    req.on('error', e => { client.close(); reject(new Error(e.message + ' [h2 ' + u.host + ']')); });
+    if (body) req.write(body);
+    req.end();
+  });
+}
+// Тариф Freemium GigaChat разрешает только ОДИН одновременный запрос (поток). Поэтому:
+// 1) все запросы к GigaChat внутри экземпляра функции идут строго по очереди (gigaLock);
+// 2) каждая попытка ждёт не дольше 20–25 с и при неудаче сразу закрывает соединение,
+//    освобождая поток (по умолчанию сервер держал его 60 с);
+// 3) до трёх попыток с паузой между ними, чередуя HTTP/2 и HTTP/1.1.
+let gigaChain = Promise.resolve();
+function gigaLock(fn) {
+  const run = gigaChain.then(fn, fn);
+  gigaChain = run.catch(() => {});
+  return run;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function requestGiga(url, opts) {
+  const plan = [
+    { proto: 'h1', timeout: 45000, pauseBefore: 0 },
+    { proto: 'h2', timeout: 30000, pauseBefore: 3000 },
+    { proto: 'h1', timeout: 30000, pauseBefore: 6000 }
+  ];
+  let last;
+  for (let i = 0; i < plan.length; i++) {
+    const p = plan[i];
+    if (p.pauseBefore) await sleep(p.pauseBefore);
+    try {
+      const o = Object.assign({}, opts, { timeout: p.timeout });
+      const r = p.proto === 'h2' ? await request2(url, o) : await request(url, o);
+      if (r.status === 429 || r.status === 503) { last = new Error('GigaChat занят (HTTP ' + r.status + ')'); console.log('  попытка', i + 1, 'HTTP', r.status); continue; }
+      if (i) console.log('  успех с попытки', i + 1, '(' + p.proto + ')');
+      return r;
+    } catch (e) { last = e; console.log('  попытка', i + 1, p.proto, 'не удалась:', e.message); }
+  }
+  throw new Error((last && last.message || 'нет ответа') + ' — бесплатный тариф GigaChat допускает 1 запрос одновременно, повторите через минуту');
 }
 
 function errText(name, res) {
@@ -101,17 +157,20 @@ async function gigaAccessToken() {
   return gigaToken;
 }
 
-async function callGigaChat(o) {
+async function callGigaChat(o) { return gigaLock(() => callGigaChatNow(o)); }
+async function callGigaChatNow(o) {
   const token = await gigaAccessToken();
   const msgs = (o.system ? [{ role: 'system', content: o.system }] : []).concat(o.messages);
-  const r = await request('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', {
+  // С 2026 г. генерация идёт на api.giga.chat (адрес из вкладки «Код» Playground Сбера);
+  // старый gigachat.devices.sberbank.ru отвечает нестабильно. Адрес можно переопределить переменной GIGACHAT_API_URL.
+  const r = await requestGiga((process.env.GIGACHAT_API_URL || 'https://api.giga.chat/v1').replace(/\/+$/, '') + '/chat/completions', {
     method: 'POST', ca: await loadCa(),
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: 'Bearer ' + token },
-    body: JSON.stringify({ model: process.env.GIGACHAT_MODEL || 'GigaChat', temperature: o.json ? 0.2 : 0.5, max_tokens: o.maxTokens, messages: msgs })
+    body: JSON.stringify({ model: process.env.GIGACHAT_MODEL || 'GigaChat-2-Max', temperature: o.json ? 0.2 : 0.5, max_tokens: o.maxTokens, messages: msgs })
   });
   if (r.status !== 200) throw new Error(errText('GigaChat', r));
   const j = JSON.parse(r.text);
-  return { text: (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '', model: j.model || process.env.GIGACHAT_MODEL || 'GigaChat' };
+  return { text: (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '', model: j.model || process.env.GIGACHAT_MODEL || 'GigaChat-2-Max' };
 }
 
 async function callYandexGPT(o, iamToken) {
@@ -145,7 +204,7 @@ module.exports.handler = async function (event, context) {
     return reply(200, {
       ok: true, accessCodeRequired: !!process.env.ACCESS_CODE, accessCodeOk: codeOk,
       providers: {
-        gigachat: { configured: !!process.env.GIGACHAT_AUTH, model: process.env.GIGACHAT_MODEL || 'GigaChat' },
+        gigachat: { configured: !!process.env.GIGACHAT_AUTH, model: process.env.GIGACHAT_MODEL || 'GigaChat-2-Max' },
         yandexgpt: { configured: !!(process.env.FOLDER_ID && iamToken), model: process.env.YANDEX_MODEL || 'yandexgpt' }
       }
     });
