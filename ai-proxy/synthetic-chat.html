@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Синтетический чат</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
+  --ok:#2e7d4f; --warn:#a86b12; --err:#b3362b; --user:#e8eef5;
+  --c-claude:#c46a3c; --c-qwen:#6a4fc4; --c-deepseek:#2f6fd0; --c-gemini:#2a8f7a; --c-gigachat:#3f9a3a; --c-yandexgpt:#d4a017;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
+}}
+:root[data-theme="dark"]{
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+.wrap{max-width:1400px;margin:0 auto;padding:16px}
+header.top{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:20px;margin:0;font-weight:650;letter-spacing:.2px}
+h1 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+label.f{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+input[type=text],input[type=password],select,textarea{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+input[type=text]{min-width:300px;flex:1}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--panel2);cursor:pointer;user-select:none}
+.chip.off{opacity:.45}
+.chip.na{opacity:.35;cursor:not-allowed}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.chip b{font-weight:600}
+.chip small{color:var(--muted);font-size:11.5px}
+.chip .sw{width:4px;align-self:stretch;border-radius:3px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:8px}
+.warn{color:var(--warn)}
+.feed{display:flex;flex-direction:column;gap:16px;margin:8px 0 150px}
+.turn-label{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.user{background:var(--user);border:1px solid var(--line);border-radius:12px;padding:10px 14px;white-space:pre-wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0}
+.card .h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.card .h .sw{width:10px;height:10px;border-radius:3px}
+.card .h .m{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .h .t{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+.card .b{padding:10px 12px;overflow-wrap:anywhere;font-size:14px;max-height:560px;overflow:auto}
+.card .f{display:flex;gap:6px;padding:6px 10px;border-top:1px solid var(--line)}
+.card .f .btn{padding:3px 9px;font-size:12px}
+.card.err .b{color:var(--err)}
+.card.wide{grid-column:1/-1}
+.loading{color:var(--muted);font-style:italic}
+.b p{margin:.45em 0}.b h1,.b h2,.b h3,.b h4{font-size:15px;margin:.8em 0 .3em}
+.b ul,.b ol{margin:.3em 0;padding-left:1.3em}
+.b code{background:var(--panel2);border-radius:4px;padding:1px 4px;font-family:Consolas,"Courier New",monospace;font-size:12.5px}
+.b pre{background:var(--panel2);border-radius:8px;padding:8px;overflow:auto}
+.b pre code{background:none;padding:0}
+.b table{border-collapse:collapse;margin:.5em 0;font-size:13px;display:block;overflow-x:auto}
+.b th,.b td{border:1px solid var(--line);padding:4px 7px;text-align:left;vertical-align:top}
+.b a{color:var(--accent)}
+.composer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);padding:14px 16px 16px}
+.composer .in{max-width:1400px;margin:0 auto;display:flex;gap:10px;align-items:flex-end}
+.composer textarea{flex:1;min-height:58px;max-height:240px;resize:vertical;padding:10px 12px;border-radius:12px;background:var(--panel)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+details summary{cursor:pointer;color:var(--muted);font-size:13px}
+details textarea{width:100%;min-height:70px;margin-top:6px}
+.empty{color:var(--muted);text-align:center;padding:40px 10px;border:1px dashed var(--line);border-radius:12px}
+@media (max-width:640px){ input[type=text]{min-width:0;width:100%} .wrap{padding:12px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Синтетический чат <small>один запрос — несколько нейросетей одновременно</small></h1>
+    <div class="row">
+      <button class="btn" id="bExport" title="Сохранить всю сессию в файл Markdown">💾 Сохранить сессию</button>
+      <button class="btn" id="bClear">🗑 Новая сессия</button>
+    </div>
+  </header>
+
+  <section class="bar">
+    <div class="row">
+      <label class="f">Прокси <input type="text" id="proxy" placeholder="https://upzi-ai.<имя>.workers.dev"></label>
+      <label class="f" title="Прокси в Yandex Cloud для GigaChat и YandexGPT (см. ai-proxy/yandex-function)">Прокси РФ <input type="text" id="proxyRu" placeholder="https://functions.yandexcloud.net/…"></label>
+      <label class="f">Код доступа <input type="password" id="code" style="width:130px"></label>
+      <button class="btn" id="bCheck">Проверить связь</button>
+      <label class="f"><input type="checkbox" id="search"> Веб-поиск</label>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="hint" id="status">Укажите адрес прокси (см. ai-proxy/README.md) и нажмите «Проверить связь».</div>
+    <details style="margin-top:8px">
+      <summary>Роль для всех нейросетей (системная инструкция)</summary>
+      <textarea id="system"></textarea>
+    </details>
+  </section>
+
+  <div class="feed" id="feed"><div class="empty" id="empty">Задайте вопрос внизу. Каждая включённая нейросеть ответит независимо, не видя ответов остальных. Затем можно запустить «Раунд 2 (Дельфи)», где модели пересматривают свои ответы с учётом чужих, или получить сводку согласия от ведущей модели.</div></div>
+</div>
+
+<div class="composer">
+  <div class="in">
+    <textarea id="prompt" placeholder="Ваш запрос… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
+    <button class="btn primary" id="bSend" style="height:58px;padding:0 20px">Отправить</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+const PROVIDERS = [
+  { id:'claude',   name:'Claude',   color:'var(--c-claude)',   search:true },
+  { id:'qwen',     name:'Qwen',     color:'var(--c-qwen)',     search:true },
+  { id:'deepseek', name:'DeepSeek', color:'var(--c-deepseek)', search:false },
+  { id:'gemini',   name:'Gemini',   color:'var(--c-gemini)',   search:true },
+  { id:'gigachat', name:'GigaChat', color:'var(--c-gigachat)', search:false, ru:true },
+  { id:'yandexgpt', name:'YandexGPT', color:'var(--c-yandexgpt)', search:false, ru:true }
+];
+const DEFAULT_SYSTEM = 'Ты независимый эксперт. Отвечай по-русски, по существу, без вступлений. Разделяй установленные факты и свои предположения. Ссылайся только на источники, в существовании которых уверен; если не уверен — так и напиши.';
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(e){} },
+  sget(k, d){ try { const v = sessionStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } },
+  sset(k, v){ try { sessionStorage.setItem(k, v); } catch(e){} }
+};
+let status = null, statusErr = '', statusRu = null, statusRuErr = '';
+let enabled = {};
+try { enabled = JSON.parse(store.get('synchat_enabled', '{}')) || {}; } catch(e){ enabled = {}; }
+PROVIDERS.forEach(p => { if (!(p.id in enabled)) enabled[p.id] = true; });   // новые модели включены по умолчанию
+const turns = [];   // {kind:'ask'|'round2'|'summary', prompt, label, answers:{pid:{state,text,model,ms,err}}, lead}
+let busy = false;
+
+$('proxy').value = store.get('synchat_proxy', '');
+$('proxyRu').value = store.get('synchat_proxy_ru', '');
+$('code').value = store.sget('synchat_code', '');
+$('search').checked = store.get('synchat_search', '0') === '1';
+$('system').value = store.get('synchat_system', DEFAULT_SYSTEM);
+$('proxy').onchange = () => { store.set('synchat_proxy', $('proxy').value.trim()); checkProxy(); };
+$('proxyRu').onchange = () => { store.set('synchat_proxy_ru', $('proxyRu').value.trim()); checkProxy(); };
+$('code').onchange = () => { store.sset('synchat_code', $('code').value.trim()); checkProxy(); };
+$('search').onchange = () => { store.set('synchat_search', $('search').checked ? '1' : '0'); drawChips(); };
+$('system').onchange = () => store.set('synchat_system', $('system').value);
+$('bCheck').onclick = checkProxy;
+$('bSend').onclick = () => ask();
+$('prompt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); ask(); } });
+$('bClear').onclick = () => { if (turns.length && !confirm('Начать новую сессию? Текущий диалог будет удалён (сохраните его, если нужен).')) return; turns.length = 0; render(); };
+$('bExport').onclick = exportSession;
+
+const proxyUrl = () => $('proxy').value.trim().replace(/\/+$/, '');
+const proxyRuUrl = () => $('proxyRu').value.trim().replace(/\/+$/, '');
+// Российские модели идут через прокси РФ, если он указан; остальные — через Cloudflare.
+const routeRu = id => !!(PROVIDERS.find(p => p.id === id) || {}).ru && !!proxyRuUrl();
+const statusOf = id => routeRu(id) ? statusRu : status;
+const isYC = base => /yandexcloud\.net/.test(base);
+const configured = id => { const st = statusOf(id); return !!(st && st.providers && st.providers[id] && st.providers[id].configured && (!st.accessCodeRequired || st.accessCodeOk)); };
+const active = () => PROVIDERS.filter(p => enabled[p.id] && configured(p.id));
+const pname = id => (PROVIDERS.find(p => p.id === id) || {}).name || id;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function checkProxy(){
+  $('status').textContent = 'Проверка связи…';
+  const code = $('code').value.trim();
+  const probe = async base => { const r = await fetch(isYC(base) ? base : base + '/status', { headers: { 'X-Access-Code': code } }); return r.json(); };
+  const tasks = [];
+  if (proxyUrl()) tasks.push(probe(proxyUrl()).then(j => { status = j; statusErr = ''; }, () => { status = null; statusErr = 'Прокси Cloudflare не отвечает: нет интернета, неверный адрес или сайт заблокирован в этой сети.'; }));
+  else { status = null; statusErr = ''; }
+  if (proxyRuUrl()) tasks.push(probe(proxyRuUrl()).then(j => { statusRu = j; statusRuErr = ''; }, () => { statusRu = null; statusRuErr = 'Прокси РФ не отвечает: проверьте адрес функции и что она публичная.'; }));
+  else { statusRu = null; statusRuErr = ''; }
+  await Promise.all(tasks);
+  drawChips();
+}
+
+function drawChips(){
+  $('chips').innerHTML = PROVIDERS.map(p => {
+    const conf = configured(p.id);
+    const on = enabled[p.id] && conf;
+    const st = statusOf(p.id);
+    const model = conf ? st.providers[p.id].model + (routeRu(p.id) ? ' · РФ' : '') : (p.ru && !proxyRuUrl() && p.id === 'yandexgpt' ? 'нужен прокси РФ' : 'нет ключа в прокси');
+    const s = $('search').checked && !p.search ? ' · без поиска' : '';
+    return `<div class="chip ${conf ? (on ? '' : 'off') : 'na'}" data-p="${p.id}" title="${conf ? 'Нажмите, чтобы включить или выключить' : 'Ключ этой нейросети не добавлен в прокси'}">
+      <span class="sw" style="background:${p.color}"></span><span class="dot" style="background:${on ? 'var(--ok)' : 'var(--muted)'}"></span>
+      <b>${p.name}</b><small>${esc(model)}${s}</small></div>`;
+  }).join('');
+  $('chips').querySelectorAll('.chip').forEach(el => el.onclick = () => {
+    const id = el.dataset.p; if (!configured(id)) return;
+    enabled[id] = !enabled[id]; store.set('synchat_enabled', JSON.stringify(enabled)); drawChips();
+  });
+  let msg;
+  const errs = [statusErr, statusRuErr].filter(Boolean);
+  const badCode = [status, statusRu].some(st => st && st.accessCodeRequired && !st.accessCodeOk);
+  if (!proxyUrl() && !proxyRuUrl()) msg = 'Укажите адрес прокси (см. ai-proxy/README.md) и нажмите «Проверить связь».';
+  else if (badCode) msg = '<span class="warn">Код доступа не принят' + (status && statusRu ? ' одним из прокси (код должен совпадать в Cloudflare и в Yandex Cloud)' : '') + '.</span>';
+  else if (!status && !statusRu && !errs.length) msg = 'Связь не проверена.';
+  else msg = `Готовы к работе: ${active().length} из ${PROVIDERS.length}. ` + ($('search').checked ? 'Веб-поиск включён: у Claude, Gemini и Qwen ответ будет дольше и дороже.' : 'Веб-поиск выключен.');
+  if (errs.length) msg += ' <span class="warn">' + errs.map(esc).join(' ') + '</span>';
+  $('status').innerHTML = msg;
+  $('bSend').disabled = busy || !active().length;
+}
+
+async function callProxy(pid, messages){
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 180000);
+  try {
+    const base = routeRu(pid) ? proxyRuUrl() : proxyUrl();
+    const r = await fetch(isYC(base) ? base : base + '/chat', {
+      method:'POST', signal: ctrl.signal,
+      headers:{ 'Content-Type':'application/json', 'X-Access-Code': $('code').value.trim() },
+      body: JSON.stringify({ provider: pid, system: $('system').value, messages, json:false, search: $('search').checked && PROVIDERS.find(p => p.id === pid).search, maxTokens: 4000 })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
+    return j;
+  } catch(e){
+    throw new Error(e.name === 'AbortError' ? 'нет ответа за 3 минуты' : (e.message || 'запрос заблокирован сетью'));
+  } finally { clearTimeout(timer); }
+}
+
+// История каждой нейросети — только её собственные прошлые ответы (независимость экспертов).
+function historyFor(pid, uptoTurnIdx){
+  const msgs = [];
+  for (let i = 0; i < uptoTurnIdx; i++){
+    const t = turns[i]; if (t.kind === 'summary') continue;
+    const a = t.answers[pid];
+    if (a && a.state === 'ok'){ msgs.push({ role:'user', content: t.sent && t.sent[pid] ? t.sent[pid] : t.prompt }); msgs.push({ role:'assistant', content: a.text }); }
+  }
+  return msgs;
+}
+
+async function runTurn(turn, idx, pids, buildMsg){
+  turn.sent = turn.sent || {};
+  pids.forEach(pid => { turn.answers[pid] = { state:'loading', t0: Date.now() }; });
+  render();
+  await Promise.all(pids.map(async pid => {
+    const content = buildMsg(pid); turn.sent[pid] = content;
+    const msgs = historyFor(pid, idx).concat([{ role:'user', content }]);
+    const t0 = Date.now();
+    try { const j = await callProxy(pid, msgs); turn.answers[pid] = { state:'ok', text: j.text || '(пустой ответ)', model: j.model, ms: Date.now() - t0 }; }
+    catch(e){ turn.answers[pid] = { state:'err', err: e.message, ms: Date.now() - t0 }; }
+    render();
+  }));
+}
+
+async function ask(){
+  const text = $('prompt').value.trim();
+  if (!text || busy || !active().length) return;
+  busy = true; $('prompt').value = ''; drawChips();
+  const turn = { kind:'ask', prompt:text, label:'Запрос', answers:{} }; turns.push(turn);
+  await runTurn(turn, turns.length - 1, active().map(p => p.id), () => text);
+  busy = false; drawChips(); render();
+}
+
+const LETTERS = 'АБВГДЕ';
+function lastAsk(){ for (let i = turns.length - 1; i >= 0; i--) if (turns[i].kind !== 'summary') return i; return -1; }
+
+async function round2(){
+  const i = lastAsk(); if (i < 0 || busy) return;
+  const base = turns[i];
+  const okIds = Object.keys(base.answers).filter(p => base.answers[p].state === 'ok');
+  if (okIds.length < 2){ alert('Для второго раунда нужны ответы хотя бы двух нейросетей.'); return; }
+  busy = true; drawChips();
+  const turn = { kind:'round2', prompt:'Раунд 2 (Дельфи): пересмотр с учётом обезличенных ответов других экспертов', label:'Раунд 2 (Дельфи)', answers:{} }; turns.push(turn);
+  await runTurn(turn, turns.length - 1, okIds, pid => {
+    const others = okIds.filter(x => x !== pid).map((x, k) => `--- Эксперт ${LETTERS[k]} ---\n${base.answers[x].text}`).join('\n\n');
+    return 'Второй раунд метода Дельфи. Ниже обезличенные ответы других независимых экспертов на тот же вопрос:\n«' + base.prompt + '»\n\n' + others +
+      '\n\nПересмотрите свой предыдущий ответ. Коротко укажите: 1) что вы меняете и почему; 2) в чём остаётесь при своём мнении и почему; 3) итоговый ответ. Не соглашайтесь с большинством только потому, что оно большинство.';
+  });
+  busy = false; drawChips(); render();
+}
+
+async function summarize(){
+  const i = lastAsk(); if (i < 0 || busy) return;
+  const base = turns[i];
+  const okIds = Object.keys(base.answers).filter(p => base.answers[p].state === 'ok');
+  if (okIds.length < 2){ alert('Для сводки нужны ответы хотя бы двух нейросетей.'); return; }
+  const lead = $('leadSel') ? $('leadSel').value : okIds[0];
+  if (!configured(lead)){ alert('Ведущая модель недоступна.'); return; }
+  busy = true; drawChips();
+  const others = okIds.map((x, k) => `--- Эксперт ${LETTERS[k]} ---\n${base.answers[x].text}`).join('\n\n');
+  const prompt = 'Сведи ответы независимых экспертов на вопрос:\n«' + (turns[lastIndexOfKind('ask')] || base).prompt + '»\n\n' + others +
+    '\n\nСделай сводку согласия, не добавляя собственного мнения: 1) в чём эксперты согласны; 2) в чём расходятся (укажи, кто как считает, по буквам); 3) какие утверждения и источники человеку нужно проверить самому в первую очередь. В конце — таблица «утверждение | согласны | не согласны».';
+  const turn = { kind:'summary', prompt:'Сводка согласия', label:'Сводка согласия · ведущая модель: ' + pname(lead), answers:{}, lead }; turns.push(turn);
+  turn.answers[lead] = { state:'loading', t0: Date.now() }; render();
+  const t0 = Date.now();
+  try { const j = await callProxy(lead, [{ role:'user', content: prompt }]); turn.answers[lead] = { state:'ok', text:j.text, model:j.model, ms: Date.now() - t0 }; }
+  catch(e){ turn.answers[lead] = { state:'err', err:e.message, ms: Date.now() - t0 }; }
+  busy = false; drawChips(); render();
+}
+function lastIndexOfKind(k){ for (let i = turns.length - 1; i >= 0; i--) if (turns[i].kind === k) return i; return -1; }
+
+async function retry(ti, pid){
+  if (busy) return; const t = turns[ti]; busy = true; drawChips();
+  const content = (t.sent && t.sent[pid]) || t.prompt;
+  t.answers[pid] = { state:'loading', t0: Date.now() }; render();
+  const t0 = Date.now();
+  try { const j = await callProxy(pid, (t.kind === 'summary' ? [] : historyFor(pid, ti)).concat([{ role:'user', content }])); t.answers[pid] = { state:'ok', text:j.text, model:j.model, ms: Date.now() - t0 }; }
+  catch(e){ t.answers[pid] = { state:'err', err:e.message, ms: Date.now() - t0 }; }
+  busy = false; drawChips(); render();
+}
+
+// Минимальный безопасный Markdown: экранирование, заголовки, списки, жирный/курсив, код, ссылки, таблицы.
+function md(src){
+  const blocks = []; let s = String(src || '').replace(/\r/g, '');
+  s = s.replace(/```[\w-]*\n([\s\S]*?)```/g, (m, code) => { blocks.push('<pre><code>' + esc(code) + '</code></pre>'); return '\u0000' + (blocks.length - 1) + '\u0000'; });
+  const inline = t => esc(t)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  const lines = s.split('\n'); let out = '', i = 0;
+  while (i < lines.length){
+    const l = lines[i];
+    if (/^\u0000\d+\u0000$/.test(l.trim())){ out += blocks[+l.trim().slice(1, -1)]; i++; continue; }
+    if (/^\s*\|.*\|\s*$/.test(l) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1])){
+      const cells = r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => inline(c.trim()));
+      out += '<table><thead><tr>' + cells(l).map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>';
+      i += 2; while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ out += '<tr>' + cells(lines[i]).map(c => '<td>' + c + '</td>').join('') + '</tr>'; i++; }
+      out += '</tbody></table>'; continue;
+    }
+    let m;
+    if ((m = l.match(/^(#{1,4})\s+(.*)$/))){ out += `<h${m[1].length + 1}>` + inline(m[2]) + `</h${m[1].length + 1}>`; i++; continue; }
+    if (/^\s*[-*•]\s+/.test(l)){ out += '<ul>'; while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*[-*•]\s+/, '')) + '</li>'; i++; } out += '</ul>'; continue; }
+    if (/^\s*\d+[.)]\s+/.test(l)){ out += '<ol>'; while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*\d+[.)]\s+/, '')) + '</li>'; i++; } out += '</ol>'; continue; }
+    if (!l.trim()){ i++; continue; }
+    let para = [l]; i++;
+    while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|\s*[-*•]\s|\s*\d+[.)]\s|\s*\|)/.test(lines[i]) && !/^\u0000/.test(lines[i].trim())){ para.push(lines[i]); i++; }
+    out += '<p>' + para.map(inline).join('<br>') + '</p>';
+  }
+  return out;
+}
+
+function card(ti, pid, a, wide){
+  const p = PROVIDERS.find(x => x.id === pid);
+  const secs = a.state === 'loading' ? Math.round((Date.now() - a.t0) / 1000) : Math.round((a.ms || 0) / 100) / 10;
+  const body = a.state === 'loading' ? '<div class="loading">думает…</div>' : a.state === 'err' ? esc('Ошибка: ' + a.err) : md(a.text);
+  return `<div class="card ${a.state === 'err' ? 'err' : ''} ${wide ? 'wide' : ''}">
+    <div class="h"><span class="sw" style="background:${p.color}"></span><b>${p.name}</b><span class="m">${esc(a.model || '')}</span><span class="t" data-t0="${a.state === 'loading' ? a.t0 : ''}">${secs} с</span></div>
+    <div class="b">${body}</div>
+    <div class="f">${a.state === 'ok' ? `<button class="btn" data-copy="${ti}|${pid}">Копировать</button>` : ''}${a.state !== 'loading' ? `<button class="btn" data-retry="${ti}|${pid}">Повторить</button>` : ''}</div>
+  </div>`;
+}
+
+function render(){
+  const feed = $('feed');
+  if (!turns.length){ feed.innerHTML = $('empty') ? $('empty').outerHTML : '<div class="empty">Задайте вопрос внизу.</div>'; return; }
+  const last = lastAsk();
+  feed.innerHTML = turns.map((t, ti) => {
+    const pids = Object.keys(t.answers);
+    const head = t.kind === 'ask' ? `<div class="turn-label">Запрос</div><div class="user">${esc(t.prompt)}</div>` : `<div class="turn-label">${esc(t.label)}</div>` + (t.kind === 'summary' ? '<div class="hint warn" style="margin:0 0 4px">Сводку пишет одна из моделей-участниц, поэтому она может невольно склоняться к своему ответу. Решающее слово — за вами.</div>' : '');
+    let tools = '';
+    if (ti === last && !busy && pids.filter(p => t.answers[p].state === 'ok').length >= 2){
+      const opts = pids.filter(p => t.answers[p].state === 'ok' && configured(p)).map(p => `<option value="${p}">${pname(p)}</option>`).join('');
+      tools = `<div class="tools"><button class="btn" id="bR2">🔁 Раунд 2 (Дельфи)</button><label class="f">Ведущая модель <select id="leadSel">${opts}</select></label><button class="btn" id="bSum">🧭 Сводка согласия</button></div>`;
+    }
+    return `<section>${head}<div class="grid">${pids.map(pid => card(ti, pid, t.answers[pid], t.kind === 'summary')).join('')}</div>${tools}</section>`;
+  }).join('');
+  if ($('bR2')) $('bR2').onclick = round2;
+  if ($('bSum')) $('bSum').onclick = summarize;
+  feed.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.copy.split('|'); navigator.clipboard && navigator.clipboard.writeText(turns[ti].answers[pid].text).then(() => { b.textContent = 'Скопировано'; }, () => {}); });
+  feed.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.retry.split('|'); retry(+ti, pid); });
+}
+setInterval(() => { document.querySelectorAll('.t[data-t0]').forEach(el => { const t0 = +el.dataset.t0; if (t0) el.textContent = Math.round((Date.now() - t0) / 1000) + ' с'; }); }, 1000);
+
+function exportSession(){
+  if (!turns.length){ alert('Сессия пуста.'); return; }
+  let out = '# Синтетический чат — ' + new Date().toLocaleString('ru-RU') + '\n\n';
+  turns.forEach(t => {
+    out += t.kind === 'ask' ? '## Запрос\n\n' + t.prompt + '\n\n' : '## ' + t.label + '\n\n';
+    Object.keys(t.answers).forEach(pid => { const a = t.answers[pid]; out += '### ' + pname(pid) + (a.model ? ' (' + a.model + ')' : '') + '\n\n' + (a.state === 'ok' ? a.text : 'Ошибка: ' + (a.err || '')) + '\n\n'; });
+  });
+  const blob = new Blob([out], { type:'text/markdown;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'синтетический_чат_' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.md';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+drawChips();
+if (proxyUrl() || proxyRuUrl()) checkProxy();
+</script>
+</body>
+</html>

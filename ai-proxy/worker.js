@@ -19,8 +19,8 @@
 // =====================================================================
 
 const DEFAULT_ORIGINS = 'https://goxaman2-dot.github.io,null';
-const MAX_PROMPT_CHARS = 60000;
-const MAX_TOKENS = 4000;
+const MAX_PROMPT_CHARS = 150000;
+const MAX_TOKENS = 8000;
 const WINDOW_MS = 10 * 60 * 1000;
 
 const PROVIDERS = {
@@ -82,38 +82,46 @@ async function readError(r, name) {
   return name + ': ' + String(msg || ('HTTP ' + r.status)).slice(0, 300);
 }
 
-async function callClaude(env, system, prompt, maxTokens) {
+// o = { system, messages:[{role:'user'|'assistant', content}], maxTokens, json, search }
+// json:true — ответ строго JSON (режим практикума); search:true — веб-поиск, где модель его поддерживает.
+async function callClaude(env, o) {
+  const body = { model: PROVIDERS.claude.model(env), max_tokens: o.maxTokens, temperature: o.json ? 0.2 : 0.5, system: o.system, messages: o.messages };
+  if (o.search) body.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }];
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': env.CLAUDE_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: PROVIDERS.claude.model(env), max_tokens: maxTokens, temperature: 0.2, system, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify(body)
   });
   if (!r.ok) throw new Error(await readError(r, 'Claude'));
   const j = await r.json();
   return (j.content || []).filter(x => x.type === 'text').map(x => x.text).join('');
 }
 
-async function callOpenAICompatible(url, key, model, system, prompt, maxTokens, name, extra) {
+async function callOpenAICompatible(url, key, model, o, name, extra) {
+  const msgs = (o.system ? [{ role: 'system', content: o.system }] : []).concat(o.messages);
   const r = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
-    body: JSON.stringify(Object.assign({ model, temperature: 0.2, max_tokens: maxTokens, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }, extra || {}))
+    body: JSON.stringify(Object.assign({ model, temperature: o.json ? 0.2 : 0.5, max_tokens: o.maxTokens, messages: msgs }, extra || {}))
   });
   if (!r.ok) throw new Error(await readError(r, name));
   const j = await r.json();
   return (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
 }
 
-async function callGemini(env, system, prompt, maxTokens) {
+async function callGemini(env, o) {
   const model = PROVIDERS.gemini.model(env);
+  const body = {
+    systemInstruction: { parts: [{ text: o.system || ' ' }] },
+    contents: o.messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+    generationConfig: { temperature: o.json ? 0.2 : 0.5, maxOutputTokens: o.maxTokens }
+  };
+  if (o.search) body.tools = [{ google_search: {} }];       // поиск Google несовместим с JSON-режимом
+  else if (o.json) body.generationConfig.responseMimeType = 'application/json';
   const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_KEY },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: maxTokens, responseMimeType: 'application/json' }
-    })
+    body: JSON.stringify(body)
   });
   if (!r.ok) throw new Error(await readError(r, 'Gemini'));
   const j = await r.json();
@@ -140,19 +148,20 @@ async function gigaAccessToken(env) {
   return gigaToken;
 }
 
-async function callGigaChat(env, system, prompt, maxTokens) {
+async function callGigaChat(env, o) {
   const token = await gigaAccessToken(env);
-  return callOpenAICompatible('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', token,
-    PROVIDERS.gigachat.model(env), system, prompt, maxTokens, 'GigaChat');
+  return callOpenAICompatible('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', token, PROVIDERS.gigachat.model(env), o, 'GigaChat');
 }
 
-async function dispatch(provider, env, system, prompt, maxTokens) {
+async function dispatch(provider, env, o) {
+  const jsonMode = o.json ? { response_format: { type: 'json_object' } } : {};
   switch (provider) {
-    case 'claude':   return callClaude(env, system, prompt, maxTokens);
-    case 'qwen':     return callOpenAICompatible('https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', env.QWEN_KEY, PROVIDERS.qwen.model(env), system, prompt, maxTokens, 'Qwen', { response_format: { type: 'json_object' } });
-    case 'deepseek': return callOpenAICompatible('https://api.deepseek.com/chat/completions', env.DEEPSEEK_KEY, PROVIDERS.deepseek.model(env), system, prompt, maxTokens, 'DeepSeek', { response_format: { type: 'json_object' } });
-    case 'gemini':   return callGemini(env, system, prompt, maxTokens);
-    case 'gigachat': return callGigaChat(env, system, prompt, maxTokens);
+    case 'claude':   return callClaude(env, o);
+    case 'qwen':     return callOpenAICompatible('https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', env.QWEN_KEY, PROVIDERS.qwen.model(env), o, 'Qwen',
+                       o.search ? { enable_search: true } : jsonMode);
+    case 'deepseek': return callOpenAICompatible('https://api.deepseek.com/chat/completions', env.DEEPSEEK_KEY, PROVIDERS.deepseek.model(env), o, 'DeepSeek', jsonMode);
+    case 'gemini':   return callGemini(env, o);
+    case 'gigachat': return callGigaChat(env, o);
   }
   throw new Error('неизвестная нейросеть: ' + provider);
 }
@@ -178,15 +187,23 @@ export default {
     let body;
     try { body = await req.json(); } catch (e) { return json({ error: 'тело запроса — не JSON' }, 400, req, env); }
     const provider = String(body.provider || '');
-    const system = String(body.system || '').slice(0, 4000);
-    const prompt = String(body.prompt || '');
+    const system = String(body.system || '').slice(0, 8000);
     const maxTokens = Math.min(MAX_TOKENS, Math.max(64, parseInt(body.maxTokens || 2000, 10) || 2000));
+    // Диалог (синтетический чат) — массив messages; одиночное задание (практикум) — поле prompt.
+    let messages = Array.isArray(body.messages)
+      ? body.messages.filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+          .map(m => ({ role: m.role, content: m.content }))
+      : [{ role: 'user', content: String(body.prompt || '') }];
+    const totalChars = messages.reduce((n, m) => n + m.content.length, 0);
+    // Режим JSON включён по умолчанию — так работает панель Дельфи практикума; чат передаёт json:false.
+    const o = { system, messages, maxTokens, json: body.json !== false, search: body.search === true };
     if (!PROVIDERS[provider]) return json({ error: 'неизвестная нейросеть: ' + provider }, 400, req, env);
     if (!env[PROVIDERS[provider].key]) return json({ error: 'для этой нейросети преподаватель не добавил ключ в прокси' }, 400, req, env);
-    if (!prompt || prompt.length > MAX_PROMPT_CHARS) return json({ error: 'задание пустое или слишком длинное' }, 400, req, env);
+    if (!messages.length || !messages[0].content.trim() || messages[messages.length - 1].role !== 'user') return json({ error: 'пустой запрос: последним должно идти сообщение пользователя' }, 400, req, env);
+    if (totalChars > MAX_PROMPT_CHARS) return json({ error: 'диалог слишком длинный (более ' + MAX_PROMPT_CHARS + ' знаков) — начните новый' }, 400, req, env);
 
     try {
-      const text = await dispatch(provider, env, system, prompt, maxTokens);
+      const text = await dispatch(provider, env, o);
       return json({ text, model: PROVIDERS[provider].model(env) }, 200, req, env);
     } catch (e) {
       return json({ error: String(e && e.message || e) }, 502, req, env);
