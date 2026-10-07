@@ -8,7 +8,7 @@
 :root{
   --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
   --ok:#2e7d4f; --warn:#a86b12; --err:#b3362b; --user:#e8eef5;
-  --c-claude:#c46a3c; --c-qwen:#6a4fc4; --c-deepseek:#2f6fd0; --c-gemini:#2a8f7a; --c-gigachat:#3f9a3a; --c-yandexgpt:#d4a017;
+  --c-claude:#c46a3c; --c-qwen:#6a4fc4; --c-deepseek:#2f6fd0; --c-gemini:#2a8f7a; --c-gigachat:#3f9a3a; --c-yandexgpt:#d4a017; --c-glm:#1f4e8c;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
@@ -44,7 +44,7 @@ input[type=text]{min-width:300px;flex:1}
 .chip .sw{width:4px;align-self:stretch;border-radius:3px}
 .hint{font-size:12.5px;color:var(--muted);margin-top:8px}
 .warn{color:var(--warn)}
-.feed{display:flex;flex-direction:column;gap:16px;margin:8px 0 150px}
+.feed{display:flex;flex-direction:column;gap:16px;margin:8px 0 200px}
 .turn-label{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
 .user{background:var(--user);border:1px solid var(--line);border-radius:12px;padding:10px 14px;white-space:pre-wrap}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:10px}
@@ -69,6 +69,10 @@ input[type=text]{min-width:300px;flex:1}
 .b a{color:var(--accent)}
 .composer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);padding:14px 16px 16px}
 .composer .in{max-width:1400px;margin:0 auto;display:flex;gap:10px;align-items:flex-end}
+.attach{max-width:1400px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.attach .file{background:var(--panel);border:1px solid var(--line, #333);border-radius:8px;padding:4px 8px;color:inherit}
+.attach .file b{color:var(--text, #eee)}
+.attach .x{cursor:pointer;margin-left:6px}
 .composer textarea{flex:1;min-height:58px;max-height:240px;resize:vertical;padding:10px 12px;border-radius:12px;background:var(--panel)}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 details summary{cursor:pointer;color:var(--muted);font-size:13px}
@@ -107,6 +111,12 @@ details textarea{width:100%;min-height:70px;margin-top:6px}
 </div>
 
 <div class="composer">
+  <div class="attach" id="attachBar">
+    <button class="btn" id="bAttach" title="Черновик статьи или другой документ: .docx, .pdf, .txt, .md. Текст уйдёт всем включённым нейросетям вместе со следующим запросом.">📎 Прикрепить файл</button>
+    <input type="file" id="fileIn" accept=".docx,.pdf,.txt,.md" hidden>
+    <span id="fileInfo"></span>
+    <button class="btn" id="bReview" title="Вставить в поле запроса задание на рецензирование статьи">📝 Рецензия статьи</button>
+  </div>
   <div class="in">
     <textarea id="prompt" placeholder="Ваш запрос… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
     <button class="btn primary" id="bSend" style="height:58px;padding:0 20px">Отправить</button>
@@ -121,8 +131,19 @@ const PROVIDERS = [
   { id:'deepseek', name:'DeepSeek', color:'var(--c-deepseek)', search:false },
   { id:'gemini',   name:'Gemini',   color:'var(--c-gemini)',   search:true },
   { id:'gigachat', name:'GigaChat', color:'var(--c-gigachat)', search:false, ru:true },
-  { id:'yandexgpt', name:'YandexGPT', color:'var(--c-yandexgpt)', search:false, ru:true }
+  { id:'yandexgpt', name:'YandexGPT', color:'var(--c-yandexgpt)', search:false, ru:true },
+  { id:'glm',      name:'GLM',      color:'var(--c-glm)',      search:false }
 ];
+// Модели OpenRouter (or1..or3) добавляются динамически — по ответу прокси на «Проверить связь».
+const OR_COLORS = ['#c0507a', '#4f8fbf', '#8a6fd1'];
+function syncDynamicProviders(){
+  for (let i = PROVIDERS.length - 1; i >= 0; i--) if (PROVIDERS[i].dyn) PROVIDERS.splice(i, 1);
+  const prov = (status && status.providers) || {};
+  Object.keys(prov).filter(k => /^or\d$/.test(k)).sort().forEach((k, i) => {
+    PROVIDERS.push({ id:k, name: prov[k].name || prov[k].model || k, color: OR_COLORS[i % OR_COLORS.length], search:false, dyn:true });
+    if (!(k in enabled)) enabled[k] = true;
+  });
+}
 const DEFAULT_SYSTEM = 'Ты независимый эксперт. Отвечай по-русски, по существу, без вступлений. Разделяй установленные факты и свои предположения. Ссылайся только на источники, в существовании которых уверен; если не уверен — так и напиши.';
 const $ = id => document.getElementById(id);
 const store = {
@@ -175,15 +196,18 @@ async function checkProxy(){
   if (proxyRuUrl()) tasks.push(probe(proxyRuUrl()).then(j => { statusRu = j; statusRuErr = ''; }, () => { statusRu = null; statusRuErr = 'Прокси РФ не отвечает: проверьте адрес функции и что она публичная.'; }));
   else { statusRu = null; statusRuErr = ''; }
   await Promise.all(tasks);
+  syncDynamicProviders();
   drawChips();
 }
 
 function drawChips(){
-  $('chips').innerHTML = PROVIDERS.map(p => {
+  const checked = !!(status || statusRu);
+  const showNa = !checked || store.get('synchat_showna', '0') === '1';
+  $('chips').innerHTML = PROVIDERS.filter(p => showNa || configured(p.id)).map(p => {
     const conf = configured(p.id);
     const on = enabled[p.id] && conf;
     const st = statusOf(p.id);
-    const model = conf ? st.providers[p.id].model + (routeRu(p.id) ? ' · РФ' : '') : (p.ru && !proxyRuUrl() && p.id === 'yandexgpt' ? 'нужен прокси РФ' : 'нет ключа в прокси');
+    const model = conf ? (p.dyn ? 'OpenRouter · бесплатно' : String(st.providers[p.id].model).split('/').pop() + (routeRu(p.id) ? ' · РФ' : '') + (st.providers[p.id].via ? ' · через ' + st.providers[p.id].via : '')) : (p.ru && !proxyRuUrl() && p.id === 'yandexgpt' ? 'нужен прокси РФ' : 'нет ключа в прокси');
     const s = $('search').checked && !p.search ? ' · без поиска' : '';
     return `<div class="chip ${conf ? (on ? '' : 'off') : 'na'}" data-p="${p.id}" title="${conf ? 'Нажмите, чтобы включить или выключить' : 'Ключ этой нейросети не добавлен в прокси'}">
       <span class="sw" style="background:${p.color}"></span><span class="dot" style="background:${on ? 'var(--ok)' : 'var(--muted)'}"></span>
@@ -199,9 +223,14 @@ function drawChips(){
   if (!proxyUrl() && !proxyRuUrl()) msg = 'Укажите адрес прокси (см. ai-proxy/README.md) и нажмите «Проверить связь».';
   else if (badCode) msg = '<span class="warn">Код доступа не принят' + (status && statusRu ? ' одним из прокси (код должен совпадать в Cloudflare и в Yandex Cloud)' : '') + '.</span>';
   else if (!status && !statusRu && !errs.length) msg = 'Связь не проверена.';
-  else msg = `Готовы к работе: ${active().length} из ${PROVIDERS.length}. ` + ($('search').checked ? 'Веб-поиск включён: у Claude, Gemini и Qwen ответ будет дольше и дороже.' : 'Веб-поиск выключен.');
+  else {
+    const na = PROVIDERS.filter(p => !configured(p.id)).length;
+    msg = `Готовы к работе: ${active().length} из ${PROVIDERS.length - na}. ` + ($('search').checked ? 'Веб-поиск включён: у Claude, Gemini и Qwen ответ будет дольше и дороже.' : 'Веб-поиск выключен.') +
+      (na ? ` <a href="#" id="toggleNa">${store.get('synchat_showna', '0') === '1' ? 'Скрыть' : 'Показать'} недоступные (${na})</a>` : '');
+  }
   if (errs.length) msg += ' <span class="warn">' + errs.map(esc).join(' ') + '</span>';
   $('status').innerHTML = msg;
+  if ($('toggleNa')) $('toggleNa').onclick = e => { e.preventDefault(); store.set('synchat_showna', store.get('synchat_showna', '0') === '1' ? '0' : '1'); drawChips(); };
   $('bSend').disabled = busy || !active().length;
 }
 
@@ -212,7 +241,7 @@ async function callProxy(pid, messages){
     const r = await fetch(isYC(base) ? base : base + '/chat', {
       method:'POST', signal: ctrl.signal,
       headers:{ 'Content-Type':'application/json', 'X-Access-Code': $('code').value.trim() },
-      body: JSON.stringify({ provider: pid, system: $('system').value, messages, json:false, search: $('search').checked && PROVIDERS.find(p => p.id === pid).search, maxTokens: 4000 })
+      body: JSON.stringify({ provider: pid, system: $('system').value, messages, json:false, search: $('search').checked && !!(PROVIDERS.find(p => p.id === pid) || {}).search, maxTokens: 8000 })
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
@@ -247,12 +276,110 @@ async function runTurn(turn, idx, pids, buildMsg){
   }));
 }
 
+// ---------- Прикреплённый документ ----------
+// Текст извлекается прямо в браузере: .docx — встроенной распаковкой ZIP, .pdf — библиотекой pdf.js (cdnjs), .txt/.md — как есть.
+// Документ уходит один раз, вместе с ближайшим запросом, и дальше остаётся в истории каждой модели.
+let attached = null;   // { name, text }
+const MAX_DOC = 120000;
+$('bAttach').onclick = () => $('fileIn').click();
+$('fileIn').onchange = async () => {
+  const f = $('fileIn').files[0]; $('fileIn').value = '';
+  if (!f) return;
+  $('fileInfo').textContent = 'Читаю ' + f.name + '…';
+  try {
+    const ext = f.name.toLowerCase().split('.').pop();
+    let text = ext === 'docx' ? await docxText(await readFile(f, 'buf'))
+             : ext === 'pdf'  ? await pdfText(await readFile(f, 'buf'))
+             : await readFile(f, 'text');
+    text = text.replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (!text) throw new Error('в файле не найден текст (возможно, это скан — нужен файл с текстовым слоем)');
+    if (text.length > MAX_DOC) { alert('Документ длиннее ' + MAX_DOC.toLocaleString('ru') + ' знаков (' + text.length.toLocaleString('ru') + '). Отправлю только начало. Лучше отправлять статью по разделам.'); text = text.slice(0, MAX_DOC); }
+    attached = { name: f.name, text };
+  } catch(e){ attached = null; alert('Не удалось прочитать файл: ' + e.message); }
+  drawAttach();
+};
+function readFile(f, kind){
+  return new Promise((ok, fail) => {
+    const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(new Error('файл не читается'));
+    kind === 'buf' ? r.readAsArrayBuffer(f) : r.readAsText(f, 'utf-8');
+  });
+}
+function drawAttach(){
+  $('fileInfo').innerHTML = attached
+    ? `<span class="file">📄 <b>${esc(attached.name)}</b> · ${attached.text.length.toLocaleString('ru')} знаков<span class="x" id="bDetach" title="Убрать файл">✕</span></span> уйдёт со следующим запросом`
+    : '';
+  if ($('bDetach')) $('bDetach').onclick = () => { attached = null; drawAttach(); };
+}
+$('bReview').onclick = () => {
+  $('prompt').value = 'Выступите рецензентом научного журнала из перечня ВАК. Оцените прикреплённую статью строго и предметно.\n' +
+    '1) Сильные стороны: что в статье действительно ново и доказано.\n' +
+    '2) Слабые стороны: логические разрывы, недоказанные утверждения, проблемы с методикой, выборкой, формулами и расчётами.\n' +
+    '3) Научная новизна и практическая значимость: заявлены ли они явно и подтверждаются ли текстом.\n' +
+    '4) Источники: нет ли устаревших, сомнительных или не относящихся к делу ссылок, каких работ не хватает.\n' +
+    '5) Конкретные правки: что переписать, с указанием раздела или цитаты.\n' +
+    'Итог — одна из оценок: «принять», «принять после доработки», «отклонить», с обоснованием.';
+  $('prompt').focus();
+};
+// Минимальный разбор ZIP: находим word/document.xml, распаковываем через DecompressionStream.
+async function docxText(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error('это не файл .docx');
+  let p = dv.getUint32(eocd + 16, true);
+  const n = dv.getUint16(eocd + 10, true);
+  for (let k = 0; k < n; k++) {
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true);
+    const off = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    if (name === 'word/document.xml') {
+      const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+      const raw = u8.subarray(start, start + csize);
+      let data = raw;
+      if (method === 8) data = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+      const xml = new DOMParser().parseFromString(new TextDecoder().decode(data), 'application/xml');
+      const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+      return Array.from(xml.getElementsByTagNameNS(W, 'p')).map(par => {
+        let t = '';
+        par.querySelectorAll('*').forEach(el => {
+          if (el.namespaceURI !== W) return;
+          if (el.localName === 't') t += el.textContent;
+          else if (el.localName === 'tab') t += '\t';
+          else if (el.localName === 'br') t += '\n';
+        });
+        return t;
+      }).join('\n');
+    }
+    p += 46 + nlen + xlen + clen;
+  }
+  throw new Error('в архиве нет word/document.xml');
+}
+async function pdfText(buf){
+  if (!window.pdfjsLib) await new Promise((ok, fail) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload = ok; sc.onerror = () => fail(new Error('не загрузилась библиотека чтения PDF (нужен интернет). Сохраните статью как .docx'));
+    document.head.appendChild(sc);
+  });
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const c = await (await doc.getPage(i)).getTextContent();
+    pages.push(c.items.map(it => it.str + (it.hasEOL ? '\n' : ' ')).join(''));
+  }
+  return pages.join('\n\n');
+}
+
 async function ask(){
   const text = $('prompt').value.trim();
   if (!text || busy || !active().length) return;
-  busy = true; $('prompt').value = ''; drawChips();
-  const turn = { kind:'ask', prompt:text, label:'Запрос', answers:{} }; turns.push(turn);
-  await runTurn(turn, turns.length - 1, active().map(p => p.id), () => text);
+  busy = true; $('prompt').value = '';
+  const doc = attached; attached = null; drawAttach(); drawChips();
+  const full = doc ? 'Прикреплённый документ «' + doc.name + '»:\n<<<\n' + doc.text + '\n>>>\n\n' + text : text;
+  const turn = { kind:'ask', prompt: doc ? '📄 ' + doc.name + ' (' + doc.text.length.toLocaleString('ru') + ' знаков)\n' + text : text, label:'Запрос', answers:{} }; turns.push(turn);
+  await runTurn(turn, turns.length - 1, active().map(p => p.id), () => full);
   busy = false; drawChips(); render();
 }
 
@@ -280,17 +407,39 @@ async function summarize(){
   const okIds = Object.keys(base.answers).filter(p => base.answers[p].state === 'ok');
   if (okIds.length < 2){ alert('Для сводки нужны ответы хотя бы двух нейросетей.'); return; }
   const lead = $('leadSel') ? $('leadSel').value : okIds[0];
+  const bigBro = !!($('bigBro') && $('bigBro').checked);
   if (!configured(lead)){ alert('Ведущая модель недоступна.'); return; }
   busy = true; drawChips();
-  const others = okIds.map((x, k) => `--- Эксперт ${LETTERS[k]} ---\n${base.answers[x].text}`).join('\n\n');
-  const prompt = 'Сведи ответы независимых экспертов на вопрос:\n«' + (turns[lastIndexOfKind('ask')] || base).prompt + '»\n\n' + others +
-    '\n\nСделай сводку согласия, не добавляя собственного мнения: 1) в чём эксперты согласны; 2) в чём расходятся (укажи, кто как считает, по буквам); 3) какие утверждения и источники человеку нужно проверить самому в первую очередь. В конце — таблица «утверждение | согласны | не согласны».';
-  const turn = { kind:'summary', prompt:'Сводка согласия', label:'Сводка согласия · ведущая модель: ' + pname(lead), answers:{}, lead }; turns.push(turn);
+  const prompt = summaryPrompt(base, okIds, bigBro);
+  const turn = { kind:'summary', prompt:'Сводка согласия', label:(bigBro ? 'Сводка и решение старшего брата' : 'Сводка согласия') + ' · ведущая модель: ' + pname(lead) + (okIds.includes(lead) ? '' : ' (не участвовала в ответах)'), answers:{}, lead }; turns.push(turn);
   turn.answers[lead] = { state:'loading', t0: Date.now() }; render();
   const t0 = Date.now();
   try { const j = await callProxy(lead, [{ role:'user', content: prompt }]); turn.answers[lead] = { state:'ok', text:j.text, model:j.model, ms: Date.now() - t0 }; }
   catch(e){ turn.answers[lead] = { state:'err', err:e.message, ms: Date.now() - t0 }; }
   busy = false; drawChips(); render();
+}
+// Сводка через подписку claude.ai: запрос копируется в буфер, человек вставляет его в обычный чат Claude.
+// API здесь не используется, поэтому платить отдельно не нужно.
+function summaryToClaudeAi(btn){
+  const i = lastAsk(); if (i < 0) return;
+  const base = turns[i];
+  const okIds = Object.keys(base.answers).filter(p => base.answers[p].state === 'ok');
+  if (okIds.length < 2){ alert('Для сводки нужны ответы хотя бы двух нейросетей.'); return; }
+  const text = summaryPrompt(base, okIds, !!($('bigBro') && $('bigBro').checked)) +
+    '\n\nУ экспертов не было доступа к интернету, они отвечали по памяти. Включи веб-поиск и проверь ключевые факты, цифры, нормы и источники, на которые они ссылаются. Для каждого укажи ссылку на первоисточник или пометку «не подтверждено». Найденные экспертами пробелы восполни свежими данными со ссылками.';
+  const done = () => { btn.textContent = '✅ Скопировано — вставьте в Claude (Ctrl+V)'; window.open('https://claude.ai/new', '_blank'); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e){ alert('Не удалось скопировать автоматически.'); }
+  ta.remove();
+}
+function summaryPrompt(base, okIds, bigBro){
+  const others = okIds.map((x, k) => `--- Эксперт ${LETTERS[k]} ---\n${base.answers[x].text}`).join('\n\n');
+  return 'Сведи ответы независимых экспертов на вопрос:\n«' + (turns[lastIndexOfKind('ask')] || base).prompt + '»\n\n' + others +
+    '\n\nСделай сводку согласия, не добавляя собственного мнения: 1) в чём эксперты согласны; 2) в чём расходятся (укажи, кто как считает, по буквам); 3) какие утверждения и источники человеку нужно проверить самому в первую очередь. Затем — таблица «утверждение | согласны | не согласны».' +
+    (bigBro ? '\n\nПосле таблицы — раздел «Итоговое решение ведущего». Ты ведущий эксперт с решающим голосом. По каждому спорному пункту прими решение. Если решение совпадает с большинством, достаточно краткого обоснования. Отступить от большинства можно только с проверяемым доводом: факт, норма, расчёт или источник, который человек сможет проверить. Каждое такое отступление пометь «⚖ вопреки большинству» и назови буквы экспертов, которые думали иначе. Если довода нет, оставь позицию большинства. В конце дай оценку уверенности в итоговом решении: высокая, средняя или низкая, и почему.' : '');
 }
 function lastIndexOfKind(k){ for (let i = turns.length - 1; i >= 0; i--) if (turns[i].kind === k) return i; return -1; }
 
@@ -336,7 +485,7 @@ function md(src){
 }
 
 function card(ti, pid, a, wide){
-  const p = PROVIDERS.find(x => x.id === pid);
+  const p = PROVIDERS.find(x => x.id === pid) || { id: pid, name: pid, color: 'var(--muted)' };
   const secs = a.state === 'loading' ? Math.round((Date.now() - a.t0) / 1000) : Math.round((a.ms || 0) / 100) / 10;
   const body = a.state === 'loading' ? '<div class="loading">думает…</div>' : a.state === 'err' ? esc('Ошибка: ' + a.err) : md(a.text);
   return `<div class="card ${a.state === 'err' ? 'err' : ''} ${wide ? 'wide' : ''}">
@@ -352,16 +501,24 @@ function render(){
   const last = lastAsk();
   feed.innerHTML = turns.map((t, ti) => {
     const pids = Object.keys(t.answers);
-    const head = t.kind === 'ask' ? `<div class="turn-label">Запрос</div><div class="user">${esc(t.prompt)}</div>` : `<div class="turn-label">${esc(t.label)}</div>` + (t.kind === 'summary' ? '<div class="hint warn" style="margin:0 0 4px">Сводку пишет одна из моделей-участниц, поэтому она может невольно склоняться к своему ответу. Решающее слово — за вами.</div>' : '');
+    const head = t.kind === 'ask' ? `<div class="turn-label">Запрос</div><div class="user">${esc(t.prompt)}</div>` : `<div class="turn-label">${esc(t.label)}</div>` + (t.kind === 'summary' ? '<div class="hint warn" style="margin:0 0 4px">Если ведущая модель сама отвечала на вопрос, она может невольно склоняться к своему ответу. Беспристрастнее назначить ведущей модель, которая в ответах не участвовала. Последнее слово остаётся за вами.</div>' : '');
     let tools = '';
     if (ti === last && !busy && pids.filter(p => t.answers[p].state === 'ok').length >= 2){
-      const opts = pids.filter(p => t.answers[p].state === 'ok' && configured(p)).map(p => `<option value="${p}">${pname(p)}</option>`).join('');
-      tools = `<div class="tools"><button class="btn" id="bR2">🔁 Раунд 2 (Дельфи)</button><label class="f">Ведущая модель <select id="leadSel">${opts}</select></label><button class="btn" id="bSum">🧭 Сводка согласия</button></div>`;
+      const okp = pids.filter(p => t.answers[p].state === 'ok');
+      const cands = PROVIDERS.map(p => p.id).filter(configured);
+      const want = store.get('synchat_lead', 'claude');
+      const sel = cands.includes(want) ? want : (okp.find(configured) || cands[0]);
+      const opts = cands.map(p => `<option value="${p}"${p === sel ? ' selected' : ''}>${pname(p)}${okp.includes(p) ? '' : ' — только модератор'}</option>`).join('');
+      const bb = store.get('synchat_bigbro', '1') === '1';
+      tools = `<div class="tools"><button class="btn" id="bR2">🔁 Раунд 2 (Дельфи)</button><label class="f">Ведущая модель <select id="leadSel">${opts}</select></label><label class="f" title="Ведущая модель не только сводит ответы, но и выносит итоговое решение. Против большинства — только с проверяемым доводом."><input type="checkbox" id="bigBro"${bb ? ' checked' : ''}> Старший брат: решающий голос</label><button class="btn" id="bSum">🧭 Сводка согласия</button><button class="btn" id="bSumAi" title="Запрос сводки копируется в буфер и открывается claude.ai. Работает по вашей подписке Claude, без API.">📋 Сводка в Claude.ai</button></div>`;
     }
     return `<section>${head}<div class="grid">${pids.map(pid => card(ti, pid, t.answers[pid], t.kind === 'summary')).join('')}</div>${tools}</section>`;
   }).join('');
   if ($('bR2')) $('bR2').onclick = round2;
   if ($('bSum')) $('bSum').onclick = summarize;
+  if ($('bSumAi')) $('bSumAi').onclick = () => summaryToClaudeAi($('bSumAi'));
+  if ($('leadSel')) $('leadSel').onchange = () => store.set('synchat_lead', $('leadSel').value);
+  if ($('bigBro')) $('bigBro').onchange = () => store.set('synchat_bigbro', $('bigBro').checked ? '1' : '0');
   feed.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.copy.split('|'); navigator.clipboard && navigator.clipboard.writeText(turns[ti].answers[pid].text).then(() => { b.textContent = 'Скопировано'; }, () => {}); });
   feed.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.retry.split('|'); retry(+ti, pid); });
 }
