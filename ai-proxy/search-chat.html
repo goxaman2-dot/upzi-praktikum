@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Поиск в 4 канала</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
+  --ok:#2e7d4f; --warn:#a86b12; --err:#b3362b; --user:#e8eef5;
+  --c-perplexity:#1f8a8a; --c-gemini:#3b6fd6; --c-perplexity_r:#b0367a; --c-deepseek:#5b4bc4;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
+  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-deepseek:#9d90f0;
+}}
+:root[data-theme="dark"]{
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
+  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-deepseek:#9d90f0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+.wrap{max-width:1500px;margin:0 auto;padding:16px}
+header.top{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:20px;margin:0;font-weight:650;letter-spacing:.2px}
+h1 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+label.f{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+input[type=text],input[type=password],select,textarea{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+input[type=text]{min-width:260px;flex:1}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--panel2);cursor:pointer;user-select:none}
+.chip.off{opacity:.45}
+.chip.na{opacity:.35;cursor:not-allowed}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.chip b{font-weight:600}
+.chip small{color:var(--muted);font-size:11.5px}
+.chip .sw{width:4px;align-self:stretch;border-radius:3px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:8px}
+.warn{color:var(--warn)}
+.feed{display:flex;flex-direction:column;gap:18px;margin:8px 0 200px}
+.turn-label{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.user{background:var(--user);border:1px solid var(--line);border-radius:12px;padding:10px 14px;white-space:pre-wrap}
+.user .scope{display:inline-block;font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 6px;margin-left:6px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0;border-top:3px solid var(--line)}
+.card .h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.card .h .m{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .h .t{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+.card .b{padding:10px 12px;overflow-wrap:anywhere;font-size:14px;max-height:560px;overflow:auto}
+.card .f{display:flex;gap:6px;padding:6px 10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.card .f .btn{padding:3px 9px;font-size:12px}
+.card.err .b{color:var(--err)}
+.card.wide{grid-column:1/-1}
+.card .xtra{padding:0 12px 8px;font-size:12.5px}
+.card .xtra details{margin-top:6px}
+.card .xtra ol{margin:.3em 0;padding-left:1.4em}
+.card .xtra pre{white-space:pre-wrap;background:var(--panel2);border-radius:8px;padding:8px;max-height:300px;overflow:auto;font:12.5px/1.5 "Segoe UI",system-ui,sans-serif;color:var(--muted)}
+.loading{color:var(--muted);font-style:italic}
+.b p{margin:.45em 0}.b h1,.b h2,.b h3,.b h4{font-size:15px;margin:.8em 0 .3em}
+.b ul,.b ol{margin:.3em 0;padding-left:1.3em}
+.b code{background:var(--panel2);border-radius:4px;padding:1px 4px;font-family:Consolas,"Courier New",monospace;font-size:12.5px}
+.b pre{background:var(--panel2);border-radius:8px;padding:8px;overflow:auto}
+.b pre code{background:none;padding:0}
+.b table{border-collapse:collapse;margin:.5em 0;font-size:13px;display:block;overflow-x:auto}
+.b th,.b td{border:1px solid var(--line);padding:4px 7px;text-align:left;vertical-align:top}
+a{color:var(--accent)}
+sup.c a{text-decoration:none;font-size:11px;padding:0 1px}
+.pool{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:hidden}
+.pool > summary{padding:9px 12px;font-size:13.5px;color:var(--text);font-weight:600}
+.pool .pw{overflow-x:auto;border-top:1px solid var(--line)}
+.pool table{border-collapse:collapse;width:100%;font-size:13px}
+.pool th,.pool td{border-bottom:1px solid var(--line);padding:5px 10px;text-align:left;vertical-align:top}
+.pool th{color:var(--muted);font-weight:500;font-size:12px}
+.pool td.n{color:var(--muted);font-variant-numeric:tabular-nums;width:36px}
+.pool td.d{color:var(--muted);white-space:nowrap}
+.pool tr.multi td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+.badge{display:inline-block;font-size:11px;border-radius:5px;padding:0 6px;margin:1px 3px 1px 0;color:#fff;white-space:nowrap}
+.pool .pf{display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);align-items:center}
+.composer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);padding:14px 16px 16px}
+.composer .in{max-width:1500px;margin:0 auto;display:flex;gap:10px;align-items:flex-end}
+.attach{max-width:1500px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.attach .file{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px;color:inherit}
+.attach .file b{color:var(--text)}
+.attach .x{cursor:pointer;margin-left:6px}
+.composer textarea{flex:1;min-height:58px;max-height:240px;resize:vertical;padding:10px 12px;border-radius:12px;background:var(--panel)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+details summary{cursor:pointer;color:var(--muted);font-size:13px}
+details textarea{width:100%;min-height:70px;margin-top:6px}
+.empty{color:var(--muted);text-align:center;padding:40px 10px;border:1px dashed var(--line);border-radius:12px}
+@media (max-width:640px){ input[type=text]{min-width:0;width:100%} .wrap{padding:12px} .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Поиск в 4 канала <small>Perplexity · Perplexity Reasoning · Gemini · DeepSeek-аналитик</small></h1>
+    <div class="row">
+      <button class="btn" id="bExport" title="Сохранить сессию вместе со сводным списком источников в Markdown">💾 Сохранить сессию</button>
+      <button class="btn" id="bClear">🗑 Новая сессия</button>
+    </div>
+  </header>
+
+  <section class="bar">
+    <div class="row">
+      <label class="f" title="Новый воркер search-worker: все четыре канала через OpenRouter">Прокси поиска <input type="text" id="proxyRu" placeholder="https://upzi-search.<имя>.workers.dev"></label>
+      <label class="f" title="Необязательно. Прокси синтетического чата: запасной путь для DeepSeek и Gemini">Прокси чата <input type="text" id="proxy" placeholder="https://upzi-ai.<имя>.workers.dev"></label>
+      <label class="f">Код доступа <input type="password" id="code" style="width:130px"></label>
+      <button class="btn" id="bCheck">Проверить связь</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label class="f">Где искать <select id="scope"></select></label>
+      <label class="f" title="Аналитик: DeepSeek ждёт результаты трёх поисковиков и сверяет их. Сам по себе: отвечает параллельно, по памяти, без поиска.">DeepSeek <select id="dsMode"><option value="judge">аналитик найденного</option><option value="solo">отвечает сам (без поиска)</option></select></label>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="hint" id="status">Укажите адреса прокси и нажмите «Проверить связь».</div>
+    <details style="margin-top:8px">
+      <summary>Инструкция для поисковых каналов</summary>
+      <textarea id="system"></textarea>
+    </details>
+  </section>
+
+  <div class="feed" id="feed"><div class="empty" id="empty">Задайте вопрос внизу. Perplexity Sonar Pro, Perplexity Reasoning и Gemini с веб-поиском ищут одновременно и независимо. Затем DeepSeek Think получает их ответы и общий список найденных источников, сверяет их между собой и выдаёт итог со ссылками на этот список. Источники, которые нашли два канала и больше, отмечены зелёной чертой.</div></div>
+</div>
+
+<div class="composer">
+  <div class="attach">
+    <button class="btn" id="bAttach" title="Документ .docx, .pdf, .txt, .md. Поисковикам уйдёт начало текста, DeepSeek — весь текст.">📎 Прикрепить файл</button>
+    <input type="file" id="fileIn" accept=".docx,.pdf,.txt,.md" hidden>
+    <span id="fileInfo"></span>
+    <button class="btn" id="bLit" title="Вставить в поле запроса шаблон поиска литературы для статьи">📚 Подбор литературы</button>
+    <button class="btn" id="bCheckRefs" title="Вставить шаблон проверки списка литературы на реальность публикаций">🔎 Проверка ссылок</button>
+  </div>
+  <div class="in">
+    <textarea id="prompt" placeholder="Поисковый запрос… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
+    <button class="btn primary" id="bSend" style="height:58px;padding:0 20px">Искать</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+// prefer: через какой прокси вызывать канал, если ключ есть в обоих
+const CH = [
+  { id:'perplexity',   name:'Perplexity',     sub:'Sonar Pro',            color:'var(--c-perplexity)',   kind:'search', prefer:'ru' },
+  { id:'perplexity_r', name:'Perplexity Reasoning', sub:'sonar-reasoning-pro', color:'var(--c-perplexity_r)', kind:'search', prefer:'ru' },
+  { id:'gemini',       name:'Gemini + веб', sub:'OpenRouter', color:'var(--c-gemini)',       kind:'search', prefer:'ru' },
+  { id:'deepseek',     name:'DeepSeek Think', sub:'аналитик',             color:'var(--c-deepseek)',     kind:'judge',  prefer:'ru' }
+];
+const SCOPES = {
+  all:     { label:'Весь интернет' },
+  science: { label:'Научные публикации', academic:true,
+             hint:'Ищи прежде всего рецензируемые научные статьи, монографии, диссертации и документы ВАК; из российских источников в первую очередь cyberleninka.ru, elibrary.ru, dissercat.com. Для каждой публикации указывай авторов, год, журнал и ссылку.' },
+  law:     { label:'Нормативные акты РФ', domains:['consultant.ru','garant.ru','pravo.gov.ru','publication.pravo.gov.ru','fstec.ru','digital.gov.ru','government.ru','kremlin.ru'],
+             hint:'Опирайся только на действующие нормативные правовые акты РФ и официальные разъяснения регуляторов. Указывай вид акта, номер, дату и редакцию.' }
+};
+const DEFAULT_SYSTEM = 'Ты поисковый аналитик. Отвечай по-русски, по существу, без вступлений. Каждое фактическое утверждение подкрепляй ссылкой на найденный источник. Отделяй установленные факты от оценок. Если источников мало или они противоречат друг другу, скажи об этом прямо.';
+const JUDGE_SYSTEM = 'Ты эксперт-аналитик, который проверяет результаты нескольких поисковых систем. Ты не придумываешь источники: ссылаешься только на пронумерованный список, который тебе дали. Отвечаешь по-русски, строго и по существу.';
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(e){} },
+  sget(k, d){ try { const v = sessionStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } },
+  sset(k, v){ try { sessionStorage.setItem(k, v); } catch(e){} }
+};
+let status = null, statusErr = '', statusRu = null, statusRuErr = '';
+let enabled = {};
+try { enabled = JSON.parse(store.get('s4_enabled', '{}')) || {}; } catch(e){ enabled = {}; }
+CH.forEach(p => { if (!(p.id in enabled)) enabled[p.id] = true; });
+const turns = [];   // {prompt, scope, answers:{pid:{state,text,sources,reasoning,model,ms,err}}, sent:{}, pool:[]}
+let busy = false;
+const EMPTY_HTML = $('empty').outerHTML;
+
+$('scope').innerHTML = Object.keys(SCOPES).map(k => `<option value="${k}">${SCOPES[k].label}</option>`).join('');
+$('proxy').value = store.get('synchat_proxy', '');          // те же адреса, что в синтетическом чате
+$('proxyRu').value = store.get('s4_proxy_search', '');
+$('code').value = store.sget('synchat_code', '');
+$('scope').value = store.get('s4_scope', 'all');
+$('dsMode').value = store.get('s4_dsmode', 'judge');
+$('system').value = store.get('s4_system', DEFAULT_SYSTEM);
+$('proxy').onchange = () => { store.set('synchat_proxy', $('proxy').value.trim()); checkProxy(); };
+$('proxyRu').onchange = () => { store.set('s4_proxy_search', $('proxyRu').value.trim()); checkProxy(); };
+$('code').onchange = () => { store.sset('synchat_code', $('code').value.trim()); checkProxy(); };
+$('scope').onchange = () => store.set('s4_scope', $('scope').value);
+$('dsMode').onchange = () => { store.set('s4_dsmode', $('dsMode').value); drawChips(); };
+$('system').onchange = () => store.set('s4_system', $('system').value);
+$('bCheck').onclick = checkProxy;
+$('bSend').onclick = () => ask();
+$('prompt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); ask(); } });
+$('bClear').onclick = () => { if (turns.length && !confirm('Начать новую сессию? Текущие результаты будут удалены (сохраните их, если нужны).')) return; turns.length = 0; render(); };
+$('bExport').onclick = exportSession;
+
+const proxyUrl = () => $('proxy').value.trim().replace(/\/+$/, '');
+const proxyRuUrl = () => $('proxyRu').value.trim().replace(/\/+$/, '');   // прокси поиска
+const isYC = base => /yandexcloud\.net/.test(base);
+const stOk = (st, id) => !!(st && st.providers && st.providers[id] && st.providers[id].configured && (!st.accessCodeRequired || st.accessCodeOk));
+// Маршрут канала: 'ru' (Yandex Cloud), 'cf' (Cloudflare) или null.
+// Gemini может прийти и из Cloudflare-прокси как одна из моделей OpenRouter (or1…or3), если там указана модель Gemini.
+function cfAlias(id){
+  if (id !== 'gemini' || !status || !status.providers || stOk(status, id)) return null;
+  return Object.keys(status.providers).find(k => /^or\d$/.test(k) && stOk(status, k) && /gemini/i.test(status.providers[k].model || '')) || null;
+}
+const provFor = (id, r) => r === 'cf' && cfAlias(id) ? cfAlias(id) : id;
+function route(id){
+  const p = CH.find(x => x.id === id) || {};
+  const ru = stOk(statusRu, id), cf = stOk(status, id) || !!cfAlias(id);
+  if (p.prefer === 'ru') return ru ? 'ru' : cf ? 'cf' : null;
+  return cf ? 'cf' : ru ? 'ru' : null;
+}
+const configured = id => !!route(id);
+const active = () => CH.filter(p => enabled[p.id] && configured(p.id));
+const ch = id => CH.find(p => p.id === id) || { id, name:id, color:'var(--muted)' };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function checkProxy(){
+  $('status').textContent = 'Проверка связи…';
+  const code = $('code').value.trim();
+  const probe = async base => { const r = await fetch(isYC(base) ? base : base + '/status', { headers: { 'X-Access-Code': code } }); return r.json(); };
+  const tasks = [];
+  if (proxyUrl()) tasks.push(probe(proxyUrl()).then(j => { status = j; statusErr = ''; }, () => { status = null; statusErr = 'Прокси Cloudflare не отвечает: нет интернета, неверный адрес или сайт заблокирован в этой сети.'; }));
+  else { status = null; statusErr = ''; }
+  if (proxyRuUrl()) tasks.push(probe(proxyRuUrl()).then(j => { statusRu = j; statusRuErr = ''; }, () => { statusRu = null; statusRuErr = 'Прокси поиска не отвечает. Откройте его адрес с /status на конце в отдельной вкладке: там должен быть JSON со списком providers.'; }));
+  else { statusRu = null; statusRuErr = ''; }
+  await Promise.all(tasks);
+  drawChips();
+}
+
+function chanModel(id){
+  const r = route(id); if (!r) return '';
+  const st = r === 'ru' ? statusRu : status, pv = st.providers[provFor(id, r)] || {};
+  let m = String(pv.model || '').split('/').pop() + (r === 'ru' ? '' : ' · прокси чата') + (pv.via ? ' · ' + pv.via : '');
+  if (id === 'deepseek' && !pv.thinking) m += ' · без режима рассуждения';
+  return m;
+}
+function needText(id){
+  return 'нужен прокси поиска с ключом OpenRouter';
+}
+
+function drawChips(){
+  $('chips').innerHTML = CH.map(p => {
+    const conf = configured(p.id), on = enabled[p.id] && conf;
+    const sub = conf ? chanModel(p.id) : needText(p.id);
+    const role = p.kind === 'judge' ? ($('dsMode').value === 'judge' ? ' · сверяет найденное' : ' · по памяти') : ' · поиск';
+    return `<div class="chip ${conf ? (on ? '' : 'off') : 'na'}" data-p="${p.id}" title="${conf ? 'Нажмите, чтобы включить или выключить канал' : esc(sub)}">
+      <span class="sw" style="background:${p.color}"></span><span class="dot" style="background:${on ? 'var(--ok)' : 'var(--muted)'}"></span>
+      <b>${p.name}</b><small>${esc(sub)}${conf ? role : ''}</small></div>`;
+  }).join('');
+  $('chips').querySelectorAll('.chip').forEach(el => el.onclick = () => {
+    const id = el.dataset.p; if (!configured(id)) return;
+    enabled[id] = !enabled[id]; store.set('s4_enabled', JSON.stringify(enabled)); drawChips();
+  });
+  let msg;
+  const errs = [statusErr, statusRuErr].filter(Boolean);
+  const badCode = [status, statusRu].some(st => st && st.accessCodeRequired && !st.accessCodeOk);
+  if (!proxyUrl() && !proxyRuUrl()) msg = 'Укажите адрес прокси поиска и нажмите «Проверить связь».';
+  else if (badCode){
+    const bad = [[statusRu, 'прокси поиска (upzi-search)'], [status, 'прокси чата (upzi-ai)']].filter(x => x[0] && x[0].accessCodeRequired && !x[0].accessCodeOk).map(x => x[1]);
+    msg = '<span class="warn">Код доступа не принял ' + bad.join(' и ') + '. Код на сайте должен совпадать со значением ACCESS_CODE в настройках этого воркера.</span>';
+  }
+  else if (!status && !statusRu && !errs.length) msg = 'Связь не проверена.';
+  else {
+    const s = active().filter(p => p.kind === 'search').length;
+    msg = `Поисковых каналов готово: ${s} из 3. ` + (configured('deepseek') ? (enabled.deepseek ? 'DeepSeek Think подключён.' : 'DeepSeek выключен.') : 'DeepSeek не подключён.');
+  }
+  if (errs.length) msg += ' <span class="warn">' + errs.map(esc).join(' ') + '</span>';
+  $('status').innerHTML = msg;
+  $('bSend').disabled = busy || !active().length;
+}
+
+async function callProxy(pid, messages, extra){
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 300000);
+  try {
+    const r0 = route(pid); if (!r0) throw new Error('канал не подключён');
+    const base = r0 === 'ru' ? proxyRuUrl() : proxyUrl();
+    const sys = pid === 'deepseek' && extra && extra.judge ? JUDGE_SYSTEM : $('system').value + (extra && extra.hint ? '\n' + extra.hint : '');
+    const r = await fetch(isYC(base) ? base : base + '/chat', {
+      method:'POST', signal: ctrl.signal,
+      headers:{ 'Content-Type':'application/json', 'X-Access-Code': $('code').value.trim() },
+      body: JSON.stringify(Object.assign({ provider: provFor(pid, r0), system: sys, messages, json:false, search: pid === 'gemini', maxTokens: 8000 }, extra && extra.params || {}))
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
+    return j;
+  } catch(e){
+    throw new Error(e.name === 'AbortError' ? 'нет ответа за 5 минут' : (e.message || 'запрос заблокирован сетью'));
+  } finally { clearTimeout(timer); }
+}
+
+// История канала — только его собственные прошлые ответы, последние 3 хода.
+function historyFor(pid, uptoIdx){
+  const msgs = [];
+  for (let i = Math.max(0, uptoIdx - 3); i < uptoIdx; i++){
+    const t = turns[i], a = t.answers[pid];
+    if (a && a.state === 'ok'){ msgs.push({ role:'user', content: (t.sent && t.sent[pid]) || t.prompt }); msgs.push({ role:'assistant', content: a.text }); }
+  }
+  return msgs;
+}
+
+// ---------- Источники ----------
+function normUrl(u){
+  try {
+    const x = new URL(u);
+    [...x.searchParams.keys()].forEach(k => { if (/^(utm_|yclid|gclid|fbclid|from$|ref$)/i.test(k)) x.searchParams.delete(k); });
+    x.hash = '';
+    return (x.host.replace(/^www\./, '') + x.pathname.replace(/\/+$/, '') + (x.search || '')).toLowerCase();
+  } catch(e){ return String(u).toLowerCase(); }
+}
+const domainOf = u => { try { return new URL(u).host.replace(/^www\./, ''); } catch(e){ return ''; } };
+function urlsInText(t){
+  const out = [], seen = new Set();
+  (String(t || '').match(/https?:\/\/[^\s)\]>"'«»]+/g) || []).forEach(u => { u = u.replace(/[.,;:]+$/, ''); if (!seen.has(u)){ seen.add(u); out.push({ url:u, title:'' }); } });
+  return out;
+}
+function channelSources(pid, a){
+  if (!a || a.state !== 'ok') return [];
+  return (a.sources && a.sources.length) ? a.sources : urlsInText(a.text);
+}
+// Общий реестр: без повторов, с пометкой, какие каналы нашли источник. Сначала то, что нашли несколько каналов.
+function buildPool(turn){
+  const map = new Map(); let order = 0;
+  CH.filter(p => p.kind === 'search').forEach(p => {
+    channelSources(p.id, turn.answers[p.id]).forEach(s => {
+      if (!s.url) return;
+      const k = normUrl(s.url);
+      if (!map.has(k)) map.set(k, { url:s.url, title:s.title || '', date:s.date || '', ch:[], used:false, o: order++ });
+      const e = map.get(k);
+      if (!e.ch.includes(p.id)) e.ch.push(p.id);
+      if (!e.title && s.title) e.title = s.title;
+      if (s.used) e.used = true;
+    });
+  });
+  turn.pool = [...map.values()].sort((a, b) => (b.ch.length - a.ch.length) || (a.o - b.o));
+}
+
+function judgePrompt(turn, full){
+  const parts = CH.filter(p => p.kind === 'search' && turn.answers[p.id] && turn.answers[p.id].state === 'ok')
+    .map(p => `=== ${p.name} ===\n${turn.answers[p.id].text.slice(0, 12000)}`).join('\n\n');
+  const list = turn.pool.slice(0, 80).map((s, i) => `[${i + 1}] ${s.title || '(без названия)'} — ${s.url} (нашли: ${s.ch.map(x => ch(x).name).join(', ')})`).join('\n');
+  return 'Вопрос пользователя:\n«' + full + '»\n\nПоисковые системы ответили независимо друг от друга.\n\n' + parts +
+    '\n\nОбщий список найденных источников (номера сквозные):\n' + (list || '(источников нет)') +
+    '\n\nЗадание:\n1) Сведи найденное в один ответ на вопрос. Каждое утверждение помечай номером источника из общего списка в квадратных скобках, например [3].\n' +
+    '2) Отдельным разделом «Расхождения» перечисли, в чём поисковики противоречат друг другу, и какая версия лучше подтверждена источниками.\n' +
+    '3) Раздел «Надёжность источников»: какие из списка первичны и авторитетны (рецензируемые журналы, нормативные акты, официальные сайты), какие вторичны или сомнительны.\n' +
+    '4) Раздел «Без подтверждения»: утверждения поисковиков, у которых нет источника в списке.\n' +
+    'Не добавляй источники, которых нет в списке. Если данных недостаточно для вывода, так и напиши.';
+}
+
+async function runChannel(turn, idx, pid, content, extra){
+  turn.sent[pid] = content;
+  turn.answers[pid] = { state:'loading', t0: Date.now() }; render();
+  const t0 = Date.now();
+  try {
+    const j = await callProxy(pid, historyFor(pid, idx).concat([{ role:'user', content }]), extra);
+    turn.answers[pid] = { state:'ok', text: j.text || '(пустой ответ)', sources: j.sources || null, reasoning: j.reasoning || '', queries: j.queries || null, model: j.model, ms: Date.now() - t0 };
+  } catch(e){ turn.answers[pid] = { state:'err', err: e.message, ms: Date.now() - t0 }; }
+  render();
+}
+
+function scopeExtra(pid, scope){
+  const sc = SCOPES[scope] || {};
+  const params = {};
+  if (pid === 'perplexity' || pid === 'perplexity_r'){ if (sc.academic) params.academic = true; if (sc.domains) params.domains = sc.domains; }
+  return { hint: sc.hint || '', params };
+}
+
+async function ask(){
+  const text = $('prompt').value.trim();
+  if (!text || busy || !active().length) return;
+  busy = true; $('prompt').value = '';
+  const doc = attached; attached = null; drawAttach(); drawChips();
+  const scope = $('scope').value, mode = $('dsMode').value;
+  // Поисковикам — вопрос и начало документа; DeepSeek — весь документ.
+  const forSearch = doc ? 'Фрагмент прикреплённого документа «' + doc.name + '»:\n<<<\n' + doc.text.slice(0, 6000) + '\n>>>\n\n' + text : text;
+  const full = doc ? 'Прикреплённый документ «' + doc.name + '»:\n<<<\n' + doc.text + '\n>>>\n\n' + text : text;
+  const turn = { prompt: doc ? '📄 ' + doc.name + ' (' + doc.text.length.toLocaleString('ru') + ' знаков)\n' + text : text, question: text, full, scope, mode, answers:{}, sent:{}, pool:[] };
+  turns.push(turn); const idx = turns.length - 1;
+  const ids = active().map(p => p.id);
+  const searchIds = ids.filter(id => ch(id).kind === 'search');
+  const ds = ids.includes('deepseek');
+  if (ds && mode === 'judge' && searchIds.length) turn.answers.deepseek = { state:'wait' };
+  const jobs = searchIds.map(id => runChannel(turn, idx, id, forSearch, scopeExtra(id, scope)));
+  if (ds && (mode === 'solo' || !searchIds.length)) jobs.push(runChannel(turn, idx, 'deepseek', full, {}));
+  await Promise.all(jobs);
+  buildPool(turn);
+  if (ds && mode === 'judge' && searchIds.length){
+    const okN = searchIds.filter(id => turn.answers[id].state === 'ok').length;
+    if (okN) await runChannel(turn, idx, 'deepseek', judgePrompt(turn, full), { judge:true });
+    else turn.answers.deepseek = { state:'err', err:'ни один поисковый канал не ответил — сверять нечего', ms:0 };
+  }
+  busy = false; drawChips(); render();
+}
+
+async function retry(ti, pid){
+  if (busy) return; const t = turns[ti]; busy = true; drawChips();
+  const judge = pid === 'deepseek' && t.mode === 'judge' && Object.keys(t.answers).some(id => ch(id).kind === 'search');
+  let content = t.sent[pid] || t.full;
+  if (judge){ buildPool(t); content = judgePrompt(t, t.full); }
+  await runChannel(t, ti, pid, content, judge ? { judge:true } : scopeExtra(pid, t.scope));
+  buildPool(t);
+  busy = false; drawChips(); render();
+}
+
+// ---------- Прикреплённый документ (как в синтетическом чате) ----------
+let attached = null;
+const MAX_DOC = 120000;
+$('bAttach').onclick = () => $('fileIn').click();
+$('fileIn').onchange = async () => {
+  const f = $('fileIn').files[0]; $('fileIn').value = '';
+  if (!f) return;
+  $('fileInfo').textContent = 'Читаю ' + f.name + '…';
+  try {
+    const ext = f.name.toLowerCase().split('.').pop();
+    let text = ext === 'docx' ? await docxText(await readFile(f, 'buf'))
+             : ext === 'pdf'  ? await pdfText(await readFile(f, 'buf'))
+             : await readFile(f, 'text');
+    text = text.replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (!text) throw new Error('в файле не найден текст (возможно, это скан — нужен файл с текстовым слоем)');
+    if (text.length > MAX_DOC) { alert('Документ длиннее ' + MAX_DOC.toLocaleString('ru') + ' знаков. Отправлю только начало.'); text = text.slice(0, MAX_DOC); }
+    attached = { name: f.name, text };
+  } catch(e){ attached = null; alert('Не удалось прочитать файл: ' + e.message); }
+  drawAttach();
+};
+function readFile(f, kind){
+  return new Promise((ok, fail) => {
+    const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(new Error('файл не читается'));
+    kind === 'buf' ? r.readAsArrayBuffer(f) : r.readAsText(f, 'utf-8');
+  });
+}
+function drawAttach(){
+  $('fileInfo').innerHTML = attached
+    ? `<span class="file">📄 <b>${esc(attached.name)}</b> · ${attached.text.length.toLocaleString('ru')} знаков<span class="x" id="bDetach" title="Убрать файл">✕</span></span> уйдёт со следующим запросом`
+    : '';
+  if ($('bDetach')) $('bDetach').onclick = () => { attached = null; drawAttach(); };
+}
+$('bLit').onclick = () => {
+  $('scope').value = 'science'; store.set('s4_scope', 'science');
+  $('prompt').value = 'Подбери научные публикации последних пяти лет по теме: «…».\n' +
+    'Нужны статьи из рецензируемых журналов (перечень ВАК, RSCI, Scopus, Web of Science), монографии и диссертации. ' +
+    'Для каждой работы: авторы, название, журнал, год, том и номер, страницы, DOI или ссылка, и одной фразой — что в ней доказано по теме.';
+  $('prompt').focus();
+};
+$('bCheckRefs').onclick = () => {
+  $('prompt').value = 'Проверь, существуют ли в действительности публикации из списка ниже. Для каждой укажи: найдена или нет, ссылку на страницу журнала, eLibrary или DOI, совпадают ли авторы, год, журнал и страницы. Отдельно отметь записи, которые выглядят выдуманными.\n\n<вставьте список литературы>';
+  $('prompt').focus();
+};
+async function docxText(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error('это не файл .docx');
+  let p = dv.getUint32(eocd + 16, true);
+  const n = dv.getUint16(eocd + 10, true);
+  for (let k = 0; k < n; k++) {
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true);
+    const off = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    if (name === 'word/document.xml') {
+      const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+      const raw = u8.subarray(start, start + csize);
+      let data = raw;
+      if (method === 8) data = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+      const xml = new DOMParser().parseFromString(new TextDecoder().decode(data), 'application/xml');
+      const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+      return Array.from(xml.getElementsByTagNameNS(W, 'p')).map(par => {
+        let t = '';
+        par.querySelectorAll('*').forEach(el => {
+          if (el.namespaceURI !== W) return;
+          if (el.localName === 't') t += el.textContent;
+          else if (el.localName === 'tab') t += '\t';
+          else if (el.localName === 'br') t += '\n';
+        });
+        return t;
+      }).join('\n');
+    }
+    p += 46 + nlen + xlen + clen;
+  }
+  throw new Error('в архиве нет word/document.xml');
+}
+async function pdfText(buf){
+  if (!window.pdfjsLib) await new Promise((ok, fail) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload = ok; sc.onerror = () => fail(new Error('не загрузилась библиотека чтения PDF (нужен интернет). Сохраните документ как .docx'));
+    document.head.appendChild(sc);
+  });
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const c = await (await doc.getPage(i)).getTextContent();
+    pages.push(c.items.map(it => it.str + (it.hasEOL ? '\n' : ' ')).join(''));
+  }
+  return pages.join('\n\n');
+}
+
+// ---------- Markdown со ссылками-сносками [n] ----------
+function md(src, cites){
+  const blocks = []; let s = String(src || '').replace(/\r/g, '');
+  s = s.replace(/```[\w-]*\n([\s\S]*?)```/g, (m, code) => { blocks.push('<pre><code>' + esc(code) + '</code></pre>'); return '\u0000' + (blocks.length - 1) + '\u0000'; });
+  const cite = (m, n) => { const c = cites && cites[+n - 1]; return c ? `<sup class="c"><a href="${esc(c.url)}" target="_blank" rel="noopener" title="${esc(c.title || c.url)}">[${n}]</a></sup>` : m; };
+  const inline = t => esc(t)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[(\d{1,3})\](?!\()/g, cite)
+    .replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (m, pre, u) => { const tail = (u.match(/[.,;:!?]+$/) || [''])[0]; u = u.slice(0, u.length - tail.length); return pre + '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>' + tail; });
+  const lines = s.split('\n'); let out = '', i = 0;
+  while (i < lines.length){
+    const l = lines[i];
+    if (/^\u0000\d+\u0000$/.test(l.trim())){ out += blocks[+l.trim().slice(1, -1)]; i++; continue; }
+    if (/^\s*\|.*\|\s*$/.test(l) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1])){
+      const cells = r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => inline(c.trim()));
+      out += '<table><thead><tr>' + cells(l).map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>';
+      i += 2; while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ out += '<tr>' + cells(lines[i]).map(c => '<td>' + c + '</td>').join('') + '</tr>'; i++; }
+      out += '</tbody></table>'; continue;
+    }
+    let m;
+    if ((m = l.match(/^(#{1,4})\s+(.*)$/))){ out += `<h${m[1].length + 1}>` + inline(m[2]) + `</h${m[1].length + 1}>`; i++; continue; }
+    if (/^\s*[-*•]\s+/.test(l)){ out += '<ul>'; while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*[-*•]\s+/, '')) + '</li>'; i++; } out += '</ul>'; continue; }
+    if (/^\s*\d+[.)]\s+/.test(l)){ const start = parseInt(l.trim(), 10) || 1; out += '<ol start="' + start + '">'; while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ out += '<li>' + inline(lines[i].replace(/^\s*\d+[.)]\s+/, '')) + '</li>'; i++; } out += '</ol>'; continue; }
+    if (!l.trim()){ i++; continue; }
+    let para = [l]; i++;
+    while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|\s*[-*•]\s|\s*\d+[.)]\s|\s*\|)/.test(lines[i]) && !/^\u0000/.test(lines[i].trim())){ para.push(lines[i]); i++; }
+    out += '<p>' + para.map(inline).join('<br>') + '</p>';
+  }
+  return out;
+}
+
+function card(ti, pid, a, turn){
+  const p = ch(pid);
+  const wide = pid === 'deepseek' && turn.mode === 'judge';
+  const secs = a.state === 'loading' ? Math.round((Date.now() - a.t0) / 1000) : Math.round((a.ms || 0) / 100) / 10;
+  const cites = pid === 'deepseek' ? (turn.mode === 'judge' ? turn.pool : null) : channelSources(pid, a);
+  const body = a.state === 'wait' ? '<div class="loading">ждёт результаты поисковиков…</div>'
+             : a.state === 'loading' ? '<div class="loading">' + (pid === 'deepseek' && turn.mode === 'judge' ? 'сверяет источники и рассуждает…' : 'ищет…') + '</div>'
+             : a.state === 'err' ? esc('Ошибка: ' + a.err) : md(a.text, cites);
+  let xtra = '';
+  if (a.state === 'ok'){
+    const src = pid === 'deepseek' ? [] : channelSources(pid, a);
+    if (src.length) xtra += `<details><summary>Источники канала (${src.length})</summary><ol>${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title || domainOf(s.url) || s.url)}</a>${s.used ? ' · <span style="color:var(--ok)">использован в ответе</span>' : ''}${s.date ? ' · ' + esc(s.date) : ''}</li>`).join('')}</ol></details>`;
+    if (a.reasoning) xtra += `<details><summary>Ход рассуждения DeepSeek</summary><pre>${esc(a.reasoning)}</pre></details>`;
+  }
+  return `<div class="card ${a.state === 'err' ? 'err' : ''} ${wide ? 'wide' : ''}" style="border-top-color:${p.color}">
+    <div class="h"><b>${p.name}</b><span class="m">${esc(a.model || '')}</span><span class="t" data-t0="${a.state === 'loading' ? a.t0 : ''}">${a.state === 'wait' ? '' : secs + ' с'}</span></div>
+    <div class="b">${body}</div>${xtra ? '<div class="xtra">' + xtra + '</div>' : ''}
+    <div class="f">${a.state === 'ok' ? `<button class="btn" data-copy="${ti}|${pid}">Копировать</button>` : ''}${a.state === 'ok' || a.state === 'err' ? `<button class="btn" data-retry="${ti}|${pid}">Повторить</button>` : ''}</div>
+  </div>`;
+}
+
+function poolHtml(ti, turn){
+  if (!turn.pool || !turn.pool.length) return '';
+  const multi = turn.pool.filter(s => s.ch.length > 1).length;
+  const rows = turn.pool.map((s, i) => `<tr class="${s.ch.length > 1 ? 'multi' : ''}"><td class="n">${i + 1}</td>
+    <td><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title || s.url)}</a>${s.date ? ' <span style="color:var(--muted)">· ' + esc(s.date) + '</span>' : ''}</td>
+    <td class="d">${esc(domainOf(s.url))}</td>
+    <td>${s.ch.map(x => `<span class="badge" style="background:${ch(x).color}">${esc(ch(x).name)}</span>`).join('')}</td></tr>`).join('');
+  return `<details class="pool" open><summary>Сводный список источников: ${turn.pool.length}, из них найдены несколькими каналами: ${multi}</summary>
+    <div class="pw"><table><thead><tr><th>№</th><th>Источник</th><th>Сайт</th><th>Кто нашёл</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="pf"><button class="btn" data-pool="${ti}">Копировать список</button><span>Номера совпадают со ссылками [n] в ответе DeepSeek. Каналы иногда ошибаются в названиях: перед включением в статью откройте источник.</span></div></details>`;
+}
+
+function render(){
+  const feed = $('feed');
+  if (!turns.length){ feed.innerHTML = EMPTY_HTML; return; }
+  feed.innerHTML = turns.map((t, ti) => {
+    const order = CH.map(p => p.id).filter(id => t.answers[id]);
+    const head = `<div class="turn-label">Запрос</div><div class="user">${esc(t.prompt)}<span class="scope">${esc(SCOPES[t.scope].label)}</span></div>`;
+    const searchCards = order.filter(id => !(id === 'deepseek' && t.mode === 'judge')).map(id => card(ti, id, t.answers[id], t)).join('');
+    const judge = t.answers.deepseek && t.mode === 'judge' ? `<div class="grid">${card(ti, 'deepseek', t.answers.deepseek, t)}</div>` : '';
+    const tools = ti === turns.length - 1 && !busy && Object.values(t.answers).some(a => a.state === 'ok')
+      ? `<div class="tools"><button class="btn" id="bSumAi" title="Запрос с ответами каналов копируется в буфер, открывается claude.ai. Работает по подписке, без API.">📋 Перепроверить в Claude.ai</button></div>` : '';
+    return `<section>${head}<div class="grid">${searchCards}</div>${poolHtml(ti, t)}${judge}${tools}</section>`;
+  }).join('');
+  if ($('bSumAi')) $('bSumAi').onclick = () => toClaudeAi($('bSumAi'));
+  feed.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.copy.split('|'); copyText(turns[ti].answers[pid].text, () => { b.textContent = 'Скопировано'; }); });
+  feed.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => { const [ti, pid] = b.dataset.retry.split('|'); retry(+ti, pid); });
+  feed.querySelectorAll('[data-pool]').forEach(b => b.onclick = () => copyText(poolText(turns[+b.dataset.pool]), () => { b.textContent = 'Скопировано'; }));
+}
+setInterval(() => { document.querySelectorAll('.t[data-t0]').forEach(el => { const t0 = +el.dataset.t0; if (t0) el.textContent = Math.round((Date.now() - t0) / 1000) + ' с'; }); }, 1000);
+
+function poolText(t){ return (t.pool || []).map((s, i) => `${i + 1}. ${s.title || '(без названия)'} — ${s.url} [${s.ch.map(x => ch(x).name).join(', ')}]`).join('\n'); }
+function copyText(text, done){
+  const fb = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch(e){ alert('Не удалось скопировать автоматически.'); } ta.remove(); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fb); else fb();
+}
+function toClaudeAi(btn){
+  const t = turns[turns.length - 1]; if (!t) return;
+  if (!t.pool.length) buildPool(t);
+  const text = judgePrompt(t, t.question) + '\n\nВключи веб-поиск и сам открой ключевые источники из списка: подтверди или опровергни каждое важное утверждение, для каждого источника укажи, существует ли он и совпадают ли выходные данные.';
+  copyText(text, () => { btn.textContent = '✅ Скопировано — вставьте в Claude (Ctrl+V)'; window.open('https://claude.ai/new', '_blank'); });
+}
+
+function exportSession(){
+  if (!turns.length){ alert('Сессия пуста.'); return; }
+  let out = '# Поиск в 4 канала — ' + new Date().toLocaleString('ru-RU') + '\n\n';
+  turns.forEach(t => {
+    out += '## Запрос (' + SCOPES[t.scope].label + ')\n\n' + t.prompt + '\n\n';
+    CH.map(p => p.id).filter(id => t.answers[id]).forEach(pid => {
+      const a = t.answers[pid];
+      out += '### ' + ch(pid).name + (a.model ? ' (' + a.model + ')' : '') + '\n\n' + (a.state === 'ok' ? a.text : 'Ошибка: ' + (a.err || 'нет ответа')) + '\n\n';
+    });
+    if (t.pool && t.pool.length) out += '### Сводный список источников\n\n' + poolText(t) + '\n\n';
+  });
+  const blob = new Blob([out], { type:'text/markdown;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'поиск_4_канала_' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.md';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+drawChips();
+if (proxyUrl() || proxyRuUrl()) checkProxy();
+</script>
+</body>
+</html>
