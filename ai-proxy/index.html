@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Нейросети: старт</title>
+<meta name="robots" content="noindex">
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
+  --search:#2a8f7a; --chat:#6a4fc4;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --search:#5cc4ad; --chat:#a993ee;
+}}
+:root[data-theme="dark"]{
+  --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
+  --search:#5cc4ad; --chat:#a993ee;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:24px;margin:0 0 4px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 24px;font-size:14.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 20px 18px;border-top:5px solid var(--c);transition:transform .12s,border-color .12s}
+a.card:hover{transform:translateY(-2px);border-color:var(--c)}
+a.card h2{margin:0 0 6px;font-size:19px;color:var(--c)}
+a.card p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+a.card .go{font-weight:600;font-size:14px;color:var(--c)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tags span{font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px}
+section{margin-top:28px}
+h3{font-size:16px;margin:0 0 10px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+ol{margin:0;padding-left:22px}
+ol li{margin:4px 0}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{color:var(--accent);text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:14px}
+.links a:hover{border-color:var(--accent)}
+.note{font-size:13.5px;color:var(--muted);margin-top:10px}
+kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Мои нейросети</h1>
+  <p class="sub">Одна закладка на любом компьютере: дома, в СКФУ, в РТУ МИРЭА. Ничего устанавливать не нужно.</p>
+
+  <div class="grid">
+    <a class="card" href="search-chat.html" style="--c:var(--search)">
+      <h2>Умный поиск в 4 канала</h2>
+      <p>Три поисковые нейросети ищут параллельно, четвёртая сверяет найденное и сводит источники.</p>
+      <div class="tags"><span>Perplexity</span><span>Perplexity Reasoning</span><span>Gemini + веб</span><span>DeepSeek Think</span></div>
+      <span class="go">Открыть поиск →</span>
+    </a>
+    <a class="card" href="synthetic-chat.html" style="--c:var(--chat)">
+      <h2>Синтетический чат</h2>
+      <p>Один вопрос получают сразу несколько языковых моделей; раунд Дельфи, сводка согласия, рецензия статьи.</p>
+      <div class="tags"><span>Claude</span><span>DeepSeek</span><span>Qwen</span><span>Gemini</span><span>GigaChat</span><span>YandexGPT</span></div>
+      <span class="go">Открыть чат →</span>
+    </a>
+  </div>
+
+  <section>
+    <h3>Первый запуск на новом компьютере (один раз)</h3>
+    <div class="box">
+      <ol>
+        <li>Откройте нужный инструмент карточкой выше.</li>
+        <li>Вставьте адрес прокси в поле вверху страницы (для поиска: «Прокси поиска», для чата: «Прокси» и при необходимости «Прокси РФ»).</li>
+        <li>Введите код доступа и нажмите «Проверить связь». Каналы должны стать активными.</li>
+        <li>Нажмите <kbd>Ctrl</kbd>+<kbd>D</kbd>, чтобы сохранить эту страницу в закладки.</li>
+      </ol>
+      <p class="note">Адреса прокси браузер запоминает отдельно на каждом компьютере, код доступа хранится только до закрытия вкладки. На общем компьютере в аудитории закрывайте вкладку после работы.</p>
+    </div>
+  </section>
+
+  <section>
+    <h3>Рядом</h3>
+    <div class="links">
+      <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+      <a href="https://chat.deepseek.com/" target="_blank" rel="noopener">DeepSeek</a>
+      <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener">Баланс OpenRouter</a>
+      <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">Cloudflare (прокси)</a>
+      <a href="../" target="_blank" rel="noopener">Практикум УПЗИ</a>
+    </div>
+  </section>
+</div>
+</body>
+</html>
