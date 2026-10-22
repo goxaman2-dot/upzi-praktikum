@@ -8,7 +8,7 @@
 :root{
   --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
   --ok:#2e7d4f; --warn:#a86b12; --err:#b3362b; --user:#e8eef5;
-  --c-claude:#c46a3c; --c-qwen:#6a4fc4; --c-deepseek:#2f6fd0; --c-gemini:#2a8f7a; --c-gigachat:#3f9a3a; --c-yandexgpt:#d4a017; --c-glm:#1f4e8c;
+  --c-claude:#c46a3c; --c-qwen:#6a4fc4; --c-deepseek:#2f6fd0; --c-gemini:#2a8f7a; --c-gigachat:#3f9a3a; --c-yandexgpt:#d4a017; --c-glm:#1f4e8c; --c-namazu:#c2185b;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
@@ -132,7 +132,8 @@ const PROVIDERS = [
   { id:'gemini',   name:'Gemini',   color:'var(--c-gemini)',   search:true },
   { id:'gigachat', name:'GigaChat', color:'var(--c-gigachat)', search:false, ru:true },
   { id:'yandexgpt', name:'YandexGPT', color:'var(--c-yandexgpt)', search:false, ru:true },
-  { id:'glm',      name:'GLM',      color:'var(--c-glm)',      search:false }
+  { id:'glm',      name:'GLM',      color:'var(--c-glm)',      search:false },
+  { id:'namazu',   name:'Namazu',   color:'var(--c-namazu)',   search:true }
 ];
 // Модели OpenRouter (or1..or3) добавляются динамически — по ответу прокси на «Проверить связь».
 const OR_COLORS = ['#c0507a', '#4f8fbf', '#8a6fd1'];
