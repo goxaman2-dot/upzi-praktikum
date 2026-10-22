@@ -10,6 +10,7 @@
 //   PERPLEXITY_R_MODEL (по умолчанию perplexity/sonar-reasoning-pro)
 //   GEMINI_MODEL       (по умолчанию google/gemini-3.8-flash, веб-поиск включается суффиксом :online)
 //   DEEPSEEK_MODEL     (по умолчанию deepseek/deepseek-v4.1-flash, режим рассуждения включён)
+//   NAMAZU_MODEL       (по умолчанию sakana/sakana-namazu, веб-поиск — как у Gemini)
 // Адреса: GET /status — какие каналы готовы; POST /chat — запрос.
 // =====================================================================
 const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -26,7 +27,8 @@ const models = env => ({
   perplexity:   env.PERPLEXITY_MODEL   || 'perplexity/sonar-pro',
   perplexity_r: env.PERPLEXITY_R_MODEL || 'perplexity/sonar-reasoning-pro',
   gemini:      (env.GEMINI_MODEL       || 'google/gemini-3.8-flash').replace(/:online$/, ''),
-  deepseek:     env.DEEPSEEK_MODEL     || 'deepseek/deepseek-v4.1-flash'
+  deepseek:     env.DEEPSEEK_MODEL     || 'deepseek/deepseek-v4.1-flash',
+  namazu:      (env.NAMAZU_MODEL       || 'sakana/sakana-namazu').replace(/:online$/, '')
 });
 
 function cleanSites(list, max) {
@@ -121,7 +123,7 @@ async function callPerplexity(env, o, body, model) {
   return { text: st.text, reasoning: m.reasoning || st.think || '', sources: sourcesOf(j), model: j.model || model };
 }
 
-async function callGemini(env, o, model) {
+async function callGemini(env, o, model, label) {
   const msgs = (o.system ? [{ role: 'system', content: o.system }] : []).concat(o.messages);
   const tries = [{ model: model + ':online' }, { model, plugins: [{ id: 'web' }] }, { model, noSearch: true }];
   let last;
@@ -139,7 +141,7 @@ async function callGemini(env, o, model) {
     // Неподдерживаемый вариант или повторный сбой — пробуем следующий способ включить поиск.
     if (r.status !== 400 && r.status !== 404 && r.status !== 422 && !transient(r.status)) break;
   }
-  throw new Error(errText('Gemini (' + model + ')', last.status, last.text));
+  throw new Error(errText((label || 'Gemini') + ' (' + model + ')', last.status, last.text));
 }
 
 async function callDeepSeek(env, o, model) {
@@ -166,7 +168,7 @@ export default {
       const pv = (id, extra) => Object.assign({ configured: key, model: M[id], via: 'OpenRouter' }, extra || {});
       return json(200, {
         ok: true, accessCodeRequired: !!env.ACCESS_CODE, accessCodeOk: codeOk,
-        providers: { perplexity: pv('perplexity'), perplexity_r: pv('perplexity_r'), gemini: pv('gemini'), deepseek: pv('deepseek', { thinking: true }) }
+        providers: { perplexity: pv('perplexity'), perplexity_r: pv('perplexity_r'), gemini: pv('gemini'), namazu: pv('namazu'), deepseek: pv('deepseek', { thinking: true }) }
       });
     }
     if (req.method !== 'POST' || !/\/chat\/?$/.test(url.pathname)) return json(404, { error: 'используйте GET /status или POST /chat' });
@@ -187,6 +189,7 @@ export default {
         case 'perplexity':   return json(200, await callPerplexity(env, o, body, M.perplexity));
         case 'perplexity_r': return json(200, await callPerplexity(env, o, body, M.perplexity_r));
         case 'gemini':       return json(200, await callGemini(env, o, M.gemini));
+        case 'namazu':       return json(200, await callGemini(env, o, M.namazu, 'Namazu'));
         case 'deepseek':     return json(200, await callDeepSeek(env, o, M.deepseek));
         default:             return json(400, { error: 'неизвестный канал: ' + body.provider });
       }

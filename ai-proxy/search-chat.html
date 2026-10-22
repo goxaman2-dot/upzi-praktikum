@@ -8,17 +8,17 @@
 :root{
   --bg:#f6f5f2; --panel:#ffffff; --panel2:#f0eee9; --line:#dedad2; --text:#1e1d1a; --muted:#6b6860; --accent:#2f5d8a; --accent-ink:#ffffff;
   --ok:#2e7d4f; --warn:#a86b12; --err:#b3362b; --user:#e8eef5;
-  --c-perplexity:#1f8a8a; --c-gemini:#3b6fd6; --c-perplexity_r:#b0367a; --c-deepseek:#5b4bc4;
+  --c-perplexity:#1f8a8a; --c-gemini:#3b6fd6; --c-perplexity_r:#b0367a; --c-namazu:#c2185b; --c-deepseek:#5b4bc4;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
   --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
-  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-deepseek:#9d90f0;
+  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-namazu:#f06292; --c-deepseek:#9d90f0;
 }}
 :root[data-theme="dark"]{
   --bg:#16171a; --panel:#1f2024; --panel2:#26282d; --line:#34363d; --text:#e8e6e1; --muted:#9a978f; --accent:#7fa8d6; --accent-ink:#0f1114;
   --ok:#5fbf86; --warn:#e0a648; --err:#ef7466; --user:#24303d;
-  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-deepseek:#9d90f0;
+  --c-perplexity:#4cc2c2; --c-gemini:#7ea3ef; --c-perplexity_r:#e57ab4; --c-namazu:#f06292; --c-deepseek:#9d90f0;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
@@ -152,6 +152,7 @@ const CH = [
   { id:'perplexity',   name:'Perplexity',     sub:'Sonar Pro',            color:'var(--c-perplexity)',   kind:'search', prefer:'ru' },
   { id:'perplexity_r', name:'Perplexity Reasoning', sub:'sonar-reasoning-pro', color:'var(--c-perplexity_r)', kind:'search', prefer:'ru' },
   { id:'gemini',       name:'Gemini + веб', sub:'OpenRouter', color:'var(--c-gemini)',       kind:'search', prefer:'ru' },
+  { id:'namazu',       name:'Namazu + веб', sub:'Sakana · OpenRouter', color:'var(--c-namazu)', kind:'search', prefer:'ru' },
   { id:'deepseek',     name:'DeepSeek Think', sub:'аналитик',             color:'var(--c-deepseek)',     kind:'judge',  prefer:'ru' }
 ];
 const SCOPES = {
@@ -267,7 +268,7 @@ function drawChips(){
   else if (!status && !statusRu && !errs.length) msg = 'Связь не проверена.';
   else {
     const s = active().filter(p => p.kind === 'search').length;
-    msg = `Поисковых каналов готово: ${s} из 3. ` + (configured('deepseek') ? (enabled.deepseek ? 'DeepSeek Think подключён.' : 'DeepSeek выключен.') : 'DeepSeek не подключён.');
+    msg = `Поисковых каналов готово: ${s} из ${CH.filter(p => p.kind === 'search').length}. ` + (configured('deepseek') ? (enabled.deepseek ? 'DeepSeek Think подключён.' : 'DeepSeek выключен.') : 'DeepSeek не подключён.');
   }
   if (errs.length) msg += ' <span class="warn">' + errs.map(esc).join(' ') + '</span>';
   $('status').innerHTML = msg;
@@ -283,7 +284,7 @@ async function callProxy(pid, messages, extra){
     const r = await fetch(isYC(base) ? base : base + '/chat', {
       method:'POST', signal: ctrl.signal,
       headers:{ 'Content-Type':'application/json', 'X-Access-Code': $('code').value.trim() },
-      body: JSON.stringify(Object.assign({ provider: provFor(pid, r0), system: sys, messages, json:false, search: pid === 'gemini', maxTokens: 8000 }, extra && extra.params || {}))
+      body: JSON.stringify(Object.assign({ provider: provFor(pid, r0), system: sys, messages, json:false, search: pid === 'gemini' || pid === 'namazu', maxTokens: 8000 }, extra && extra.params || {}))
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
